@@ -50,8 +50,8 @@
 
 @media (max-width: 980px) {
   .Header {
-    background: #000;
-    height: auto;
+    background: #000!important;
+    height: auto!important;
 
     .desktopMenu {
       display: none !important;

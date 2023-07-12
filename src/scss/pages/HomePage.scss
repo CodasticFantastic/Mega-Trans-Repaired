@@ -1,6 +1,7 @@
-@use "../abstracts/colors" as colors;
+@use "../abstracts";
 
 .HeroSection {
+  margin-top: -120px;
   width: 100%;
   height: 500px;
   position: relative;
@@ -16,7 +17,7 @@
   }
 
   .CTA {
-    background-color: colors.$transparent-bg;
+    background-color: abstracts.$transparent-bg;
     width: 220px;
     height: 40px;
     padding: 1em 2em;
@@ -38,7 +39,7 @@
   }
 
   .CTA:hover {
-    background-color: colors.$transparent-bg-hover;
+    background-color: abstracts.$transparent-bg-hover;
   }
 }
 
@@ -66,14 +67,14 @@
       }
 
       .cardTitle {
-        color: colors.$text-secondary;
+        color: abstracts.$text-secondary;
         font-size: 1.5rem;
         text-align: center;
         margin: 0.5em;
       }
 
       .cardDescription {
-        color: colors.$text-primary;
+        color: abstracts.$text-primary;
         font-size: 0.8rem;
         text-align: center;
         margin: 0.5em;
@@ -82,22 +83,12 @@
     }
 
     .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-      border: 2px solid transparent;
-      background: colors.$cyan-gradient-border;
-      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-      -webkit-mask: linear-gradient(#fff 0 0) padding-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
+      @include abstracts.gradientBorder;
     }
   }
 
   .underOffer {
-    color: colors.$text-primary;
+    color: abstracts.$text-primary;
     font-size: 1.5rem;
     text-align: center;
     font-weight: 600;
@@ -129,7 +120,7 @@
       align-items: center;
 
       .hintTitle {
-        color: colors.$text-secondary;
+        color: abstracts.$text-secondary;
         font-size: 2rem;
         text-align: center;
         margin: 0.5em;
@@ -144,7 +135,7 @@
         }
 
         p {
-          color: colors.$text-primary;
+          color: abstracts.$text-primary;
           font-size: 0.9rem;
           text-align: center;
           margin-left: 1em;
@@ -154,7 +145,7 @@
   }
 
   .benefitsTitle {
-    color: colors.$text-primary;
+    color: abstracts.$text-primary;
     margin-top: 1.5em;
     margin-bottom: 1.5em;
     font-size: 1.5rem;
@@ -182,7 +173,7 @@
         }
 
         p {
-          color: colors.$text-primary;
+          color: abstracts.$text-primary;
           font-size: 1.3rem;
           margin-left: 0.4em;
         }
@@ -211,30 +202,20 @@
 
       a {
         text-decoration: none;
-        color: colors.$text-primary;
+        color: abstracts.$text-primary;
         font-size: 1.2rem;
         font-weight: 500;
       }
     }
 
     .CTA::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 50px;
-      border: 2px solid transparent;
-      background: colors.$cyan-gradient-border;
-      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-      -webkit-mask: linear-gradient(#fff 0 0) padding-box,
-        linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
+      @include abstracts.gradientBorder(50px);
     }
 
     .CTA:hover {
-      background: colors.$cyan-gradient-border;
+      background: abstracts.$cyan-gradient-border;
       a {
-        color: colors.$black;
+        color: abstracts.$black;
         font-weight: 600;
       }
     }
@@ -251,7 +232,7 @@
     .left {
       width: 560px;
       .priceInfo {
-        color: colors.$text-primary;
+        color: abstracts.$text-primary;
         font-size: 1.2rem;
         font-weight: 400;
       }
@@ -265,7 +246,7 @@
       align-items: center;
 
       .title {
-        color: colors.$text-secondary;
+        color: abstracts.$text-secondary;
         font-size: 1.2rem;
         margin-bottom: 0.5em;
         text-align: center;
@@ -309,7 +290,7 @@
     }
 
     p {
-      color: colors.$text-primary;
+      color: abstracts.$text-primary;
       font-size: 1rem;
       font-weight: 400;
     }
@@ -334,7 +315,7 @@
 
       .info {
         text-decoration: none;
-        color: colors.$text-primary;
+        color: abstracts.$text-primary;
       }
     }
   }

@@ -17,11 +17,14 @@ body {
   overflow-x: hidden;
 }
 
+main {
+  margin-top: 120px;
+  min-height: calc(100dvh - 202px - 120px - 60px);
+}
+
 img {
   width: 100%;
   object-fit: cover;
   height: auto;
   display: block;
 }
-
-

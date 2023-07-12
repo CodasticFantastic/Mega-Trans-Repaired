@@ -1,10 +1,10 @@
-@use "../abstracts/colors" as colors;
+@use "../abstracts";
 
 // Desktop Header
 .Header {
   height: 120px;
   width: 100%;
-  background: colors.$black-gradient-down;
+  background: abstracts.$black-gradient-down;
   display: flex;
   position: absolute;
   top: 0;
@@ -38,12 +38,12 @@
             margin-left: 20px;
             a {
               text-decoration: none;
-              color: colors.$transparent-text;
+              color: abstracts.$transparent-text;
               font-size: 18px;
               transition: 0.4s ease-in-out;
             }
             a:hover {
-              color: colors.$white;
+              color: abstracts.$white;
               font-size: 20px;
             }
           }
@@ -58,17 +58,17 @@
         border: none;
         height: 32px;
         padding: 0 20px;
-        background-color: colors.$transparent-bg;
+        background-color: abstracts.$transparent-bg;
         border-radius: 50px;
         font-size: 14px;
         transition: 0.4s ease-in-out;
         a {
-          color: colors.$white;
+          color: abstracts.$white;
           text-decoration: none;
         }
       }
       .placeOrder:hover {
-        background-color: colors.$transparent-bg-hover;
+        background-color: abstracts.$transparent-bg-hover;
       }
     }
   }
@@ -117,17 +117,17 @@
             border: none;
             height: 32px;
             padding: 0 20px;
-            background-color: colors.$transparent-bg;
+            background-color: abstracts.$transparent-bg;
             border-radius: 50px;
             font-size: 14px;
             transition: 0.4s ease-in-out;
             a {
-              color: colors.$white;
+              color: abstracts.$white;
               text-decoration: none;
             }
           }
           .placeOrder:hover {
-            background-color: colors.$transparent-bg-hover;
+            background-color: abstracts.$transparent-bg-hover;
           }
         }
 
@@ -161,7 +161,7 @@
           justify-content: center;
           a {
             margin: auto;
-            color: colors.$white;
+            color: abstracts.$white;
             text-decoration: none;
             font-size: 18px;
             transition: 0.4s ease-in-out;

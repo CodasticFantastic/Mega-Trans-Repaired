@@ -11,12 +11,14 @@ export default function Header() {
     <header className="Header">
       <div className="desktopMenu container">
         <div className="leftSide">
-          <Image
-            className="logo"
-            src={Logo}
-            alt="Logo firmy Mega-Trans, Transport Gabarytów"
-            priority
-          />
+          <Link href="/">
+            <Image
+              className="logo"
+              src={Logo}
+              alt="Logo firmy Mega-Trans, Transport Gabarytów"
+              priority
+            />
+          </Link>
           <nav className="navigation">
             <ul>
               <li>
@@ -43,12 +45,14 @@ export default function Header() {
       </div>
       <div className="mobileMenu container">
         <div className="logo">
-          <Image
-            className="logo"
-            src={Logo}
-            alt="Logo firmy Mega-Trans, Transport Gabarytów"
-            priority
-          />
+          <Link href="/">
+            <Image
+              className="logo"
+              src={Logo}
+              alt="Logo firmy Mega-Trans, Transport Gabarytów"
+              priority
+            />
+          </Link>
         </div>
         <div className="row">
           <SearchForPackage />
