@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import Logo from "@/images/LogoWhite.png";
-import MenuIcon from "@/images/icons/MenuIcon.png";
+import MenuIcon from "@/images/icons/menuIcon.png";
 
 import SearchForPackage from "@/components/SearchForPackage";
 
