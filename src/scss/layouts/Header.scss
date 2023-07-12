@@ -76,6 +76,9 @@
 
 // Mobile Navigation
 .Header {
+  position: fixed;
+  top: 0;
+  left: 0;
   height: auto;
   background: unset;
   background-color: abstracts.$black;
