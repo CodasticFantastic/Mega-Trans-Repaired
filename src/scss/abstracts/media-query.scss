@@ -40,31 +40,5 @@
 }
 
 //Header media query
-@media (min-width: 980px) {
-  .Header {
-    .mobileMenu {
-      display: none !important;
-    }
-  }
-}
 
-@media (max-width: 980px) {
-  .Header {
-    background: #000!important;
-    height: auto!important;
-
-    .desktopMenu {
-      display: none !important;
-    }
-  }
-}
-
-@media (max-width: 400px) {
-  .SearchForPackage {
-    button {
-      background-position: 6px center;
-      background-size: 16px;
-    }
-  }
-}
 
