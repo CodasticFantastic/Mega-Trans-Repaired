@@ -23,6 +23,7 @@ export async function POST(req) {
     street,
   } = await req.json();
 
+  // Connect to Prisma
   const prisma = new PrismaClient();
 
   try {
@@ -50,7 +51,7 @@ export async function POST(req) {
     });
     if (userExists) throw new Error("User already exists");
 
-    // //Hash Password
+    // //If user does not exist, Hash Password
     const salt = await Bcrypt.genSalt(10);
     const hashedPassword = await Bcrypt.hash(password, salt);
 
@@ -72,8 +73,11 @@ export async function POST(req) {
     await prisma.$disconnect();
     return NextResponse.json({
       email: user.email,
+      phone: user.phone,
+      nip: user.nip,
+      city: user.city,
+      street: user.address,
       companyName: user.company,
-      id: user.id,
       token: generateToken(user.id),
     });
     
@@ -88,26 +92,3 @@ export async function POST(req) {
   }
 }
 
-// return NextResponse.json({
-//   id: User._id,
-//   name: User.name,
-//   email: User.email,
-//   token: generateToken(User._id),
-// });
-
-//     return new Response(
-//       JSON.stringify({
-//         email,
-//       }),
-//       {
-//         status: 200,
-//       }
-//     );
-//   } catch (error) {
-//     console.log(error);
-//     return new Response(JSON.stringify({ error: error.message }), {
-//       status: 400,
-//       headers: { "Content-Type": "application/json" },
-//     });
-//   }
-// }
