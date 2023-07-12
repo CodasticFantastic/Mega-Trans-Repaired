@@ -26,7 +26,7 @@ export default function Footer() {
           </div>
           <div className="row">
             <p className="bold">Usługi</p>
-            <p>Transport Części Samochodowych</p>
+            <p>Transport Części <br/>Samochodowych</p>
             <p>Transport Gabarytów</p>
             <p>Transport Paczek</p>
             <p>Transport Palet</p>

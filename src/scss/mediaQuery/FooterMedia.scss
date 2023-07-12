@@ -1,0 +1,60 @@
+@media (max-width: 860px){
+    footer{
+
+        .AnimatedWaves{
+            top: 200px;
+        }
+
+        .up{
+            // flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+
+            .logo{
+                width: 33%;
+            }
+
+            .row{
+                width: 33%;
+                align-items: center;
+            }
+        }
+    }
+}
+
+@media (max-width: 520px){
+    footer{
+        .AnimatedWaves{
+            top: 690px;
+        }
+
+        .up{
+            flex-direction: column;
+            justify-content: center;
+
+            .logo{
+                width: 100%;
+            }
+
+            .row{
+                margin-top: 15px;
+                width: 100%;
+                align-items: center;
+
+                p, a{
+                    width: 150px;
+                    text-align: left;
+                } 
+            }
+        }
+
+        .down{
+            margin-top: 20px;
+            flex-direction: column;
+            align-items: center;
+            :nth-child(2){
+                text-align: center;
+            }
+        }
+    }
+}
