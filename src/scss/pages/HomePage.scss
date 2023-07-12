@@ -1,0 +1,354 @@
+@use "../abstracts/colors" as colors;
+
+.HeroSection {
+  width: 100%;
+  height: 500px;
+  position: relative;
+
+  .heroImg {
+    height: 100%;
+  }
+
+  .AnimatedWaves {
+    margin-top: -110px;
+    position: relative;
+    height: 280px;
+  }
+
+  .CTA {
+    background-color: colors.$transparent-bg;
+    width: 220px;
+    height: 40px;
+    padding: 1em 2em;
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    margin-top: auto;
+    margin-bottom: 120px;
+    z-index: 1000;
+    transition: 0.4s ease-in-out;
+    cursor: pointer;
+  }
+
+  .CTA:hover {
+    background-color: colors.$transparent-bg-hover;
+  }
+}
+
+.OfferSection {
+  margin-top: 140px;
+  width: 100%;
+
+  .offerCards {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+
+    .card {
+      position: relative;
+      width: 30%;
+      height: auto;
+      padding: 1.2em;
+
+      .cardIcon {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 10px auto;
+      }
+
+      .cardTitle {
+        color: colors.$text-secondary;
+        font-size: 1.5rem;
+        text-align: center;
+        margin: 0.5em;
+      }
+
+      .cardDescription {
+        color: colors.$text-primary;
+        font-size: 0.8rem;
+        text-align: center;
+        margin: 0.5em;
+        text-align: center;
+      }
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      background: colors.$cyan-gradient-border;
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+  }
+
+  .underOffer {
+    color: colors.$text-primary;
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+  }
+}
+
+.ServiceSection {
+  width: 100%;
+
+  .service {
+    display: flex;
+
+    .imageSection {
+      width: 40%;
+      height: 420px;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .hintSection {
+      width: 60%;
+      padding: 0 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .hintTitle {
+        color: colors.$text-secondary;
+        font-size: 2rem;
+        text-align: center;
+        margin: 0.5em;
+      }
+
+      .hint {
+        display: flex;
+        align-items: center;
+        img {
+          width: 26px;
+          height: 26px;
+        }
+
+        p {
+          color: colors.$text-primary;
+          font-size: 0.9rem;
+          text-align: center;
+          margin-left: 1em;
+        }
+      }
+    }
+  }
+
+  .benefitsTitle {
+    color: colors.$text-primary;
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    font-size: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .benefitsSection {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .benefits {
+      .benefit {
+        display: flex;
+        align-items: center;
+        width: 400px;
+        margin-top: 15px;
+        transition: 0.2s ease-in-out;
+        cursor: default;
+
+        img {
+          width: 26px;
+          height: 26px;
+        }
+
+        p {
+          color: colors.$text-primary;
+          font-size: 1.3rem;
+          margin-left: 0.4em;
+        }
+      }
+
+      .benefit:hover {
+        transform: translateY(-5px);
+      }
+    }
+
+    .benefitsImg {
+      margin-left: 40px;
+      width: 320px;
+    }
+
+    .CTA {
+      width: 220px;
+      height: 40px;
+      margin: 20px auto;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 30px;
+      cursor: pointer;
+
+      a {
+        text-decoration: none;
+        color: colors.$text-primary;
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+    }
+
+    .CTA::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50px;
+      border: 2px solid transparent;
+      background: colors.$cyan-gradient-border;
+      mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) padding-box,
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    .CTA:hover {
+      background: colors.$cyan-gradient-border;
+      a {
+        color: colors.$black;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.PriceSection {
+  .priceDescription {
+    display: flex;
+    justify-content: center;
+    margin-top: 3em;
+    margin-bottom: 3em;
+
+    .left {
+      width: 560px;
+      .priceInfo {
+        color: colors.$text-primary;
+        font-size: 1.2rem;
+        font-weight: 400;
+      }
+    }
+
+    .right {
+      width: 380px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      .title {
+        color: colors.$text-secondary;
+        font-size: 1.2rem;
+        margin-bottom: 0.5em;
+        text-align: center;
+      }
+
+      .tiles {
+        display: flex;
+        flex-wrap: wrap;
+        width: 300px;
+
+        .tile {
+          width: 50%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+
+          img {
+            width: 80px;
+            height: 80px;
+          }
+        }
+
+        .tile:first-child,
+        .tile:nth-child(2) {
+          margin-bottom: 30px;
+        }
+      }
+    }
+  }
+
+  .info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      width: 26px;
+      height: 26px;
+      margin-right: 1em;
+    }
+
+    p {
+      color: colors.$text-primary;
+      font-size: 1rem;
+      font-weight: 400;
+    }
+  }
+}
+
+.ContactSection {
+  .contact {
+    display: flex;
+    justify-content: center;
+
+    .contactInfo {
+      display: flex;
+      align-items: center;
+      margin: 10px 20px;
+
+      img {
+        width: 32px;
+        height: 32px;
+        margin-right: 8px;
+      }
+
+      .info {
+        text-decoration: none;
+        color: colors.$text-primary;
+      }
+    }
+  }
+
+  .contactInfo:hover {
+    transform: scale(1.1);
+  }
+
+  .contact:first-of-type {
+    margin-top: 20px;
+  }
+
+  .contactDetails {
+    margin-top: 20px;
+    display: flex;
+  }
+}

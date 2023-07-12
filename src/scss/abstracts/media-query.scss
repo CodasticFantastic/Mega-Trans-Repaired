@@ -1,0 +1,209 @@
+//Container width media query
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+}
+
+@media (max-width: 1450px) {
+  .container {
+    max-width: 1200px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .container {
+    max-width: 980px;
+  }
+}
+
+@media (max-width: 980px) {
+  .container {
+    max-width: unset;
+    padding: 0 5px;
+  }
+
+  // Typhography
+  h1 {
+    font-size: 1rem !important;
+  }
+
+  .underHeader {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 630px) {
+  h1 {
+    font-size: 1rem !important;
+  }
+}
+
+//Header media query
+@media (min-width: 980px) {
+  .Header {
+    .mobileMenu {
+      display: none !important;
+    }
+  }
+}
+
+@media (max-width: 980px) {
+  .Header {
+    background: #000;
+    height: auto;
+
+    .desktopMenu {
+      display: none !important;
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  .SearchForPackage {
+    button {
+      background-position: 6px center;
+      background-size: 16px;
+    }
+  }
+}
+
+//Home Page media query
+@media (max-width: 1200px) {
+  .OfferSection {
+    .offerCards {
+      .cardTitle {
+        font-size: 1.2rem !important;
+      }
+    }
+
+    .underOffer {
+      font-size: 1.3rem !important;
+    }
+  }
+}
+
+@media (max-width: 980px) {
+  .HeroSection {
+    margin-top: 150px;
+    height: 400px;
+
+    .heroImg{
+      object-fit: cover;
+      object-position: 55% 0px;
+    }
+
+    .AnimatedWaves {
+      margin-top: -110px;
+      position: relative;
+      height: 280px;
+    }
+  }
+
+  .OfferSection {
+    .offerCards {
+      flex-direction: column;
+      .card {
+        width: 310px;
+        margin-bottom: 20px;
+      }
+    }
+    .underOffer {
+      font-size: 1.1rem !important;
+    }
+  }
+
+  .ServiceSection {
+    .service {
+      flex-direction: column;
+      align-items: center;
+      .imageSection {
+        width: unset !important;
+      }
+
+      .hintSection {
+        padding: unset;
+        width: 100%;
+
+        .hintTitle {
+          font-size: 1.2rem !important;
+        }
+
+        .hint {
+          width: 100% !important;
+          font-size: 1rem !important;
+          // flex-direction: column;
+          p {
+            margin-left: 5px !important;
+            text-align: left;
+            margin: unset;
+            width: 100% !important;
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .service:nth-child(3) {
+      flex-direction: column-reverse;
+    }
+
+    .benefitsTitle {
+      font-size: 1.2rem !important;
+    }
+
+    .benefitsSection {
+      flex-direction: column;
+
+      .benefitsImg {
+        margin-left: unset;
+      }
+
+      .benefits {
+        .benefit {
+          width: 100%;
+          margin-bottom: -5px;
+          p {
+            font-size: 1rem !important;
+          }
+        }
+      }
+
+      .CTA {
+        width: 100%;
+        margin-top: 20px;
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .PriceSection {
+    .priceDescription {
+      flex-direction: column-reverse;
+      .left {
+        width: 100%;
+        .priceInfo {
+          margin-top: 1em;
+          font-size: 1rem !important;
+        }
+      }
+
+      .right {
+        width: 320px;
+      }
+    }
+  }
+
+  .ContactSection {
+    .contact {
+      flex-direction: column-reverse;
+      .contactInfo {
+        .info {
+          font-size: 1rem !important;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+@use "../abstracts/colors" as colors;
+
+.SearchForPackage {
+  input {
+    height: 32px;
+    width: 250px;
+    border-radius: 50px 0 0 50px;
+    background-color: transparent;
+    border: 1px solid colors.$transparent-bg;
+    font-size: 14px;
+    padding-left: 36px;
+    background-image: url("/icons/boxIcon.png");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 22px;
+  }
+
+  input::placeholder {
+    color: colors.$white;
+  }
+
+  button {
+    height: 32px;
+    width: 100px;
+    padding-left: 10px;
+    background-color: colors.$transparent-bg;
+    border-radius: 0 50px 50px 0;
+    border: none;
+    background-image: url("/icons/searchIcon.png");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 20px;
+    transition: 0.4s ease-in-out;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: colors.$transparent-bg-hover;
+  }
+}

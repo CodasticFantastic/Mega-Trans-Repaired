@@ -1,0 +1,27 @@
+* {
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light dark;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  background-color: #000;
+  overflow-x: hidden;
+}
+
+img {
+  width: 100%;
+  object-fit: cover;
+  height: auto;
+  display: block;
+}
+
+
