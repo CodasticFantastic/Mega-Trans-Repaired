@@ -128,7 +128,7 @@ export default function RegisterPage() {
         {error && <p className="error">{error}</p>}
 
         <button type="submit" className="ripple">
-          Zaloguj
+          Zarejestruj
         </button>
       </form>
     </main>

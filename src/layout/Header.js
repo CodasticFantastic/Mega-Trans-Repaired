@@ -1,10 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 import Logo from "@/images/LogoWhite.png";
 import MenuIcon from "@/images/icons/menuIcon.png";
 
 import SearchForPackage from "@/components/SearchForPackage";
+import SignInButton from "@/components/SignInButton";
 
 export default function Header() {
   return (
@@ -38,9 +40,7 @@ export default function Header() {
         </div>
         <div className="rightSide">
           <SearchForPackage />
-          <button className="placeOrder">
-            <Link href="/login"> Nadaj Przesyłkę</Link>
-          </button>
+          <SignInButton />
         </div>
       </div>
       <div className="mobileMenu container">
@@ -58,9 +58,7 @@ export default function Header() {
           <div className="row">
             <div className="buttons">
               <div className="left">
-                <Link href="/login">
-                  <button className="placeOrder">Nadaj Przesyłkę</button>
-                </Link>
+                <SignInButton />
               </div>
               <div className="right">
                 <input className="hamburger" type="checkbox" id="burger" />

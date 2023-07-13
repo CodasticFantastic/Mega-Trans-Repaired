@@ -1,86 +1,61 @@
-import generateToken from "@/helpers/generateJwToken";
+import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
-
-import { PrismaClient } from "@prisma/client";
-
 import { NextResponse } from "next/server";
 
-// @desc    Register a new user
-// @route   POST /api/authentication/register
-// @access  Public
-// @return  { id, name, email, TokenJWT }
-export async function POST(req) {
+export async function POST(request) {
   // Get data from request
-  const {
-    email,
-    phone,
-    password,
-    passwordConfirmation,
-    companyName,
-    nip,
-    country,
-    city,
-    street,
-  } = await req.json();
-
-  // Connect to Prisma
-  const prisma = new PrismaClient();
+  const requestBody = await request.json();
 
   try {
     // Check if all required fields are filled
-    if (!email) throw new Error("Please enter an email");
-    if (!phone) throw new Error("Please enter a phone number");
-    if (!password) throw new Error("Please enter a password");
-    if (!passwordConfirmation)
+    if (!requestBody.email) throw new Error("Please enter an email");
+    if (!requestBody.phone) throw new Error("Please enter a phone number");
+    if (!requestBody.password) throw new Error("Please enter a password");
+    if (!requestBody.passwordConfirmation)
       throw new Error("Please enter a password confirmation");
-    if (!companyName) throw new Error("Please enter a company name");
-    if (!nip) throw new Error("Please enter a nip");
-    if (!country) throw new Error("Please enter a country");
-    if (!city) throw new Error("Please enter a city");
-    if (!street) throw new Error("Please enter a street");
+    if (!requestBody.companyName)
+      throw new Error("Please enter a company name");
+    if (!requestBody.nip) throw new Error("Please enter a nip");
+    if (!requestBody.country) throw new Error("Please enter a country");
+    if (!requestBody.city) throw new Error("Please enter a city");
+    if (!requestBody.street) throw new Error("Please enter a street");
 
     // Check if passwords match
-    if (password !== passwordConfirmation)
+    if (requestBody.password !== requestBody.passwordConfirmation)
       throw new Error("Passwords do not match");
 
     // Check if user already exists
     const userExists = await prisma.user.findUnique({
       where: {
-        email: email,
+        email: requestBody.email,
       },
     });
-    if (userExists) throw new Error("User already exists");
-
-    // //If user does not exist, Hash Password
-    const salt = await Bcrypt.genSalt(10);
-    const hashedPassword = await Bcrypt.hash(password, salt);
 
     // If user does not exist, create new user
-    let user = await prisma.user.create({
-      data: {
-        email: email,
-        phone: phone,
-        password: hashedPassword,
-        company: companyName,
-        nip: nip,
-        country: country,
-        city: city,
-        address: street,
-      },
-    });
+    if (!userExists) {
+      // //If user does not exist, Hash Password
+      const salt = await Bcrypt.genSalt(10);
+      const hashedPassword = await Bcrypt.hash(requestBody.password, salt);
 
-    // Disconect Prisma and send Success response
-    await prisma.$disconnect();
-    return NextResponse.json({
-      email: user.email,
-      phone: user.phone,
-      nip: user.nip,
-      city: user.city,
-      street: user.address,
-      companyName: user.company,
-      token: generateToken(user.id),
-    });
-    
+      let user = await prisma.user.create({
+        data: {
+          email: requestBody.email,
+          phone: requestBody.phone,
+          password: hashedPassword,
+          company: requestBody.companyName,
+          nip: requestBody.nip,
+          country: requestBody.country,
+          city: requestBody.city,
+          address: requestBody.street,
+        },
+      });
+
+      const { password, ...userWithoutPassword } = user;
+
+      return NextResponse.json({ user: userWithoutPassword });
+    } else {
+      throw new Error("User already exists");
+    }
   } catch (error) {
     // Disconect Prisma and send Error response
     console.error("Error Error Error Error Error: ", error);
@@ -91,4 +66,3 @@ export async function POST(req) {
     });
   }
 }
-
