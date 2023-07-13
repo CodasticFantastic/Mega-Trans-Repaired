@@ -4,14 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// import { AppDispatch } from "@/redux/store";
-// import { useDispatch } from "react-redux";
-// import { login } from "@/redux/actions/userStateSlice";
-
 export default function LoginPage() {
   const [error, setError] = useState(null);
   const router = useRouter();
-  //   const dispatch: AppDispatch = useDispatch();
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -21,7 +16,7 @@ export default function LoginPage() {
       email: data.get("email"),
       password: data.get("password"),
     };
-    const response = await fetch("/api/authentication/login", {
+    const response = await fetch("/api/login", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
@@ -34,8 +29,9 @@ export default function LoginPage() {
       setError(User.error);
       return;
     } else {
-      dispatch(login(User));
-      router.push("/");
+      console.log(User);
+      // dispatch(login(User));
+      // router.push("/");
     }
   }
 
@@ -46,10 +42,11 @@ export default function LoginPage() {
         <p className="dimInfo">Nie masz jeszcze konta?</p>
         <Link href="/register" className="link">Zarejestruj się tutaj!</Link>
 
-        {error && <p className={styles.error}>{error}</p>}
+       
 
         <input type="email" id="email" name="email" placeholder="Twój adres email" />
         <input type="password" id="password" name="password" placeholder="Twoje hasło"/>
+        {error && <p className="error">{error}</p>}
         <button type="submit" className="ripple">Zaloguj</button>
 
         <p className="dimInfo">Zapomniałeś hasła?</p>

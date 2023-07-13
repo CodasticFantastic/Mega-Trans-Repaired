@@ -4,14 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// import { AppDispatch } from "@/redux/store";
-// import { useDispatch } from "react-redux";
-// import { login } from "@/redux/actions/userStateSlice";
-
 export default function RegisterPage() {
   const [error, setError] = useState(null);
   const router = useRouter();
-  //   const dispatch: AppDispatch = useDispatch();
 
   async function handleRegister(event) {
     event.preventDefault();
@@ -30,7 +25,7 @@ export default function RegisterPage() {
       street: data.get("street"),
     };
 
-    const response = await fetch("/api/authentication/registration", {
+    const response = await fetch("/api/registration", {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
@@ -38,15 +33,14 @@ export default function RegisterPage() {
       },
     });
     const User = await response.json();
-    console.log(User);
 
-    // if (User.error) {
-    //   setError(User.error);
-    //   return;
-    // } else {
-    //   dispatch(login(User));
-    //   router.push("/");
-    // }
+    if (User.error) {
+      setError(User.error);
+      return;
+    } else {
+      console.log(User);
+      // router.push("/");
+    }
   }
 
   return (
@@ -57,8 +51,6 @@ export default function RegisterPage() {
         <Link href="/login" className="link">
           Zaloguj się!
         </Link>
-
-        {error && <p className={styles.error}>{error}</p>}
 
         <input
           type="email"
@@ -89,7 +81,13 @@ export default function RegisterPage() {
           required
         />
         <p className="companyData">Dane Do Faktury</p>
-        <input type="text" id="companyName" name="companyName" placeholder="Nazwa Firmy" required />
+        <input
+          type="text"
+          id="companyName"
+          name="companyName"
+          placeholder="Nazwa Firmy"
+          required
+        />
         <input type="number" id="nip" name="nip" placeholder="NIP" required />
         <input
           type="text"
@@ -126,6 +124,8 @@ export default function RegisterPage() {
             mailowy, w celu realizacji powierzonych zleceń.
           </p>
         </label>
+
+        {error && <p className="error">{error}</p>}
 
         <button type="submit" className="ripple">
           Zaloguj

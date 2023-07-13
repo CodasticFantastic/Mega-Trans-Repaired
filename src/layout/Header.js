@@ -58,9 +58,9 @@ export default function Header() {
           <div className="row">
             <div className="buttons">
               <div className="left">
-                <button className="placeOrder">
-                  <Link href="/login"> Nadaj Przesyłkę</Link>
-                </button>
+                <Link href="/login">
+                  <button className="placeOrder">Nadaj Przesyłkę</button>
+                </Link>
               </div>
               <div className="right">
                 <input className="hamburger" type="checkbox" id="burger" />
