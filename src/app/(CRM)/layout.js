@@ -1,12 +1,10 @@
-import NextAuthProvider from "@/components/providers/NextAuthProvider";
-import Footer from "@/layout/Footer";
-import Header from "@/layout/Header";
+import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
 import "@/scss/main.scss";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  subsets: ["latin-ext"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -17,12 +15,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pl">
-      <body className={poppins.className}>
-        <NextAuthProvider>
-          <Header />
-          {children}
-          <Footer />
-        </NextAuthProvider>
+      <body className={`${poppins.className} crm`}>
+        <NextAuthProvider>{children}</NextAuthProvider>
       </body>
     </html>
   );

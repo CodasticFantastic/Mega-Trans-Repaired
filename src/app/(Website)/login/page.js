@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 export default function LoginPage() {
+  const { data: session } = useSession();
   const [error, setError] = useState(null);
   const router = useRouter();
+
+  //If there is a logged User, redirect to dashboard
+  if (session && session.user) {
+    router.push("/dashboard");
+  }
 
   async function handleLogin(event) {
     event.preventDefault();
@@ -24,15 +30,11 @@ export default function LoginPage() {
       redirect: false,
     });
 
-    console.log(response);
-
     if (response.error) {
       setError(response.error);
       return;
     } else {
-      // console.log(User);
-      // dispatch(login(User));
-      // router.push("/");
+      router.push("/dashboard");
     }
   }
 

@@ -4,7 +4,7 @@ import Hero from "@/images/Hero.webp";
 import FurnitureDelivery from "@/images/icons/furnitureDelivery.png";
 import CarPartsDelivery from "@/images/icons/carPartsDelivery.png";
 import PalletDelivery from "@/images/icons/palletDelivery.png";
-import WavesAnimation from "@/components/WavesAnimation";
+import WavesAnimation from "@/app/(Website)/components/WavesAnimation";
 import BringingIsometric from "@/images/bringingIsometric.webp";
 import VanIsometric from "@/images/vanIsometric.webp";
 import PalletsIsometric from "@/images/palletsIsometric.webp";
@@ -20,7 +20,7 @@ import LocationIcon from "@/images/icons/locationIcon.png";
 import EmailIcon from "@/images/icons/emailIcon.png";
 
 import Link from "next/link";
-import ContactForm from "@/components/ContactForm";
+import ContactForm from "@/app/(Website)/components/ContactForm";
 
 export default function Home() {
   return (

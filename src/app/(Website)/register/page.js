@@ -3,10 +3,17 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 export default function RegisterPage() {
+  const { data: session } = useSession();
   const [error, setError] = useState(null);
   const router = useRouter();
+
+  //If there is a logged User, redirect to dashboard
+  if (session && session.user) {
+    router.push("/dashboard");
+  }
 
   async function handleRegister(event) {
     event.preventDefault();
@@ -32,14 +39,19 @@ export default function RegisterPage() {
         "Content-Type": "application/json",
       },
     });
+
     const User = await response.json();
 
-    if (User.error) {
+    if (!User.error) {
+      await signIn("credentials", {
+        email: userData.email,
+        password: userData.password,
+        redirect: true,
+        callbackUrl: "/dashboard",
+      });
+    } else {
       setError(User.error);
       return;
-    } else {
-      console.log(User);
-      // router.push("/");
     }
   }
 
@@ -48,9 +60,9 @@ export default function RegisterPage() {
       <form method="POST" onSubmit={handleRegister} className="form">
         <h2>Rejestracja</h2>
         <p className="dimInfo">Posiadasz już konto?</p>
-        <Link href="/login" className="link">
+        <a href="/login" className="link" onClick={() => signIn()}>
           Zaloguj się!
-        </Link>
+        </a>
 
         <input
           type="email"

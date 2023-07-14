@@ -24,7 +24,7 @@ const handler = NextAuth({
         if (!user.error) {
           // Any object returned will be saved in `user` property of the JWT
           console.info("NextAuth - USER LOGGED:", user.user.email);
-          return user;
+          return user.user;
         } else {
           // Authentiaction Failed - Return Error From Server
           console.info("NextAuth - Error: ", user);

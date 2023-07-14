@@ -1,12 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 
 import Logo from "@/images/LogoWhite.png";
 import MenuIcon from "@/images/icons/menuIcon.png";
 
-import SearchForPackage from "@/components/SearchForPackage";
-import SignInButton from "@/components/SignInButton";
+import SearchForPackage from "@/app/(Website)/components/SearchForPackage";
+import SignInButton from "@/app/(Website)/components/SignInButton";
 
 export default function Header() {
   return (

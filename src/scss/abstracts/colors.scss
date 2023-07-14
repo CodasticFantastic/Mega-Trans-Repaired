@@ -13,25 +13,28 @@ $text-primary: #ffffff;
 $text-secondary: #00ffff;
 
 // Gradients
-$black-gradient-down: linear-gradient(
-  180deg,
-  #000 0%,
-  rgba(0, 0, 0, 0.4) 75%,
-  rgba(0, 0, 0, 0) 100%
-);
+$black-gradient-down: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.4) 75%, rgba(0, 0, 0, 0) 100%);
 
 //Borders
 $cyan-gradient-border: linear-gradient(0deg, #0000ff, #00ffff) border-box;
 
-
 //Backgrounds
-
 
 //Dark Theme
 $dark-primary: #121316;
-$dark-secondary: #A6A7A8;
-$dark-tertiary: #212225;
-$dark-quaternary: #191A1D;
+$dark-secondary: #212225;
+$dark-tertiary: #191a1d;
+
+$gray: #444345;
 
 //Notifications
 $bg-error: #ff0000;
+
+//Colors
+$Green: #24ff00;
+$Yellow: #f7be16;
+$Orange: #f77e21;
+$Red: #ff0000;
+$Blue: #3f8aff;
+$Teal: #30e3df;
+$Violet: #c67ace;

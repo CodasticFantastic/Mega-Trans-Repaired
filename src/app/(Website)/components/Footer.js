@@ -1,4 +1,4 @@
-import WavesAnimation from "@/components/WavesAnimation";
+import WavesAnimation from "@/app/(Website)/components/WavesAnimation";
 import Link from "next/link";
 import Image from "next/image";
 import Logo from "@/images/LogoWhite.png";

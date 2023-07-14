@@ -20,7 +20,7 @@ export async function POST(request) {
 
     // Check if passwords match
     if (user && (await Bcrypt.compare(requestBody.password, user.password))) {
-      const { password, ...userWithoutPassword } = user;
+      const { password, ...userWithoutPassword } = user; 
 
       // Send Success response
       return NextResponse.json({ user: userWithoutPassword });

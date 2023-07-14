@@ -1,5 +1,6 @@
-import Footer from "@/layout/Footer";
-import Header from "@/layout/Header";
+import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
 import "@/scss/main.scss";
 import { Poppins } from "next/font/google";
 
@@ -17,9 +18,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl">
       <body className={poppins.className}>
-        <Header />
-        {children}
-        <Footer />
+        <NextAuthProvider>
+          <Header />
+          {children}
+          <Footer />
+        </NextAuthProvider>
       </body>
     </html>
   );
