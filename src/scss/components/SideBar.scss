@@ -60,6 +60,15 @@ $Violet: abstracts.$Violet;
 
     .section {
       margin-top: 15px;
+
+      .expand1,
+      .expand2,
+      .expand3{
+        height: 0px;
+        overflow: hidden;
+        transition: 0.4s ease-in-out;
+      }
+
       .tile {
         height: $TileHeight;
         width: 100%;
@@ -93,17 +102,25 @@ $Violet: abstracts.$Violet;
           }
         }
         .right {
-          .showMore {
-            width: $IconSize;
-            height: $IconSize;
-            img {
-              width: 100%;
-              height: auto;
-              object-fit: contain;
+          .showMoreInput {
+            display: none;
+          }
+
+          .showMoreLabel {
+            cursor: pointer;
+            .showMoreIcon {
+              width: $IconSize;
+              height: $IconSize;
+              transition: 0.4s ease-in-out;
+              img {
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+              }
             }
           }
 
-          .showMore:hover {
+          .showMoreIcon:hover {
             transform: scale(1.1);
           }
         }
@@ -135,6 +152,7 @@ $Violet: abstracts.$Violet;
         }
 
         input {
+          cursor: pointer;
           padding: 6px 13px;
         }
 
@@ -245,6 +263,26 @@ $Violet: abstracts.$Violet;
         .canceled:hover {
           background-color: $Red;
           color: abstracts.$dark-secondary;
+        }
+      }
+    }
+
+    .section:has(.showMoreInput:checked){
+      .expand1{
+        height: 55px;
+      }
+
+      .expand2{
+        height: 160px;
+      }
+
+      .expand3{
+        height: 110px;
+      }
+
+      .showMoreLabel{
+        .showMoreIcon{
+          transform: rotate(180deg);
         }
       }
     }
