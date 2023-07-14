@@ -1,10 +1,10 @@
 import ControlHeader from "../components/ControlHeader";
-import ControlSideBar from "../components/ControlSideBar";
+import FilterSideBar from "../components/sidebars/FilterSideBar";
 
 export default function Dashboard() {
   return (
     <div className="CrmPage">
-      <ControlSideBar />
+      <FilterSideBar />
       <div className="mainContent">
         <ControlHeader />
         <main>
@@ -27,7 +27,7 @@ export default function Dashboard() {
                 <td className="col3">123456789</td>
                 <td className="col4">123456789</td>
                 <td className="col5">123456789</td>
-                <td className="col6">123456789</td>
+                <td className="col6">05-077 Warszawa, Graniczna 15A</td>
                 <td className="col7">123456789</td>
               </tr>
             </tbody>

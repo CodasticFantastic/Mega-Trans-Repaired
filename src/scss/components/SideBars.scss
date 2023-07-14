@@ -63,7 +63,10 @@ $Violet: abstracts.$Violet;
 
       .expand1,
       .expand2,
-      .expand3{
+      .expand3,
+      .expand4,
+      .expand5,
+      .expand6 {
         height: 0px;
         overflow: hidden;
         transition: 0.4s ease-in-out;
@@ -158,6 +161,26 @@ $Violet: abstracts.$Violet;
 
         .info:nth-of-type(2) {
           margin-top: 5px;
+        }
+
+        .instruction,
+        .instructionBold {
+          margin-top: 12px;
+          padding-left: 16px;
+          font-size: $PrimaryFontSize;
+          font-weight: 300;
+        }
+
+        .instructionBold {
+          font-weight: 600;
+        }
+
+        .instructionList {
+          font-weight: 300;
+          padding-left: 40px;
+          li {
+            font-size: $PrimaryFontSize;
+          }
         }
       }
 
@@ -267,21 +290,35 @@ $Violet: abstracts.$Violet;
       }
     }
 
-    .section:has(.showMoreInput:checked){
-      .expand1{
+    .section:has(.showMoreInput:checked) {
+      .expand1 {
         height: 55px;
       }
 
-      .expand2{
+      .expand2 {
         height: 160px;
       }
 
-      .expand3{
+      .expand3 {
         height: 110px;
       }
 
-      .showMoreLabel{
-        .showMoreIcon{
+      .expand4{
+        height: 90px;
+      }
+
+      .expand5 {
+        height: 200px;
+      }
+
+      .expand6 {
+        height: 100px;
+      }
+
+
+
+      .showMoreLabel {
+        .showMoreIcon {
           transform: rotate(180deg);
         }
       }

@@ -40,7 +40,7 @@ export default function ControlHeader() {
             <Image src={GreenExportIcon} alt="Ikona eksportu zamwień" />
             <p>Eksportuj</p>
           </div>
-          <Link href="/dashboard/newOrder" className="newOrder">
+          <Link href="/newOrder" className="newOrder">
             <Image src={GreenPlusIcon} alt="Ikona dodawania nowego zlecenia" />
             <p>Nowe Zlecenie</p>
           </Link>
