@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function ControlHeader() {
   return (
-    <header>
+    <header className="ControlHeader">
       <h1>Zlecenia</h1>
       <div className="info">
         <div className="stats">

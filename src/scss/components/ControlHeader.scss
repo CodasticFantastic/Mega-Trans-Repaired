@@ -1,0 +1,91 @@
+@use "../abstracts";
+
+.ControlHeader {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  h1 {
+    margin-top: 55px;
+    font-size: 2rem;
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .info {
+    display: flex;
+    justify-content: space-between;
+
+    .stats {
+      display: flex;
+
+      .statTile {
+        height: 26px;
+        padding: 3px 14px;
+        border-radius: 50px;
+        margin-right: 6px;
+        background-color: abstracts.$dark-secondary;
+        p {
+          font-size: abstracts.$PrimaryFontSize;
+          font-weight: 500;
+          color: abstracts.$dark-primary;
+        }
+      }
+
+      .statTile.all {
+        background-color: abstracts.$Blue;
+      }
+
+      .statTile.new {
+        background-color: abstracts.$Orange;
+      }
+
+      .statTile.current {
+        background-color: abstracts.$Violet;
+      }
+
+      .statTile.warehouse {
+        background-color: abstracts.$Yellow;
+      }
+
+      .statTile.realized {
+        background-color: abstracts.$Green;
+      }
+    }
+
+    .actions {
+      display: flex;
+
+      .newOrder,
+      .eksportOrders {
+        cursor: pointer;
+        height: 26px;
+        margin-left: auto;
+        margin-right: 0px;
+        padding: 3px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50px;
+        background: abstracts.$dark-secondary;
+        text-decoration: none;
+
+        img {
+          width: 18px;
+          height: 18px;
+          object-fit: contain;
+        }
+
+        p {
+          margin-left: 8px;
+          font-size: abstracts.$PrimaryFontSize;
+          color: abstracts.$Green;
+        }
+      }
+
+      .eksportOrders {
+        margin-right: 6px;
+      }
+    }
+  }
+}
