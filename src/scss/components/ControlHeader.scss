@@ -1,9 +1,33 @@
 @use "../abstracts";
 
-.ControlHeader {
+.CRMHeader {
   width: 100%;
   display: flex;
   flex-direction: column;
+
+  .backToDashboard {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+    }
+    p {
+      margin-left: 8px;
+      font-size: abstracts.$PrimaryFontSize;
+      color: abstracts.$Red;
+      transition: 0.4s ease-in-out;
+    }
+  }
+
+  .backToDashboard:hover{
+    p{
+      margin-left: 0px;
+    }
+  }
 
   h1 {
     margin-top: 55px;

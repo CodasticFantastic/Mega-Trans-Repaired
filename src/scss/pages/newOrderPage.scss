@@ -1,0 +1,209 @@
+@use "../abstracts";
+
+.NewOrderPage {
+  .CRMHeader {
+    .backToDashboard {
+      margin-top: 55px;
+    }
+    h1 {
+      margin-top: 0px;
+    }
+  }
+
+  .NewOrder {
+    width: 100%;
+    // display: flex;
+    // justify-content: center;
+
+    .NewOrderForm {
+      max-width: 1400px;
+      display: flex;
+      flex-wrap: wrap;
+
+      .leftCol {
+        width: 40%;
+        margin-right: 32px;
+        .formStage {
+          height: 100%;
+        }
+      }
+
+      .rightCol {
+        width: calc(60% - 32px);
+
+        .formStage:nth-child(2),
+        .formStage:nth-child(3) {
+          margin-top: 22px;
+        }
+      }
+
+      .formStage {
+        background-color: abstracts.$dark-tertiary;
+        border-radius: 12px;
+        padding: 12px 18px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .formStageName {
+          font-size: 16px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          background-color: abstracts.$dark-secondary;
+          padding: 3px 14px 3px 8px;
+          border-radius: 12px 0 12px 0;
+          color: abstracts.$Blue;
+        }
+      }
+
+      .formStage .row:nth-child(2) {
+        margin-top: 36px;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+        margin-bottom: 12px;
+
+        label {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          font-size: abstracts.$SecondaryFontSize;
+          color: abstracts.$transparent-text;
+          input,
+          select,
+          textarea {
+            border: none;
+            background-color: abstracts.$dark-secondary;
+            height: 28px;
+            width: 100%;
+            max-width: 100%;
+            border-radius: 4px;
+            text-align: center;
+          }
+        }
+
+        label:nth-child(2),
+        label:nth-child(3),
+        label:nth-child(4) {
+          margin-left: 12px;
+        }
+
+        .addCommodity {
+          height: 28px;
+          width: 86px;
+          margin-left: 12px;
+          background: transparent;
+          border: 1px solid abstracts.$Green;
+          border-radius: 4px;
+          transition: 0.1s ease-in-out;
+          img {
+            height: 100%;
+            object-fit: contain;
+            cursor: pointer;
+          }
+        }
+
+        .addCommodity:hover {
+          transform: scale(0.85);
+        }
+
+        .formStage {
+          height: 180px;
+          width: 30%;
+          margin-bottom: 0px;
+
+          .tableOverflow{
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+          }
+          table {
+            margin-top: 20px;
+            width: 100%;
+            height: 180px;
+            overflow-y: hidden;
+            tbody {
+              height: 100%;
+              overflow-y: hidden;
+              tr {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                height: 30px;
+                margin-top: 6px;
+                td {
+                  height: 100%;
+                  padding: 0px 4px;
+                  img {
+                    height: 100%;
+                    object-fit: contain;
+                  }
+                }
+
+                td:first-child {
+                  width: 15%;
+                }
+
+                td:nth-child(2) {
+                  width: 55%;
+                }
+
+                td:nth-child(3) {
+                  border-right: none;
+                  width: 23%;
+                }
+
+                td:nth-child(4) {
+                  border-right: none;
+                  padding: 4px;
+                  width: 7%;
+                  transition: 0.4s linear;
+                  cursor: pointer;
+                }
+
+                td:nth-child(4):hover {
+                  border-radius: 50px;
+                  background-color: abstracts.$transparent-text;
+                }
+              }
+            }
+          }
+        }
+
+        .formStage:nth-child(2) {
+          width: 70%;
+          margin-left: 20px;
+        }
+      }
+
+      .row:has(.formStage) {
+        margin-bottom: 0px;
+      }
+
+      .confirmOrder {
+        width: 200px;
+        height: 36px;
+        border: none;
+        margin-top: 22px;
+        padding: 0 20px;
+        background-color: abstracts.$dark-tertiary;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: 0.4s ease-in-out;
+        cursor: pointer;
+      }
+
+      .confirmOrder:hover {
+        background-color: abstracts.$Green;
+        color: abstracts.$dark-primary;
+      }
+    }
+  }
+}
