@@ -6,10 +6,15 @@ import redBackIcon from "@/images/icons/redBackIcon.png";
 import greenPlusIcon from "@/images/icons/greenPlusIcon.png";
 import redTrashIcon from "@/images/icons/redTrashIcon.png";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { v4 as uuid4 } from "uuid";
+import { useSession } from "next-auth/react";
+
+import { useRouter } from "next/navigation";
 
 export default function NewOrder() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [commodityItem, setcommodityItem] = useState({
     orderCommodityType: "Paczka",
     orderCommodityPayType: "Pobranie",
@@ -34,6 +39,9 @@ export default function NewOrder() {
 
     const data = new FormData(event.currentTarget);
     const orderData = {
+      orderId: uuid4(),
+      userId: session?.user.id,
+      status: "Producer",
       orderType: data.get("orderType"),
       orderCountry: data.get("orderCountry"),
       orderStreet: data.get("orderStreet"),
@@ -49,21 +57,22 @@ export default function NewOrder() {
       orderItems: commodityList,
     };
 
-    console.log(orderData);
+    const request = await fetch("http://localhost:3000/api/order/newOrder", {
+      method: "POST",
+      body: JSON.stringify(orderData),
+      headers: {
+        Authorization: session?.accessToken,
+        "Content-Type": "application/json",
+      },
+    });
 
-    // const response = await signIn("credentials", {
-    //   email: userData.email,
-    //   password: userData.password,
-    //   redirect: false,
-    // });
+    const response = await request.json();
 
-    // if (response.error) {
-    //   setError(response.error);
-    //   return;
-    // } else {
-    //   router.push("/dashboard");
-    // }
-
+    if (response.error) {
+      setFormError(response.error);
+    } else if (response.Success) {
+      router.push("/updateOrder/" + orderData.orderId);
+    }
   }
 
   // Actions - Add Comodity Item
@@ -137,9 +146,9 @@ export default function NewOrder() {
                   <label htmlFor="orderType">
                     Rodzaj Zlecenia
                     <select name="orderType" id="orderType">
-                      <option value="Dostawa">Dostawa</option>
-                      <option value="Odbiór">Odbór</option>
-                      <option value="Zwrot">Zwrot</option>
+                      <option value="Delivery">Dostawa</option>
+                      <option value="Collect">Odbór</option>
+                      <option value="Producer">Zwrot</option>
                     </select>
                   </label>
                   <label htmlFor="orderCountry">
@@ -197,7 +206,7 @@ export default function NewOrder() {
                 </div>
                 <div className="row">
                   <label htmlFor="orderClientName">
-                    Firma/Osoba Odbierająca *
+                    Odbiorca *
                     <input type="text" name="orderClientName" id="orderClientName" required />
                   </label>
                   <label htmlFor="orderClientPhone">
@@ -238,7 +247,6 @@ export default function NewOrder() {
                       type="text"
                       name="orderCommodityName"
                       id="orderCommodityName"
-                      required
                       value={commodityItem.orderCommodityName}
                       onChange={(e) => {
                         setcommodityItem((prevState) => {
@@ -260,7 +268,7 @@ export default function NewOrder() {
                       }}
                     >
                       <option value="Pobranie">Pobranie</option>
-                      <option value="Opłacone">Opłacone z Góry</option>
+                      <option value="Przelew">Opłacone z Góry</option>
                     </select>
                   </label>
                   <label htmlFor="orderCommodityPayAmount">
@@ -324,8 +332,10 @@ export default function NewOrder() {
                 </div>
               </div>
             </section>
-            {formError ? <p className="error">{formError}</p> : ""}
-            <input type="submit" value="Zamawiam Zlecenie" className="confirmOrder" />
+            <div>
+              {formError ? <p className="formError">Uwaga: {formError}</p> : ""}
+              <input type="submit" value="Zamawiam Zlecenie" className="confirmOrder" />
+            </div>
           </form>
         </main>
       </div>
