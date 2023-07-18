@@ -1,3 +1,4 @@
+import { generateToken } from "@/helpers/generateJwToken";
 import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
@@ -20,10 +21,20 @@ export async function POST(request) {
 
     // Check if passwords match
     if (user && (await Bcrypt.compare(requestBody.password, user.password))) {
-      const { password, ...userWithoutPassword } = user; 
+      // Remove password from user object
+      const { password, createdAt, deletedAt, updatedAt, ...userWithoutPassword } = user;
+
+      // Generate JWT token
+      const accessToken = generateToken(userWithoutPassword);
+
+      // Create result object
+      const result = {
+        ...userWithoutPassword,
+        accessToken,
+      };
 
       // Send Success response
-      return NextResponse.json({ user: userWithoutPassword });
+      return NextResponse.json({ user: result });
     } else {
       throw new Error("Invalid credentials");
     }

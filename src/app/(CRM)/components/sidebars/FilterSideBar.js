@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image";
 import Logo from "@/images/LogoBlue.png";
 import sortIcon from "@/images/icons/sortIcon.png";
@@ -10,7 +12,11 @@ import settingsIcon from "@/images/icons/settingsIcon.png";
 import arrowDownIcon from "@/images/icons/arrowDown.png";
 import LogoutButton from "../LogoutButton";
 
+import { useSession } from "next-auth/react";
+
 export default function FilterSideBar() {
+  const { data: session } = useSession();
+
   return (
     <aside className="SideBar">
       <div className="logo">
@@ -92,7 +98,7 @@ export default function FilterSideBar() {
       <div className="userSection">
         <div className="currentUser">
           <Image src={userIcon} alt="Ikona filtrowania" className="icon" />
-          <p className="userName">Jan Kowalski</p>
+          <p className="userName">{session?.user.company}</p>
         </div>
         <div className="options">
           <LogoutButton />

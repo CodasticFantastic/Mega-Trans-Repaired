@@ -1,9 +1,14 @@
+"use client"
+
 import Image from "next/image";
 import GreenPlusIcon from "@/images/icons/greenPlusIcon.png";
 import GreenExportIcon from "@/images/icons/greenExportIcon.png";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function ControlHeader() {
+  const { data: session } = useSession();
+
   return (
     <header className="CRMHeader">
       <h1>Zlecenia</h1>

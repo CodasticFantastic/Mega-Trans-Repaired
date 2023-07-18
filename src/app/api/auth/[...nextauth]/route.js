@@ -4,12 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      credentials: {
-        email: { label: "email", type: "email", placeholder: "Twój email" },
-        password: { label: "Password", type: "password" },
-      },
       async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
         const res = await fetch("http://localhost:3000/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -19,21 +14,31 @@ const handler = NextAuth({
           }),
         });
 
-        const user = await res.json();
+        const { user, error } = await res.json();
 
-        if (!user.error) {
+        if (!error) {
           // Any object returned will be saved in `user` property of the JWT
-          console.info("NextAuth - USER LOGGED:", user.user.email);
-          return user.user;
+          console.info("NextAuth - USER LOGGED:", user.email);
+          return user;
         } else {
           // Authentiaction Failed - Return Error From Server
           console.info("NextAuth - Error: ", user);
-          throw new Error(user.error);
+          throw new Error(error);
         }
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      return { ...token, ...user };
+    },
 
+    async session({ session, token }) {
+      session.accessToken = token.accessToken;
+      session.user = token;
+      return session;
+    },
+  },
   pages: {
     signIn: "/login",
   },

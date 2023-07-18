@@ -193,8 +193,8 @@
         margin-bottom: 0px;
       }
 
-      .confirmOrder {
-        width: 200px;
+      .confirmOrder, .cancelOrder {
+        min-width: 200px;
         height: 36px;
         border: none;
         margin-top: 22px;
@@ -210,6 +210,41 @@
         background-color: abstracts.$Green;
         color: abstracts.$dark-primary;
       }
+
+      .confirmOrder.orderCanceled:hover{
+        background-color: abstracts.$dark-tertiary;
+        color: unset;
+      }
+
+      .cancelOrder{
+        width: 120px;
+        height: 28px;
+        font-size: 12px;
+        padding: 0 10px;
+        margin-left: 20px;
+        background-color: abstracts.$Red;
+      }
+
+      .cancelOrder:hover{
+        background-color: abstracts.$dark-primary;
+        color: abstracts.$Red;
+      }
+
+      .formError, .formSuccess{
+        border:1px solid abstracts.$Red;
+        border-radius: 4px;
+        padding: 4px 8px;
+        color: abstracts.$Red;
+        font-size: 14px;
+        margin-top: 23px;
+      }
+
+      .formSuccess{
+        border:1px solid abstracts.$Green;
+        color: abstracts.$Green;
+      }
+
+
     }
   }
 }

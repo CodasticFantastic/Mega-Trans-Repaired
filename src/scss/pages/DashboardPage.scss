@@ -12,7 +12,7 @@
       margin-top: 20px;
       width: 100%;
 
-      table {
+      .table {
         width: 100%;
 
         .col1 {
@@ -43,27 +43,39 @@
           width: 80px;
         }
 
-        thead {
+        .thead {
           padding-bottom: 6px;
           border-bottom: 2px solid abstracts.$dark-secondary;
         }
 
-        tr {
+        .tr {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          th {
+          .th {
             font-size: abstracts.$SecondaryFontSize;
             text-align: center;
           }
 
-          td {
+          .td {
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 3px 0px;
             font-size: abstracts.$PrimaryFontSize;
             text-align: center;
+          }
+        }
+
+        .tbody{
+          .tr{
+            display: flex;
+            flex-direction: column;
+            .mainInfo{
+              width: 100%;
+              display: flex;
+              justify-content: space-between;
+            }
           }
         }
       }
