@@ -15,6 +15,12 @@ enum Role {
   ADMIN
 }
 
+enum OrderType {
+  ProdReturn
+  Collect
+  Delivery
+}
+
 enum Status {
   Producer
   Warehouse
@@ -22,6 +28,17 @@ enum Status {
   Realized
   PaidToProducer
   Cancelled
+}
+
+enum CommodityType {
+  Paczka
+  Gabaryt
+  Paleta
+}
+
+enum CommodityPaymentType {
+  Pobranie
+  Przelew
 }
 
 model User {
@@ -42,19 +59,37 @@ model User {
 }
 
 model Order{
-  id        Int      @id @default(autoincrement())
+  orderId   String      @id @unique
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
+  status    Status   @default(Producer)
+  orderType OrderType 
+  orderCountry String
+  orderStreet String
+  orderStreetNumber String
+  orderFlatNumber String?
+  orderCity String
+  orderPostCode String
+  orderState String
+  orderNote String?
+  recipientName String
+  recipientPhone String
+  recipientEmail String
+  packages  Package[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
-  packages  Packages[]
 }
 
-model Packages {
-  id        Int      @id @default(autoincrement())
-  orderId   Int
-  order     Order    @relation(fields: [orderId], references: [id])
+model Package {
+  packageId String      @id @unique
+  belongsTo  Order    @relation(fields: [orderId], references: [orderId])
+  orderId   String
+  commodityType CommodityType 
+  commodityName String
+  commodityPaymentType CommodityPaymentType
+  commodityPrice String?
+  commodityNote String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
