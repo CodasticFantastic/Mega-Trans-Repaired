@@ -57,6 +57,12 @@
           border-radius: 12px 0 12px 0;
           color: abstracts.$Blue;
         }
+
+        .error{
+          color: abstracts.$Red;
+          font-size: 12px;
+          margin-top: 4px;
+        }
       }
 
       .formStage .row:nth-child(2) {

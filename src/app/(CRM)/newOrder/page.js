@@ -10,39 +10,104 @@ import { useRef, useState } from "react";
 import { v4 as uuid4 } from "uuid";
 
 export default function NewOrder() {
-  const commodityList = useRef({ orderCommodityType: "Paczka", orderCommodityPayType: "Pobranie" });
-  const [commodityListState, setCommodityListState] = useState([]);
+  const [commodityItem, setcommodityItem] = useState({
+    orderCommodityType: "Paczka",
+    orderCommodityPayType: "Pobranie",
+    orderCommodityId: uuid4(),
+    orderCommodityName: "",
+    orderCommodityPayAmount: 0,
+    orderCommodityNote: "",
+  });
+  const [commodityList, setcommodityList] = useState([]);
+  const [commodityError, setCommodityError] = useState(false);
+  const [formError, setFormError] = useState(null);
 
-  async function processOrder() {
+  // Actions - Process Order to Backend
+  async function processOrder(event) {
     event.preventDefault();
+    setFormError(null);
 
-    console.log(commodityList);
+    if (commodityList.length < 1) {
+      setFormError("Brak Towarów w Zleceniu");
+      return;
+    }
+
+    const data = new FormData(event.currentTarget);
+    const orderData = {
+      orderType: data.get("orderType"),
+      orderCountry: data.get("orderCountry"),
+      orderStreet: data.get("orderStreet"),
+      orderStreetNumber: data.get("orderStreetNumber"),
+      orderFlatNumber: data.get("orderFlatNumber"),
+      orderCity: data.get("orderCity"),
+      orderPostCode: data.get("orderPostCode"),
+      orderState: data.get("orderState"),
+      orderNote: data.get("orderNote"),
+      orderClientName: data.get("orderClientName"),
+      orderClientPhone: data.get("orderClientPhone"),
+      orderClientEmail: data.get("orderClientEmail"),
+      orderItems: commodityList,
+    };
+
+    console.log(orderData);
+
+    // const response = await signIn("credentials", {
+    //   email: userData.email,
+    //   password: userData.password,
+    //   redirect: false,
+    // });
+
+    // if (response.error) {
+    //   setError(response.error);
+    //   return;
+    // } else {
+    //   router.push("/dashboard");
+    // }
+
   }
 
+  // Actions - Add Comodity Item
   function addCommodity() {
-    commodityList.current = { ...commodityList.current, orderCommodityId: uuid4() };
-
-    console.log(commodityListState);
-
-    setCommodityListState((prevState) => {
-      return [...prevState, commodityList.current];
-    });
-
-    console.log(showCommodityList);
+    setCommodityError(false);
+    if (!commodityItem.orderCommodityName) {
+      setCommodityError("Nazwa Towaru jest wymagana");
+    } else if (
+      commodityItem.orderCommodityPayType === "Pobranie" &&
+      (!commodityItem.orderCommodityPayAmount || commodityItem.orderCommodityPayAmount === "")
+    ) {
+      setCommodityError("Kwota Płatności jest wymagana");
+    } else {
+      setcommodityItem((prevState) => {
+        return { ...prevState, orderCommodityId: uuid4() };
+      });
+      setcommodityList((prevState) => {
+        return [...prevState, commodityItem];
+      });
+      setcommodityItem({
+        orderCommodityType: "Paczka",
+        orderCommodityPayType: "Pobranie",
+        orderCommodityId: uuid4(),
+        orderCommodityName: "",
+        orderCommodityPayAmount: 0,
+        orderCommodityNote: "",
+      });
+    }
   }
 
+  // Actions - Delete Comodity Item
   function deleteComoditiFromList(id) {
-    setCommodityListState((prevState) => {
+    setcommodityList((prevState) => {
       return prevState.filter((commodity) => commodity.orderCommodityId !== id);
     });
   }
 
-  let showCommodityList = commodityListState.map((commodity, index) => {
+  // Actions - Show Comodity List
+  let showcommodityItem = commodityList.map((commodity, index) => {
     return (
       <tr key={commodity.orderCommodityId}>
         <td>{commodity.orderCommodityType}</td>
         <td>{commodity.orderCommodityName}</td>
-        <td>{orderCommodityPayType === "Pobranie" ? "Opłacona" : commodity.orderCommodityPayAmount}</td>
+        <td>{commodity.orderCommodityPayType == "Pobranie" ? commodity.orderCommodityPayAmount : "Opłacona"}</td>
         <td>
           <Image src={redTrashIcon} alt="Usuń dany towar z listy" onClick={() => deleteComoditiFromList(commodity.orderCommodityId)} />
         </td>
@@ -62,7 +127,7 @@ export default function NewOrder() {
           <h1>Nowe Zlecenie</h1>
         </header>
         <main className="NewOrder">
-          <form className="NewOrderForm">
+          <form className="NewOrderForm" onSubmit={processOrder}>
             <section className="leftCol">
               <div className="formStage stage1">
                 <div className="formStageName">
@@ -155,8 +220,11 @@ export default function NewOrder() {
                     <select
                       name="orderCommodityType"
                       id="orderCommodityType"
+                      value={commodityItem.orderCommodityType}
                       onChange={(e) => {
-                        commodityList.current = { ...commodityList.current, orderCommodityType: e.target.value };
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityType: e.target.value };
+                        });
                       }}
                     >
                       <option value="Paczka">Paczka/Karton</option>
@@ -171,8 +239,11 @@ export default function NewOrder() {
                       name="orderCommodityName"
                       id="orderCommodityName"
                       required
+                      value={commodityItem.orderCommodityName}
                       onChange={(e) => {
-                        commodityList.current = { ...commodityList.current, orderCommodityName: e.target.value };
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityName: e.target.value };
+                        });
                       }}
                     />
                   </label>
@@ -181,8 +252,11 @@ export default function NewOrder() {
                     <select
                       name="orderCommodityPayType"
                       id="orderCommodityPayType"
+                      value={commodityItem.orderCommodityPayType}
                       onChange={(e) => {
-                        commodityList.current = { ...commodityList.current, orderCommodityPayType: e.target.value };
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityPayType: e.target.value };
+                        });
                       }}
                     >
                       <option value="Pobranie">Pobranie</option>
@@ -195,8 +269,11 @@ export default function NewOrder() {
                       type="text"
                       name="orderCommodityPayAmount"
                       id="orderCommodityPayAmount"
+                      value={commodityItem.orderCommodityPayAmount}
                       onChange={(e) => {
-                        commodityList.current = { ...commodityList.current, orderCommodityPayAmount: e.target.value };
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityPayAmount: e.target.value };
+                        });
                       }}
                     />
                   </label>
@@ -209,8 +286,11 @@ export default function NewOrder() {
                       id="orderCommodityNote"
                       cols="30"
                       rows="10"
+                      value={commodityItem.orderCommodityNote}
                       onChange={(e) => {
-                        commodityList.current = { ...commodityList.current, orderCommodityNote: e.target.value };
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityNote: e.target.value };
+                        });
                       }}
                     />
                   </label>
@@ -218,23 +298,24 @@ export default function NewOrder() {
                     <Image src={greenPlusIcon} alt="Dodaj Towar" onClick={addCommodity} />
                   </button>
                 </div>
+                {commodityError ? <p className="error">{commodityError}</p> : ""}
               </div>
               <div className="row">
                 <div className="formStage stage4">
                   <div className="formStageName">
                     <p>Zliczone Paczki</p>
                   </div>
-                  <p>{showCommodityList.length}</p>
+                  <p>{showcommodityItem.length}</p>
                 </div>
                 <div className="formStage stage5">
                   <div className="formStageName">
                     <p>Wykaz Paczek</p>
                   </div>
 
-                  {showCommodityList.length > 0 ? (
+                  {showcommodityItem.length > 0 ? (
                     <div className="tableOverflow">
                       <table>
-                        <tbody>{showCommodityList}</tbody>
+                        <tbody>{showcommodityItem}</tbody>
                       </table>
                     </div>
                   ) : (
@@ -243,7 +324,8 @@ export default function NewOrder() {
                 </div>
               </div>
             </section>
-            <input type="submit" onSubmit={processOrder} value="Zamawiam Zlecenie" className="confirmOrder" />
+            {formError ? <p className="error">{formError}</p> : ""}
+            <input type="submit" value="Zamawiam Zlecenie" className="confirmOrder" />
           </form>
         </main>
       </div>
