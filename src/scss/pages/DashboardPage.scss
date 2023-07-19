@@ -6,7 +6,6 @@
   .mainContent {
     width: calc(100% - 284px);
     padding-right: 28px;
-    
 
     main {
       margin-top: 20px;
@@ -20,7 +19,7 @@
         }
 
         .col2 {
-          width: 120px;
+          width: 270px;
         }
 
         .col3 {
@@ -36,7 +35,7 @@
         }
 
         .col6 {
-          width: 200px;
+          width: 250px;
         }
 
         .col7 {
@@ -64,17 +63,151 @@
             padding: 3px 0px;
             font-size: abstracts.$PrimaryFontSize;
             text-align: center;
+
+            .showMoreLabel {
+              margin: 0 10px;
+              transition: all 0.3s ease-in-out;
+              cursor: pointer;
+              .showMoreInput {
+                display: none;
+              }
+            }
+
+            img {
+              width: 20px;
+              height: 20px;
+            }
           }
         }
 
-        .tbody{
-          .tr{
+        .tbody {
+          .tr {
             display: flex;
             flex-direction: column;
-            .mainInfo{
+            border-bottom: 1px solid abstracts.$dark-secondary;
+            padding: 6px 0px;
+            .mainInfo {
               width: 100%;
               display: flex;
               justify-content: space-between;
+            }
+          }
+
+          .tr:has(.showMoreInput:checked){
+            border-bottom: none;
+
+            .showMoreLabel{
+              transform: rotate(180deg);
+            }
+
+            .detailInfo{
+              height: auto;
+              max-height: 600px;
+              border-top: 1px solid abstracts.$dark-secondary;
+            }
+          }
+
+          .detailInfo {
+            width: 100%;
+            max-height: 0px;
+            overflow: hidden;
+            transition: 0.4s linear;
+
+            .tr {
+              width: 100%;
+              display: flex;
+              flex-direction: row;
+              padding: 6px 12px;
+              border-bottom: 1px solid abstracts.$dark-secondary;
+
+              .addInfoHeader {
+                width: 300px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                font-size: abstracts.$PrimaryFontSize;
+                text-align: center;
+
+                .title {
+                  font-size: abstracts.$SecondaryFontSize;
+                  text-align: center;
+                }
+
+                .counter {
+                  font-size: 16px;
+                  text-align: center;
+                  color: abstracts.$Blue;
+                  margin-top: 5px;
+                }
+              }
+
+              .addInfoContent {
+                width: calc(100% - 300px);
+                display: flex;
+                justify-content: center;
+                font-size: abstracts.$PrimaryFontSize;
+                text-align: center;
+
+                &.col {
+                  flex-direction: column;
+                }
+
+                .additionalInfo {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  margin-right: 32px;
+                  p {
+                    font-size: abstracts.$PrimaryFontSize;
+                    text-align: center;
+                  }
+                  img {
+                    width: 20px;
+                    height: 20px;
+                    margin-right: 5px;
+                  }
+                }
+
+                .row {
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  padding: 6px 0px;
+                  border-bottom: 1px solid abstracts.$dark-secondary;
+                  
+                  &:last-child {
+                    border-bottom: none;
+                  }
+
+                  .rowData {
+                    margin: 0 10px;
+                    font-size: abstracts.$PrimaryFontSize;
+                    text-align: left;
+                  }
+
+                  .rowData1 {
+                    min-width: 270px;
+                  }
+
+                  .rowData2 {
+                    width: 200px;
+                  }
+
+                  .rowData3 {
+                    width: 120px;
+                  }
+
+                  .rowData4 {
+                    width: calc(100% - 590px);
+                  }
+                }
+
+                &.note{
+                  margin: 0 16px;
+                  align-items: center;
+                  justify-content: flex-start;
+                }
+              }
             }
           }
         }
