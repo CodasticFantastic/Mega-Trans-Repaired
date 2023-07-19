@@ -86,6 +86,8 @@
         }
 
         .tbody {
+          height: calc(100vh - 200px);
+          overflow-y: auto;
           .tr {
             display: flex;
             flex-direction: column;

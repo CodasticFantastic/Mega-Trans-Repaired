@@ -31,7 +31,7 @@ export async function GET(req) {
           orderId: id,
         },
         data: {
-          status: "Cancelled",
+          status: "Anulowane",
         },
       });
 

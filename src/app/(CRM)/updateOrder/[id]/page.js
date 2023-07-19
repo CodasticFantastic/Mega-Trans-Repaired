@@ -514,11 +514,11 @@ export default function UpdateOrder({ params }) {
               {updateSuccess ? <p className="formSuccess">Aktualizacja danych przesyłki przebiegła prawidłowo</p> : ""}
               <input
                 type="submit"
-                value={orderForm.orderStatus === "Cancelled" ? "Zlecenie zostało anulowane" : "Aktualizuj Zlecenie"}
-                className={`confirmOrder ${orderForm.orderStatus === "Cancelled" ? "orderCanceled" : ""}`}
-                disabled={orderForm.orderStatus === "Cancelled" ? true : false}
+                value={orderForm.orderStatus === "Anulowane" ? "Zlecenie zostało anulowane" : "Aktualizuj Zlecenie"}
+                className={`confirmOrder ${orderForm.orderStatus === "Anulowane" ? "orderCanceled" : ""}`}
+                disabled={orderForm.orderStatus === "Anulowane" ? true : false}
               />
-              {orderForm.orderStatus !== "Cancelled" && (
+              {orderForm.orderStatus !== "Anulowane" && (
                 <button className="cancelOrder" onClick={cancelOrder}>
                   Anuluj Zlecenie
                 </button>

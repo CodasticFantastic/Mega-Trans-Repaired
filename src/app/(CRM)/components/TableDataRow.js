@@ -6,27 +6,22 @@ import PhoneIcon from "@/images/icons/phoneIcon.png";
 import EmailIcon from "@/images/icons/emailIcon.png";
 import CompanyIcon from "@/images/icons/companyIcon.png";
 
-export default function TableDataRow({
-  order,
-  orderId,
-  orderStatus,
-  orderUpdate,
-  orderRecipient,
-  orderPostCode,
-  orderCity,
-  orderStreet,
-  orderStreetNumber,
-  orderFlatNumber,
-  orderRecipientNumber,
-  orderRecipientEmail,
-  orderFromCompany,
+export default function TableDataRow({ order }) {
+  let day;
+  let month;
+  let year;
+  let hour;
+  let minutes;
 
-  orderRecipientAddress,
-  orderRecipientContact,
-  orderRecipientCompany,
-  orderPackages,
-}) {
-  console.log(order);
+  function formatDate(input) {
+    const date = new Date(input);
+    day = date.getDate();
+    month = date.toLocaleDateString("pl-PL", { month: "long" });
+    year = date.getFullYear();
+    hour = date.getHours();
+    minutes = date.getMinutes();
+  }
+
   return (
     <div className="tr">
       <div className="mainInfo">
@@ -36,8 +31,8 @@ export default function TableDataRow({
         <div className="col2 td">{order.orderId}</div>
         <div className="col3 td">{order.status}</div>
         <div className="col4 td">
-          {order.updatedAt.replace("T", "").slice(0, 10)} <br />
-          {order.updatedAt.replace("T", "").slice(10, 18)}
+          {formatDate(order.updatedAt)}
+          {` ${day} ${month} ${year} o ${hour}:${minutes}`}
         </div>
         <div className="col5 td">{order.recipientName}</div>
         <div className="col6 td">
