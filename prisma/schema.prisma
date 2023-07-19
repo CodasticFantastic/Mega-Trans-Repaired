@@ -22,12 +22,12 @@ enum OrderType {
 }
 
 enum Status {
-  Producer
-  Warehouse
-  Delivery
-  Realized
-  PaidToProducer
-  Cancelled
+  Producent
+  Magazyn
+  Dostawa
+  Pobranie
+  Zrealizowane
+  Anulowane
 }
 
 enum CommodityType {
@@ -62,7 +62,7 @@ model Order{
   orderId   String      @id @unique
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
-  status    Status   @default(Producer)
+  status    Status   @default(Producent)
   orderType OrderType 
   orderCountry String
   orderStreet String
