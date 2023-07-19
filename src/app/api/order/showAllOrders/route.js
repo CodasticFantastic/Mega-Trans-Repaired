@@ -23,6 +23,9 @@ export async function GET(req) {
             }
         },
         packages: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
       }
     });
 

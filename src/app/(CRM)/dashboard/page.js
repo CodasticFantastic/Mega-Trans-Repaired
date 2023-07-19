@@ -24,15 +24,16 @@ export default function Dashboard() {
     let request = await fetch(`http://localhost:3000/api/order/showAllOrders`, { headers: { Authorization: session?.accessToken } });
 
     let response = await request.json();
-    console.log(response);
 
-    setUserOrders(
-      response.allUserOrder.map((order) => {
-        return <TableDataRow key={order.orderId} order={order}/>;
-      })
-    );
-
-    
+    if(response.error){
+      console.log(response.error)
+    } else {
+      setUserOrders(
+        response.allUserOrder.map((order) => {
+          return <TableDataRow key={order.orderId} order={order}/>;
+        })
+      );
+    }
   }
 
   return (

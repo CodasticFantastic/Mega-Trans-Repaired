@@ -51,6 +51,11 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
+
+          &:nth-child(even) {
+            background-color: abstracts.$dark-secondary;
+          }
+
           .th {
             font-size: abstracts.$SecondaryFontSize;
             text-align: center;
@@ -93,14 +98,14 @@
             }
           }
 
-          .tr:has(.showMoreInput:checked){
+          .tr:has(.showMoreInput:checked) {
             border-bottom: none;
 
-            .showMoreLabel{
+            .showMoreLabel {
               transform: rotate(180deg);
             }
 
-            .detailInfo{
+            .detailInfo {
               height: auto;
               max-height: 600px;
               border-top: 1px solid abstracts.$dark-secondary;
@@ -174,7 +179,7 @@
                   justify-content: center;
                   padding: 6px 0px;
                   border-bottom: 1px solid abstracts.$dark-secondary;
-                  
+
                   &:last-child {
                     border-bottom: none;
                   }
@@ -202,7 +207,7 @@
                   }
                 }
 
-                &.note{
+                &.note {
                   margin: 0 16px;
                   align-items: center;
                   justify-content: flex-start;
