@@ -6,7 +6,11 @@ import PhoneIcon from "@/images/icons/phoneIcon.png";
 import EmailIcon from "@/images/icons/emailIcon.png";
 import CompanyIcon from "@/images/icons/companyIcon.png";
 
-export default function TableDataRow({ order }) {
+import { useState } from "react";
+import { signOut } from "next-auth/react";
+
+export default function TableDataRow({ order, session }) {
+  const [status, setStatus] = useState(order.status);
   let day;
   let month;
   let year;
@@ -22,6 +26,28 @@ export default function TableDataRow({ order }) {
     minutes = date.getMinutes();
   }
 
+  async function chnageStatus(e, id) {
+    const request = await fetch(`http://localhost:3000/api/order/updateOrderStatus`, {
+      method: "POST",
+      headers: {
+        Authorization: session?.accessToken,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderId: id,
+        status: e,
+      }),
+    });
+
+    const response = await request.json();
+
+    if (response.error) {
+      signOut();
+    } else if (response.success) {
+      setStatus(e);
+    }
+  }
+
   return (
     <div className="tr">
       <div className="mainInfo">
@@ -29,7 +55,19 @@ export default function TableDataRow({ order }) {
           <input type="checkbox" />
         </div>
         <div className="col2 td">{order.orderId}</div>
-        <div className="col3 td">{order.status}</div>
+        <div className={`col3 td ${status}`}>
+          {session.user.role === "ADMIN" && (
+            <select className="status select" value={status} onChange={(e) => chnageStatus(e.target.value, order.orderId)}>
+              <option value="Producent">Producent</option>
+              <option value="Magazyn">Magazyn</option>
+              <option value="Dostawa">Dostawa</option>
+              <option value="Zrealizowane">Zrealizowane</option>
+              <option value="Pobranie">Pobranie</option>
+              <option value="Anulowane">Anulowane</option>
+            </select>
+          )}
+          {session.user.role === "USER" && <p className="status">{order.status}</p>}
+        </div>
         <div className="col4 td">
           {formatDate(order.updatedAt)}
           {` ${day} ${month} ${year} o ${hour}:${minutes}`}

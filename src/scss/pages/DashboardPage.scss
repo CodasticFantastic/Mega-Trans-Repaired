@@ -97,6 +97,75 @@
               width: 100%;
               display: flex;
               justify-content: space-between;
+
+              .col3 {
+                &.Producent .status {
+                  color: abstracts.$Orange;
+                  border: 1px solid abstracts.$Orange;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background-color: abstracts.$dark-primary;
+                  outline: none;
+                  &.select{
+                    width: 104px;
+                  }
+                }
+                &.Magazyn .status {
+                  color: abstracts.$Yellow;
+                  border: 1px solid abstracts.$Yellow;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background-color: abstracts.$dark-primary;
+                  outline: none;
+                  &.select{
+                    width: 98px;
+                  }
+                }
+                &.Dostawa .status {
+                  color: abstracts.$Violet;
+                  border: 1px solid abstracts.$Violet;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background-color: abstracts.$dark-primary;
+                  outline: none;
+                  &.select{
+                    width: 94px;
+                  }
+                }
+                &.Zrealizowane .status {
+                  color: abstracts.$Green;
+                  border: 1px solid abstracts.$Green;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background-color: abstracts.$dark-primary;
+                  outline: none;
+                  &.select{
+                    width: 122px;
+                  }
+                }
+                &.Anulowane .status {
+                  color: abstracts.$Red;
+                  border: 1px solid abstracts.$Red;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background-color: abstracts.$dark-primary;
+                  outline: none;
+                  &.select{
+                    width: 110px;
+                  }
+                }
+                &.Pobranie .status {
+                  color: abstracts.$Teal;
+                  border: 1px solid abstracts.$Teal;
+                  padding: 4px 10px;
+                  border-radius: 4px;
+                  background-color: abstracts.$dark-primary;
+                  outline: none;
+                  &.select{
+                    width: 96px;
+                  }
+                }
+              }
             }
           }
 
@@ -230,7 +299,7 @@
       p {
         font-size: abstracts.$PrimaryFontSize;
         text-align: center;
-        a{
+        a {
           color: abstracts.$Blue;
           text-decoration: none;
         }

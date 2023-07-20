@@ -35,12 +35,12 @@ export default function Dashboard() {
     } else {
       setUserOrders(
         response.allUserOrder.map((order) => {
-          return <TableDataRow key={order.orderId} order={order} />;
+          return <TableDataRow key={order.orderId} order={order} session={session} />;
         })
       );
       setInitialUserOrders(
         response.allUserOrder.map((order) => {
-          return <TableDataRow key={order.orderId} order={order} />;
+          return <TableDataRow key={order.orderId} order={order} session={session} />;
         })
       );
     }
