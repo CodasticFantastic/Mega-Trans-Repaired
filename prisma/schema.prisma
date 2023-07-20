@@ -13,6 +13,7 @@ datasource db {
 enum Role {
   USER
   ADMIN
+  DRIVER
 }
 
 enum OrderType {
@@ -56,6 +57,18 @@ model User {
   deletedAt DateTime?
   orders    Order[]
   role      Role     @default(USER)
+}
+
+model Driver {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  role      Role     @default(DRIVER)
 }
 
 model Order{
