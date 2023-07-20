@@ -1,42 +1,69 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import GreenPlusIcon from "@/images/icons/greenPlusIcon.png";
 import GreenExportIcon from "@/images/icons/greenExportIcon.png";
+import DashboardIcon from "@/images/icons/dashboardIcon.png";
+import DeliveryIcon from "@/images/icons/deliveryIcon.png";
+import CourierIcon from "@/images/icons/courierIcon.png";
+import UsersIcon from "@/images/icons/usersIcon.png";
+
 import Link from "next/link";
+
 import { useSession } from "next-auth/react";
 
-export default function ControlHeader() {
+export default function ControlHeader({ orders, currentOrders, completedOrders, newOrders, inWarehouse }) {
   const { data: session } = useSession();
 
   return (
     <header className="CRMHeader">
-      <h1>Zlecenia</h1>
+      {session && session.user.role === "ADMIN" && (
+        <div className="navigation">
+          <Link href="/dashboard">
+            <Image src={DashboardIcon} alt="Menu - Dashboard" />
+            Dashboard
+          </Link>
+          <Link href="/dashboard/delivery">
+            <Image src={DeliveryIcon} alt="Menu - Dostawa" />
+            Dostawa
+          </Link>
+          <Link href="/dashboard/drivers">
+            <Image src={CourierIcon} alt="Menu - Kierwocy" />
+            Kierowcy
+          </Link>
+          <Link href="/dashboard/clients">
+            <Image src={UsersIcon} alt="Menu - Klieci" />
+            Klienci
+          </Link>
+        </div>
+      )}
+
+      <h1 className={session && session.user.role === "ADMIN" && "admin"}>Zlecenia</h1>
       <div className="info">
         <div className="stats">
           <div className="statTile all">
             <p className="statName">
-              <span>233</span> Zleceń
+              <span>{orders}</span> Zleceń
             </p>
           </div>
           <div className="statTile new">
             <p className="statName">
-              <span>12</span> Nowych Zleceń
+              <span>{newOrders}</span> Nowych Zleceń
             </p>
           </div>
           <div className="statTile current">
             <p className="statName">
-              <span>58</span> Bieżących Zleceń
+              <span>{currentOrders}</span> Bieżących Zleceń
             </p>
           </div>
           <div className="statTile warehouse">
             <p className="statName">
-              <span>62</span> Paczek na Magazynie
+              <span>{inWarehouse}</span> Zamówień na Magazynie
             </p>
           </div>
           <div className="statTile realized">
             <p className="statName">
-              <span>2243</span> Zrealizowanych Zleceń
+              <span>{completedOrders}</span> Zrealizowanych Zleceń
             </p>
           </div>
         </div>

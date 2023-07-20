@@ -86,7 +86,7 @@
         }
 
         .tbody {
-          height: calc(100vh - 200px);
+          height: calc(100vh - 230px);
           overflow-y: auto;
           .tr {
             display: flex;
@@ -217,6 +217,22 @@
               }
             }
           }
+        }
+      }
+    }
+
+    footer {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      p {
+        font-size: abstracts.$PrimaryFontSize;
+        text-align: center;
+        a{
+          color: abstracts.$Blue;
+          text-decoration: none;
         }
       }
     }

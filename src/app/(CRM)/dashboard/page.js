@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import ControlHeader from "../components/ControlHeader";
 import FilterSideBar from "../components/sidebars/FilterSideBar";
+import TableDataRow from "../components/TableDataRow";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-
-import Image from "next/image";
-import TableDataRow from "../components/TableDataRow";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -41,6 +39,13 @@ export default function Dashboard() {
         })
       );
     }
+  }
+
+  ///////////////// Filters Section
+  // Search orders by id
+  function searchOrdersById(id) {
+    let filtered = [...initialUserOrders].filter((order) => order.props.order.orderId.indexOf(id) !== -1);
+    setUserOrders(filtered);
   }
 
   // Sort orders by date
@@ -102,12 +107,7 @@ export default function Dashboard() {
     }
   }
 
-  // Search orders by id
-  function searchOrdersById(id) {
-    let filtered = [...initialUserOrders].filter((order) => order.props.order.orderId.indexOf(id) !== -1);
-    setUserOrders(filtered);
-  }
-
+  // Filter orders by date
   function filterOrdersByDate(from, to) {
     let filtered = [...initialUserOrders].filter((order) => {
       return new Date(order.props.order.createdAt) >= new Date(from) && new Date(order.props.order.createdAt) <= new Date(to);
@@ -121,6 +121,24 @@ export default function Dashboard() {
     setUserOrders(initialUserOrders);
   }
 
+  ///////////////// Info Data Section
+  // Count all orders
+  let allOrders = initialUserOrders.length;
+
+  // Current orders
+  let currentOrders = initialUserOrders.filter(
+    (order) => order.props.order.status !== "Zrealizowane" && order.props.order.status !== "Anulowane"
+  ).length;
+
+  // Completed orders
+  let completedOrders = initialUserOrders.filter((order) => order.props.order.status === "Zrealizowane").length;
+
+  // New Orders
+  let newOrders = initialUserOrders.filter((order) => order.props.order.status === "Producent").length;
+
+  // In Warehouse
+  let inWarehouse = initialUserOrders.filter((order) => order.props.order.status === "Magazyn").length;
+
   return (
     <div className="CrmPage">
       <FilterSideBar
@@ -131,13 +149,19 @@ export default function Dashboard() {
         clearFilters={clearFilters}
       />
       <div className="mainContent">
-        <ControlHeader />
+        <ControlHeader
+          orders={allOrders}
+          currentOrders={currentOrders}
+          completedOrders={completedOrders}
+          newOrders={newOrders}
+          inWarehouse={inWarehouse}
+        />
         <main>
           <div className="table">
             <div className="thead">
               <div className="tr">
                 <div className="col1 th">Eksport</div>
-                <div className="col2 th">Numer Paczki</div>
+                <div className="col2 th">ID Paczki</div>
                 <div className="col3 th">Status</div>
                 <div className="col4 th">Aktualizacja</div>
                 <div className="col5 th">Nazwa Klienta</div>
@@ -148,6 +172,16 @@ export default function Dashboard() {
             <div className="tbody">{userOrders}</div>
           </div>
         </main>
+        {session && session.user.role === "USER" && (
+          <footer>
+            <p>
+              Create by: <Link href="/">Space Agency Marketing</Link>
+            </p>
+            <p>
+              Icons by: <Link href="https://icons8.com/">Icons8</Link>
+            </p>
+          </footer>
+        )}
       </div>
     </div>
   );
