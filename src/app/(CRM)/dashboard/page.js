@@ -21,7 +21,12 @@ export default function Dashboard() {
 
   // Fetch all orders for this user
   async function fetchUserOrders() {
-    let request = await fetch(`http://localhost:3000/api/order/showAllOrders`, { headers: { Authorization: session?.accessToken } });
+    let request;
+    if (session.user.role === "USER") {
+      request = await fetch(`http://localhost:3000/api/order/showAllOrders`, { headers: { Authorization: session?.accessToken } });
+    } else if (session.user.role === "ADMIN") {
+      request = await fetch(`http://localhost:3000/api/order/showAllOrdersAdmin`, { headers: { Authorization: session?.accessToken } });
+    }
 
     let response = await request.json();
 

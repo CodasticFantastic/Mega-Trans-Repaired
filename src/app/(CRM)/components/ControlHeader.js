@@ -19,10 +19,6 @@ export default function ControlHeader({ orders, currentOrders, completedOrders, 
     <header className="CRMHeader">
       {session && session.user.role === "ADMIN" && (
         <div className="navigation">
-          <Link href="/dashboard">
-            <Image src={DashboardIcon} alt="Menu - Dashboard" />
-            Dashboard
-          </Link>
           <Link href="/dashboard/delivery">
             <Image src={DeliveryIcon} alt="Menu - Dostawa" />
             Dostawa
