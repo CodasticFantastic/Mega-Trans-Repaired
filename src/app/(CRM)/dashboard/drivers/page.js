@@ -10,6 +10,13 @@ export default function DriversPage() {
   const { data: session } = useSession();
   const [formError, setFormError] = useState(false);
   const [drivers, setDrivers] = useState([]);
+  const [driversForm, setDriversForm] = useState({
+    driverName: "",
+    driverEmail: "",
+    driverPhone: "",
+    driverPassword: "",
+    driverPasswordConfirm: "",
+  });
 
   useEffect(() => {
     if (session) {
@@ -84,6 +91,13 @@ export default function DriversPage() {
       setFormError(response.error);
     } else if (response.Success) {
       getDrivers();
+      setDriversForm({
+        driverName: "",
+        driverEmail: "",
+        driverPhone: "",
+        driverPassword: "",
+        driverPasswordConfirm: "",
+      });
     }
   }
 
@@ -124,25 +138,80 @@ export default function DriversPage() {
           <div className="row first">
             <label htmlFor="name">
               Imię Kierowcy
-              <input type="text" name="name" id="name" required />
+              <input
+                type="text"
+                name="name"
+                id="name"
+                required
+                value={driversForm.driverName}
+                onChange={(e) =>
+                  setDriversForm((prev) => {
+                    return { ...prev, driverName: e.target.value };
+                  })
+                }
+              />
             </label>
             <label htmlFor="email">
               Email Kierowcy
-              <input type="email" name="email" id="email" required />
+              <input
+                type="email"
+                name="email"
+                id="email"
+                required
+                value={driversForm.driverEmail}
+                onChange={(e) =>
+                  setDriversForm((prev) => {
+                    return { ...prev, driverEmail: e.target.value };
+                  })
+                }
+              />
             </label>
             <label htmlFor="phone">
               Telefon Kierowcy
-              <input type="tel" name="phone" id="phone" required />
+              <input
+                type="tel"
+                name="phone"
+                id="phone"
+                required
+                value={driversForm.driverPhone}
+                onChange={(e) =>
+                  setDriversForm((prev) => {
+                    return { ...prev, driverPhone: e.target.value };
+                  })
+                }
+              />
             </label>
           </div>
           <div className="row">
             <label htmlFor="password">
               Hasło
-              <input type="password" name="password" id="password" required />
+              <input
+                type="password"
+                name="password"
+                id="password"
+                required
+                value={driversForm.driverPassword}
+                onChange={(e) =>
+                  setDriversForm((prev) => {
+                    return { ...prev, driverPassword: e.target.value };
+                  })
+                }
+              />
             </label>
             <label htmlFor="passwordConfirm">
               Potwierdź Hasło
-              <input type="password" name="passwordConfirm" id="passwordConfirm" required />
+              <input
+                type="password"
+                name="passwordConfirm"
+                id="passwordConfirm"
+                required
+                value={driversForm.driverPasswordConfirm}
+                onChange={(e) =>
+                  setDriversForm((prev) => {
+                    return { ...prev, driverPasswordConfirm: e.target.value };
+                  })
+                }
+              />
             </label>
             <button type="submit">Dodaj Kierowcę</button>
           </div>
