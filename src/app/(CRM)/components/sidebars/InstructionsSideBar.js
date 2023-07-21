@@ -12,6 +12,7 @@ import arrowDownIcon from "@/images/icons/arrowDown.png";
 import InfoIcon from "@/images/icons/infoIcon.png";
 
 import LogoutButton from "../LogoutButton";
+import Link from "next/link";
 
 export default function InstructionsSideBar() {
   return (
@@ -95,9 +96,9 @@ export default function InstructionsSideBar() {
         </div>
         <div className="options">
           <LogoutButton />
-          <div className="settings">
+          <Link className="settings" href="/dashboard/settings">
             <Image src={settingsIcon} alt="Ikona filtrowania" className="icon" />
-          </div>
+          </Link>
         </div>
       </div>
     </aside>

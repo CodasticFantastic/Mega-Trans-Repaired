@@ -14,6 +14,7 @@ import LogoutButton from "../LogoutButton";
 
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function FilterSideBar({ sortOrdersByDate, filterOrdersByStatus, searchOrdersById, filterOrdersByDate, clearFilters }) {
   const { data: session } = useSession();
@@ -225,9 +226,9 @@ export default function FilterSideBar({ sortOrdersByDate, filterOrdersByStatus, 
         </div>
         <div className="options">
           <LogoutButton />
-          <div className="settings">
+          <Link className="settings" href="/dashboard/settings">
             <Image src={settingsIcon} alt="Ikona filtrowania" className="icon" />
-          </div>
+          </Link>
         </div>
       </div>
     </aside>
