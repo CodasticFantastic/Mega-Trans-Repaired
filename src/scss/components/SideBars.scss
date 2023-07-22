@@ -352,6 +352,33 @@ $Violet: abstracts.$Violet;
         font-weight: 300;
       }
     }
+
+    .print{
+      width: 100%;
+      height: $TileHeight;
+      margin-top: 20px;
+      border-radius: 4px;
+      background-color: abstracts.$dark-secondary;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      text-decoration: none;
+      color: abstracts.$white;
+      font-size: $SecondaryFontSize;
+      transition: 0.4s ease-in-out;
+      &:hover{
+        background-color: abstracts.$gray;
+      }
+
+      img{
+        width: calc($IconSize + 2px);
+        height: calc($IconSize + 2px);
+        object-fit: contain;
+        margin-right: 8px;
+      }
+    }
+
   }
 
   .userSection {

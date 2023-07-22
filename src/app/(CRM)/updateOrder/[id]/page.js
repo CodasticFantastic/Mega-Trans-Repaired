@@ -3,8 +3,6 @@ import Link from "next/link";
 import InstructionsSideBar from "../../components/sidebars/InstructionsSideBar";
 import Image from "next/image";
 import redBackIcon from "@/images/icons/redBackIcon.png";
-import greenPlusIcon from "@/images/icons/greenPlusIcon.png";
-import redTrashIcon from "@/images/icons/redTrashIcon.png";
 
 import { useEffect, useState } from "react";
 import { v4 as uuid4 } from "uuid";
@@ -172,9 +170,18 @@ export default function UpdateOrder({ params }) {
     }
   }
 
+  // Actions - PDF Waybill
+  async function pdfWaybill() {
+    console.log("PDF");
+
+    let pdfWaybill = document.getElementById("test");
+
+    html2pdf(pdfWaybill);
+  }
+
   return (
-    <div className="CrmPage">
-      <InstructionsSideBar />
+    <div id="test" className="CrmPage">
+      <InstructionsSideBar orderId={orderForm.orderId} />
       <div className="mainContent NewOrderPage">
         <header className="CRMHeader">
           <Link href="/dashboard" className="backToDashboard">

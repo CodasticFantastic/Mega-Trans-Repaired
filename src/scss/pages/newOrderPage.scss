@@ -93,6 +93,13 @@
             border-radius: 4px;
             text-align: center;
           }
+
+          textarea{
+            height: 100px;
+            padding: 6px;
+            resize: none;
+            font-family: "Poppins", sans-serif;
+          }
         }
 
         label:nth-child(2),

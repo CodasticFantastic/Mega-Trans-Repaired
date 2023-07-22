@@ -21,6 +21,11 @@ export async function GET(req) {
       },
       include: {
         packages: true,
+        user: {
+          select: {
+            company: true,
+          }
+        },
       },
     });
 

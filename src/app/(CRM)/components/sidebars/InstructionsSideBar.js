@@ -1,10 +1,7 @@
 import Image from "next/image";
 import Logo from "@/images/LogoBlue.png";
-import sortIcon from "@/images/icons/sortIcon.png";
-import filterIcon from "@/images/icons/filterIcon.png";
-import calendarIcon from "@/images/icons/calendarIcon.png";
-import redTrashIcon from "@/images/icons/redTrashIcon.png";
-
+import invoiceIcon from "@/images/icons/invoiceIcon.png";
+import qrIcon from "@/images/icons/qrIcon.png";
 import userIcon from "@/images/icons/userIcon.png";
 import settingsIcon from "@/images/icons/settingsIcon.png";
 import arrowDownIcon from "@/images/icons/arrowDown.png";
@@ -14,7 +11,7 @@ import InfoIcon from "@/images/icons/infoIcon.png";
 import LogoutButton from "../LogoutButton";
 import Link from "next/link";
 
-export default function InstructionsSideBar() {
+export default function InstructionsSideBar({ orderId }) {
   return (
     <aside className="SideBar">
       <div className="logo">
@@ -87,6 +84,14 @@ export default function InstructionsSideBar() {
             </p>
           </div>
         </div>
+        <Link className="print" href={`/updateOrder/${orderId}/waybill`} target="_blank">
+          <Image src={invoiceIcon} alt="Ikona sortowania" className="icon" />
+          List Przewozowy
+        </Link>
+        <Link className="print" href={`/updateOrder/${orderId}/label`} target="_blank">
+          <Image src={qrIcon} alt="Ikona sortowania" className="icon" />
+          Etykiety
+        </Link>
       </div>
 
       <div className="userSection">
