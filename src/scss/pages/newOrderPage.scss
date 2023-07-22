@@ -47,6 +47,12 @@
         justify-content: center;
         align-items: center;
 
+        &.stage3 {
+          textarea {
+            height: 28px;
+          }
+        }
+
         .formStageName {
           font-size: 16px;
           position: absolute;
@@ -58,7 +64,7 @@
           color: abstracts.$Blue;
         }
 
-        .error{
+        .error {
           color: abstracts.$Red;
           font-size: 12px;
           margin-top: 4px;
@@ -94,8 +100,8 @@
             text-align: center;
           }
 
-          textarea{
-            height: 100px;
+          textarea {
+            height: 130px;
             padding: 6px;
             resize: none;
             font-family: "Poppins", sans-serif;
@@ -132,7 +138,7 @@
           width: 30%;
           margin-bottom: 0px;
 
-          .tableOverflow{
+          .tableOverflow {
             height: 100%;
             width: 100%;
             overflow-y: auto;
@@ -200,7 +206,8 @@
         margin-bottom: 0px;
       }
 
-      .confirmOrder, .cancelOrder {
+      .confirmOrder,
+      .cancelOrder {
         min-width: 200px;
         height: 36px;
         border: none;
@@ -218,12 +225,12 @@
         color: abstracts.$dark-primary;
       }
 
-      .confirmOrder.orderCanceled:hover{
+      .confirmOrder.orderCanceled:hover {
         background-color: abstracts.$dark-tertiary;
         color: unset;
       }
 
-      .cancelOrder{
+      .cancelOrder {
         min-width: unset;
         width: 120px;
         height: 28px;
@@ -233,13 +240,14 @@
         background-color: abstracts.$Red;
       }
 
-      .cancelOrder:hover{
+      .cancelOrder:hover {
         background-color: abstracts.$dark-primary;
         color: abstracts.$Red;
       }
 
-      .formError, .formSuccess{
-        border:1px solid abstracts.$Red;
+      .formError,
+      .formSuccess {
+        border: 1px solid abstracts.$Red;
         border-radius: 4px;
         padding: 4px 8px;
         color: abstracts.$Red;
@@ -247,12 +255,10 @@
         margin-top: 23px;
       }
 
-      .formSuccess{
-        border:1px solid abstracts.$Green;
+      .formSuccess {
+        border: 1px solid abstracts.$Green;
         color: abstracts.$Green;
       }
-
-
     }
   }
 }
