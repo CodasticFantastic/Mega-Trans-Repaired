@@ -11,7 +11,14 @@ import InfoIcon from "@/images/icons/infoIcon.png";
 import LogoutButton from "../LogoutButton";
 import Link from "next/link";
 
+import { usePathname } from "next/navigation";
+
 export default function InstructionsSideBar({ orderId }) {
+  let pathname = usePathname();
+  pathname = pathname.split("/")[1];
+
+  console.log(pathname);
+
   return (
     <aside className="SideBar">
       <div className="logo">
@@ -84,14 +91,18 @@ export default function InstructionsSideBar({ orderId }) {
             </p>
           </div>
         </div>
-        <Link className="print" href={`/updateOrder/${orderId}/waybill`} target="_blank">
-          <Image src={invoiceIcon} alt="Ikona sortowania" className="icon" />
-          List Przewozowy
-        </Link>
-        <Link className="print" href={`/updateOrder/${orderId}/label`} target="_blank">
-          <Image src={qrIcon} alt="Ikona sortowania" className="icon" />
-          Etykiety
-        </Link>
+        {pathname === "updateOrder" && (
+          <>
+            <Link className="print" href={`/updateOrder/${orderId}/waybill`} target="_blank">
+              <Image src={invoiceIcon} alt="Ikona sortowania" className="icon" />
+              List Przewozowy
+            </Link>
+            <Link className="print" href={`/updateOrder/${orderId}/label`} target="_blank">
+              <Image src={qrIcon} alt="Ikona sortowania" className="icon" />
+              Etykiety
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="userSection">

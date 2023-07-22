@@ -27,6 +27,7 @@ export default function Waybill() {
     address: "",
     city: "",
     orderNote: "",
+    currency: ""
   });
 
   const [packages, setPackages] = useState([]);
@@ -72,10 +73,11 @@ export default function Waybill() {
         orderType: res.order.orderType,
         recipient: res.order.recipientName,
         recipientPhone: res.order.recipientPhone,
-        price: price,
+        price: price + res.order.currency,
         address: address,
         city: res.order.orderPostCode + " " + res.order.orderCity,
         orderNote: res.order.orderNote,
+        currency: res.order.currency
       });
       setPackages(
         res.order.packages.map((item, index) => {
@@ -85,7 +87,7 @@ export default function Waybill() {
                 <p className="number">{index + 1}</p>
                 <p className="id">{item.packageId}</p>
                 <p className="name">{item.commodityName}</p>
-                <p className="price">{item.commodityPrice}</p>
+                <p className="price">{item.commodityPrice + res.order.currency}</p>
               </div>
             </div>
           );

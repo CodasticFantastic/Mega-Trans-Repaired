@@ -26,22 +26,30 @@ export default function NewOrder() {
   const [commodityList, setcommodityList] = useState([]);
   const [commodityError, setCommodityError] = useState(false);
   const [formError, setFormError] = useState(null);
+  const [countryState, setCountryState] = useState("Polska");
 
   // Actions - Process Order to Backend
   async function processOrder(event) {
     event.preventDefault();
     setFormError(null);
+    let currency;
 
     if (commodityList.length < 1) {
       setFormError("Brak Towarów w Zleceniu");
       return;
     }
 
+    if (countryState === "Polska") {
+      currency = "PLN";
+    } else {
+      currency = "EUR";
+    }
+
     const data = new FormData(event.currentTarget);
     const orderData = {
       orderId: uuid4(),
       userId: session?.user.id,
-      status: "Producer",
+      status: "Producent",
       orderType: data.get("orderType"),
       orderCountry: data.get("orderCountry"),
       orderStreet: data.get("orderStreet"),
@@ -54,6 +62,7 @@ export default function NewOrder() {
       orderClientName: data.get("orderClientName"),
       orderClientPhone: data.get("orderClientPhone"),
       orderClientEmail: data.get("orderClientEmail"),
+      currency: currency,
       orderItems: commodityList,
     };
 
@@ -146,14 +155,14 @@ export default function NewOrder() {
                   <label htmlFor="orderType">
                     Rodzaj Zlecenia
                     <select name="orderType" id="orderType">
-                      <option value="Delivery">Dostawa</option>
-                      <option value="Collect">Odbór</option>
-                      <option value="Producer">Zwrot</option>
+                      <option value="Dostawa">Dostawa</option>
+                      <option value="Odbior">Odbór</option>
+                      <option value="Zwrot">Zwrot</option>
                     </select>
                   </label>
                   <label htmlFor="orderCountry">
-                    Rodzaj Zlecenia
-                    <select name="orderCountry" id="orderCountry">
+                    Kraj
+                    <select name="orderCountry" id="orderCountry" value={countryState} onChange={(e) => setCountryState(e.target.value)}>
                       <option value="Polska">Polska</option>
                       <option value="Czechy">Czechy</option>
                     </select>
@@ -272,9 +281,9 @@ export default function NewOrder() {
                     </select>
                   </label>
                   <label htmlFor="orderCommodityPayAmount">
-                    Kwota Pobrania
+                    Kwota Pobrania {countryState === "Polska" ? "(PLN)" : "(EUR)"}
                     <input
-                      type="text"
+                      type="number"
                       name="orderCommodityPayAmount"
                       id="orderCommodityPayAmount"
                       value={commodityItem.orderCommodityPayAmount}

@@ -8,6 +8,8 @@ import TableDataRow from "../components/TableDataRow";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
+import { signOut } from "next-auth/react";
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const [userOrders, setUserOrders] = useState([]);
@@ -31,7 +33,7 @@ export default function Dashboard() {
     let response = await request.json();
 
     if (response.error) {
-      console.log(response.error);
+      signOut();
     } else {
       setUserOrders(
         response.allUserOrder.map((order) => {

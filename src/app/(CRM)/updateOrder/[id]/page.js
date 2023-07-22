@@ -69,7 +69,7 @@ export default function UpdateOrder({ params }) {
             orderCommodityPayType: item.commodityPaymentType,
             orderCommodityId: item.packageId,
             orderCommodityName: item.commodityName,
-            orderCommodityPayAmount: item.commodityPrice,
+            orderCommodityPayAmount: item.commodityPrice + response.order.currency,
             orderCommodityNote: item.commodityNote,
           };
         })
@@ -226,6 +226,7 @@ export default function UpdateOrder({ params }) {
                           return { ...prevState, orderCountry: e.target.value };
                         });
                       }}
+                      disabled
                     >
                       <option value="Polska">Polska</option>
                       <option value="Czechy">Czechy</option>

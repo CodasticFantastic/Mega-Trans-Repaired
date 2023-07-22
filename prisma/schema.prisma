@@ -17,9 +17,9 @@ enum Role {
 }
 
 enum OrderType {
-  ProdReturn
-  Collect
-  Delivery
+  Zwrot
+  Odbior
+  Dostawa
 }
 
 enum Status {
@@ -89,6 +89,7 @@ model Order{
   recipientPhone String
   recipientEmail String
   packages  Package[]
+  currency String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -101,7 +102,7 @@ model Package {
   commodityType CommodityType 
   commodityName String
   commodityPaymentType CommodityPaymentType
-  commodityPrice String?
+  commodityPrice Int?
   commodityNote String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

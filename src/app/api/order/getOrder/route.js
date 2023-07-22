@@ -43,8 +43,4 @@ export async function GET(req) {
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  // Check if requested order exists
-
-  //   console.log(id);
 }

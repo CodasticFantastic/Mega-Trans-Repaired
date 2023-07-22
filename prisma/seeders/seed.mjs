@@ -13,8 +13,9 @@ async function main() {
     const orderId = uuid4();
     const userId = 1;
     const status = faker.helpers.arrayElement(["Producent", "Magazyn", "Dostawa", "Pobranie", "Zrealizowane", "Anulowane"]);
-    const orderType = faker.helpers.arrayElement(["ProdReturn", "Collect", "Delivery"]);
+    const orderType = faker.helpers.arrayElement(["Zwrot", "Odbior", "Dostawa"]);
     const orderCountry = "Polska";
+    const currency = "PLN";
     const orderStreet = faker.location.street();
     const orderStreetNumber = faker.number.int({ min: 1, max: 100 }).toString();
     const orderFlatNumber = faker.number.int({ min: 1, max: 100 }).toString();
@@ -38,9 +39,9 @@ async function main() {
       const commodityNote = faker.lorem.sentence(2);
 
       if (commodityPaymentType === "Pobranie") {
-        commodityPrice = faker.number.int({ min: 1, max: 10000 }).toString();
+        commodityPrice = faker.number.int({ min: 1, max: 10000 });
       } else {
-        commodityPrice = "0";
+        commodityPrice = 0;
       }
 
       orderPackages.push({
@@ -71,6 +72,7 @@ async function main() {
       recipientEmail: recipientEmail,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      currency: currency,
       packages: {
         create: orderPackages,
       },

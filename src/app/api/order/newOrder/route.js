@@ -21,7 +21,7 @@ export async function POST(req) {
         commodityType: item.orderCommodityType,
         commodityName: item.orderCommodityName,
         commodityPaymentType: item.orderCommodityPayType,
-        commodityPrice: item.orderCommodityPayAmount,
+        commodityPrice: +item.orderCommodityPayAmount,
         commodityNote: item.orderCommodityNote,
       };
     });
@@ -44,6 +44,7 @@ export async function POST(req) {
         recipientName: request.orderClientName,
         recipientPhone: request.orderClientPhone,
         recipientEmail: request.orderClientEmail,
+        currency: request.currency,
         packages: {
           create: packages,
         },
