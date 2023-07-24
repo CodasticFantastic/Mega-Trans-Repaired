@@ -40,10 +40,10 @@ export default function Waybill() {
     }
   }, [session]);
 
-  if (orderData.id !== "" && pageRender === 1) {
-    generatePdf(ref);
-    setPageRender(2);
-  }
+//   if (orderData.id !== "" && pageRender === 1) {
+//     generatePdf(ref);
+//     setPageRender(2);
+//   }
 
   // Get order from API
   async function getOrder() {

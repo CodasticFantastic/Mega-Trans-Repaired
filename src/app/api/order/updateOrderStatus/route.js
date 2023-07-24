@@ -5,7 +5,7 @@ export async function POST(req) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || verifyJwt(accessToken).id.role !== "ADMIN") {
+  if ((!accessToken || !verifyJwt(accessToken)) || verifyJwt(accessToken).id.role !== "ADMIN") {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 

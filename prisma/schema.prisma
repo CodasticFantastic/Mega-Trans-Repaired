@@ -102,7 +102,7 @@ model Package {
   commodityType CommodityType 
   commodityName String
   commodityPaymentType CommodityPaymentType
-  commodityPrice Int?
+  commodityPrice Float?
   commodityNote String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

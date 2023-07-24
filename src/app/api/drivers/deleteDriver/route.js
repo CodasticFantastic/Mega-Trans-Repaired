@@ -7,7 +7,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const id = +searchParams.get("id");
 
-  if (!accessToken || verifyJwt(accessToken).id.role !== "ADMIN") {
+  if ((!accessToken || !verifyJwt(accessToken)) || verifyJwt(accessToken).id.role !== "ADMIN") {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
