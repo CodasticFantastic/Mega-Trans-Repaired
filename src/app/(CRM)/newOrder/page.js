@@ -80,7 +80,7 @@ export default function NewOrder() {
     if (response.error) {
       setFormError(response.error);
     } else if (response.Success) {
-      // router.push("/updateOrder/" + orderData.orderId);
+      router.push("/updateOrder/" + orderData.orderId);
     }
   }
 

@@ -6,7 +6,7 @@ import QRCode from "react-qr-code";
 import Image from "next/image";
 import Logo from "@/images/LogoBlack.png";
 
-import generatePdf from "@/helpers/generatePdf";
+import { generateWaybill } from "@/helpers/generatePdf";
 
 import { useSession } from "next-auth/react";
 
@@ -27,7 +27,7 @@ export default function Waybill() {
     address: "",
     city: "",
     orderNote: "",
-    currency: ""
+    currency: "",
   });
 
   const [packages, setPackages] = useState([]);
@@ -41,7 +41,7 @@ export default function Waybill() {
   }, [session]);
 
   if (orderData.id !== "" && pageRender === 1) {
-    generatePdf(ref);
+    generateWaybill(ref);
     setPageRender(2);
   }
 
@@ -77,7 +77,7 @@ export default function Waybill() {
         address: address,
         city: res.order.orderPostCode + " " + res.order.orderCity,
         orderNote: res.order.orderNote,
-        currency: res.order.currency
+        currency: res.order.currency,
       });
       setPackages(
         res.order.packages.map((item, index) => {

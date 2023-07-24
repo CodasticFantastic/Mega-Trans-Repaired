@@ -26,32 +26,30 @@ export async function POST(req) {
       };
     });
 
-    console.log(+request.orderItems[0].orderCommodityPayAmount)
-
     // Create new order 
-    // const newOrder = await prisma.order.create({
-    //   data: {
-    //     orderId: request.orderId,
-    //     userId: verifyJwt(accessToken).id.id,
-    //     status: request.status,
-    //     orderType: request.orderType,
-    //     orderCountry: request.orderCountry,
-    //     orderStreet: request.orderStreet,
-    //     orderStreetNumber: request.orderStreetNumber,
-    //     orderFlatNumber: request.orderFlatNumber,
-    //     orderCity: request.orderCity,
-    //     orderPostCode: request.orderPostCode,
-    //     orderState: request.orderState,
-    //     orderNote: request.orderNote,
-    //     recipientName: request.orderClientName,
-    //     recipientPhone: request.orderClientPhone,
-    //     recipientEmail: request.orderClientEmail,
-    //     currency: request.currency,
-    //     packages: {
-    //       create: packages,
-    //     },
-    //   },
-    // });
+    const newOrder = await prisma.order.create({
+      data: {
+        orderId: request.orderId,
+        userId: verifyJwt(accessToken).id.id,
+        status: request.status,
+        orderType: request.orderType,
+        orderCountry: request.orderCountry,
+        orderStreet: request.orderStreet,
+        orderStreetNumber: request.orderStreetNumber,
+        orderFlatNumber: request.orderFlatNumber,
+        orderCity: request.orderCity,
+        orderPostCode: request.orderPostCode,
+        orderState: request.orderState,
+        orderNote: request.orderNote,
+        recipientName: request.orderClientName,
+        recipientPhone: request.orderClientPhone,
+        recipientEmail: request.orderClientEmail,
+        currency: request.currency,
+        packages: {
+          create: packages,
+        },
+      },
+    });
 
     return new Response(JSON.stringify({ Success: "Success" }), {
       status: 200,
