@@ -23,16 +23,16 @@ export default function Header() {
           <nav className="navigation">
             <ul>
               <li>
-                <a href="#OfferSection">Usługi</a>
+                <a href="/#OfferSection">Usługi</a>
               </li>
               <li>
-                <a href="#ServiceSection">Serwis</a>
+                <a href="/#ServiceSection">Serwis</a>
               </li>
               <li>
-                <a href="#PriceSection">Cennik</a>
+                <a href="/#PriceSection">Cennik</a>
               </li>
               <li>
-                <a href="#ContactSection">Kontakt</a>
+                <a href="/#ContactSection">Kontakt</a>
               </li>
             </ul>
           </nav>
@@ -69,16 +69,16 @@ export default function Header() {
             <nav className="navigation">
               <ul>
                 <li>
-                  <a href="#OfferSection">Usługi</a>
+                  <a href="/#OfferSection">Usługi</a>
                 </li>
                 <li>
-                  <a href="#ServiceSection">Serwis</a>
+                  <a href="/#ServiceSection">Serwis</a>
                 </li>
                 <li>
-                  <a href="#PriceSection">Cennik</a>
+                  <a href="/#PriceSection">Cennik</a>
                 </li>
                 <li>
-                  <a href="#ContactSection">Kontakt</a>
+                  <a href="/#ContactSection">Kontakt</a>
                 </li>
               </ul>
             </nav>

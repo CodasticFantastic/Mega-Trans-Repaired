@@ -23,24 +23,24 @@ export async function GET(req) {
       },
     });
 
-    order = {
-      orderId: order.orderId,
-      user: order.user,
-      status: order.status,
-      deliveryDate: order.deliveryDate,
-      orderPostCode: order.orderPostCode,
-      orderFlatNumber: order.orderFlatNumber,
-      currency: order.currency,
-      orderStreet: order.orderStreet,
-      orderStreetNumber: order.orderStreetNumber,
-      orderCity: order.orderCity,
-      orderCountry: order.orderCountry,
-      packages: order.packages,
-      orderPayment: order.orderPayment,
-      courier: order.courier,
-    };
-
     if (order) {
+      order = {
+        orderId: order.orderId,
+        user: order.user,
+        status: order.status,
+        deliveryDate: order.deliveryDate,
+        orderPostCode: order.orderPostCode,
+        orderFlatNumber: order.orderFlatNumber,
+        currency: order.currency,
+        orderStreet: order.orderStreet,
+        orderStreetNumber: order.orderStreetNumber,
+        orderCity: order.orderCity,
+        orderCountry: order.orderCountry,
+        packages: order.packages,
+        orderPayment: order.orderPayment,
+        courier: order.courier,
+      };
+
       return new Response(JSON.stringify({ order }), { status: 200 });
     } else {
       throw new Error("Nie znaleziono zamówienia o podanym numerze");
