@@ -10,10 +10,14 @@ import Link from "next/link";
 
 import { signOut } from "next-auth/react";
 
+import FileSaver from "file-saver";
+import XLSX from "sheetjs-style";
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const [userOrders, setUserOrders] = useState([]);
   const [initialUserOrders, setInitialUserOrders] = useState([]);
+  const [exportOrders, setExportOrders] = useState([]);
 
   useEffect(() => {
     if (session) {
@@ -37,12 +41,12 @@ export default function Dashboard() {
     } else {
       setUserOrders(
         response.allUserOrder.map((order) => {
-          return <TableDataRow key={order.orderId} order={order} session={session} />;
+          return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
         })
       );
       setInitialUserOrders(
         response.allUserOrder.map((order) => {
-          return <TableDataRow key={order.orderId} order={order} session={session} />;
+          return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
         })
       );
     }
@@ -146,6 +150,37 @@ export default function Dashboard() {
   // In Warehouse
   let inWarehouse = initialUserOrders.filter((order) => order.props.order.status === "Magazyn").length;
 
+  ///////////////// Export Data To Excel
+  async function exportOrdersData() {
+    let ordersToExport = exportOrders.map((order) => {
+      let number = order.orderStreetNumber;
+      if (order.orderFlatNumber) {
+        number += "/" + order.orderFlatNumber;
+      }
+
+      return {
+        Nazwa: order.orderId,
+        Kategoria: order.orderType,
+        Opis: order.recipientName,
+        "Kod pocztwoy": order.orderPostCode,
+        Miasto: order.orderCity,
+        Ulica: order.orderStreet,
+        Numer: number,
+        Państwo: order.orderCountry,
+        "Czas postoju": "00:15:00",
+      };
+    });
+
+    const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const fileExtension = ".xlsx";
+
+    const ws = XLSX.utils.json_to_sheet(ordersToExport);
+    const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, "Zamówienia" + fileExtension);
+  }
+
   return (
     <div className="CrmPage">
       <FilterSideBar
@@ -162,6 +197,7 @@ export default function Dashboard() {
           completedOrders={completedOrders}
           newOrders={newOrders}
           inWarehouse={inWarehouse}
+          exportOrdersData={exportOrdersData}
         />
         <main>
           <div className="table">

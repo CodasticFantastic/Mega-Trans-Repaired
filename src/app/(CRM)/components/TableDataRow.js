@@ -9,8 +9,9 @@ import CompanyIcon from "@/images/icons/companyIcon.png";
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 
-export default function TableDataRow({ order, session }) {
+export default function TableDataRow({ order, session, setExportOrders }) {
   const [status, setStatus] = useState(order.status);
+  const [ifExported, setIfExported] = useState(false);
   let day;
   let month;
   let year;
@@ -48,11 +49,21 @@ export default function TableDataRow({ order, session }) {
     }
   }
 
+  function exportOrder(e) {
+    setIfExported(e.target.checked);
+
+    if (e.target.checked) {
+      setExportOrders((prev) => [...prev, order]);
+    } else {
+      setExportOrders((prev) => prev.filter((item) => item.orderId !== order.orderId));
+    }
+  }
+
   return (
     <div className="tr">
       <div className="mainInfo">
         <div className="col1 td">
-          <input type="checkbox" />
+          <input type="checkbox" checked={ifExported} onChange={() => exportOrder(event)} />
         </div>
         <div className="col2 td">{order.orderId}</div>
         <div className={`col3 td ${status}`}>

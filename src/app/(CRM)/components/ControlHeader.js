@@ -12,7 +12,7 @@ import Link from "next/link";
 
 import { useSession } from "next-auth/react";
 
-export default function ControlHeader({ orders, currentOrders, completedOrders, newOrders, inWarehouse }) {
+export default function ControlHeader({ orders, currentOrders, completedOrders, newOrders, inWarehouse, exportOrdersData }) {
   const { data: session } = useSession();
 
   return (
@@ -64,7 +64,7 @@ export default function ControlHeader({ orders, currentOrders, completedOrders, 
           </div>
         </div>
         <div className="actions">
-          <div href="/dashboard/newOrder" className="eksportOrders">
+          <div className="eksportOrders" onClick={exportOrdersData}>
             <Image src={GreenExportIcon} alt="Ikona eksportu zamwień" />
             <p>Eksportuj</p>
           </div>
