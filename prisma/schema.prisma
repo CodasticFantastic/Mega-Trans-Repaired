@@ -61,7 +61,7 @@ model User {
 
 model Driver {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   phone     String
   email     String   @unique
   password  String
@@ -78,7 +78,7 @@ model Order{
   userId    Int
   courier   Driver?   @relation(fields: [courierId], references: [id])
   courierId Int?
-  deliveryDate DateTime?
+  deliveryDate String?
   status    Status   @default(Producent)
   orderType OrderType 
   orderCountry String

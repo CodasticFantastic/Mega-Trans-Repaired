@@ -1,0 +1,159 @@
+@use "../abstracts";
+
+.DeliveryPage {
+  padding: 0px 20px;
+  .CRMHeader {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    margin-top: 40px;
+    h1 {
+      margin-top: 0px;
+    }
+  }
+
+  main {
+    width: 100%;
+    max-width: 1400px;
+    margin: 20px auto;
+
+    .instructions {
+      display: flex;
+      justify-content: space-between;
+
+      form,
+      .updateData {
+        position: relative;
+        padding: 40px 20px 20px 20px;
+        background-color: abstracts.$dark-tertiary;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 12px;
+        width: 49%;
+
+        .success,
+        .error {
+          display: block;
+          width: 100%;
+          text-align: center;
+          margin-top: 12px;
+          color: abstracts.$Green;
+        }
+
+        .error {
+          color: abstracts.$Red;
+        }
+
+        .stageName,
+        .stageName2 {
+          position: absolute;
+          top: 0;
+          left: 0;
+          background-color: abstracts.$dark-secondary;
+          border-radius: 12px 0px 12px 0;
+          width: 175px;
+          padding-left: 12px;
+          font-size: 18px;
+        }
+
+        .stageName2 {
+          width: 200px;
+        }
+
+        label {
+          font-size: 14px;
+          display: flex;
+          align-items: center;
+          input {
+            margin-right: 12px;
+          }
+        }
+
+        button {
+          margin-left: 30px;
+          padding: 3px 12px;
+        }
+      }
+    }
+
+    .confirmOrders {
+      margin-top: 22px;
+      padding: 20px;
+      width: 100%;
+      background-color: abstracts.$dark-tertiary;
+      position: relative;
+      border-radius: 12px;
+
+      .stageName {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: abstracts.$dark-secondary;
+        border-radius: 12px 0px 12px 0;
+        width: 245px;
+        padding-left: 12px;
+        font-size: 18px;
+      }
+
+      .orders {
+        width: 100%;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+
+        .tableHeader {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 6px 12px;
+          .orderNo,
+          .orderId,
+          .address,
+          .courier,
+          .date {
+            font-size: 14px;
+          }
+        }
+
+        .order {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 6px 12px;
+          background-color: abstracts.$dark-secondary;
+          border-radius: 6px;
+          margin-top: 6px;
+          .orderNo,
+          .orderId,
+          .address,
+          .courier,
+          .date {
+            font-size: 13px;
+          }
+        }
+
+        .orderNo {
+          width: 40px;
+        }
+
+        .orderId {
+          width: 340px;
+        }
+
+        .address {
+          width: 300px;
+        }
+
+        .courier {
+          width: 200px;
+        }
+
+        .date {
+          width: 200px;
+        }
+      }
+    }
+  }
+}
