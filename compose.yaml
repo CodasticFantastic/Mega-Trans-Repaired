@@ -1,0 +1,7 @@
+services:
+  megatrans-app:
+    build:
+      context: ./
+
+
+  
