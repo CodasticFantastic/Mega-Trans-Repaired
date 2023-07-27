@@ -38,6 +38,7 @@ export default function UpdateOrder({ params }) {
     orderClientPhone: "",
     orderClientEmail: "",
   });
+  const [countryState, setCountryState] = useState("Polska");
 
   const [commodityList, setcommodityList] = useState([]);
   const [commodityError, setCommodityError] = useState(false);
@@ -91,6 +92,8 @@ export default function UpdateOrder({ params }) {
         orderClientPhone: response.order.recipientPhone,
         orderClientEmail: response.order.recipientEmail,
       });
+
+      setCountryState(response.order.orderCountry);
     }
   }
 
@@ -352,7 +355,7 @@ export default function UpdateOrder({ params }) {
             <section className="rightCol">
               <div className="formStage stage2">
                 <div className="formStageName">
-                  <p>Adres Realizacji Zlecenia</p>
+                  <p>Adresat Zlecenia</p>
                 </div>
                 <div className="row">
                   <label htmlFor="orderClientName">
@@ -371,18 +374,19 @@ export default function UpdateOrder({ params }) {
                     />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    Numer Telefonu Klienta *
+                    {countryState === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
                     <input
                       type="text"
                       name="orderClientPhone"
                       id="orderClientPhone"
+                      required
                       value={orderForm.orderClientPhone}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
                           return { ...prevState, orderClientPhone: e.target.value };
                         });
                       }}
-                      required
+                      pattern={`countryState === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"`}
                     />
                   </label>
                   <label htmlFor="orderClientEmail">

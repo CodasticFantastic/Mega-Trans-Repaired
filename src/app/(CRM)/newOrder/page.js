@@ -211,7 +211,7 @@ export default function NewOrder() {
             <section className="rightCol">
               <div className="formStage stage2">
                 <div className="formStageName">
-                  <p>Adres Realizacji Zlecenia</p>
+                  <p>Adresat Zlecenia</p>
                 </div>
                 <div className="row">
                   <label htmlFor="orderClientName">
@@ -219,8 +219,8 @@ export default function NewOrder() {
                     <input type="text" name="orderClientName" id="orderClientName" required />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    Numer Telefonu Klienta *
-                    <input type="text" name="orderClientPhone" id="orderClientPhone" required />
+                    {countryState === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
+                    <input type="text" name="orderClientPhone" id="orderClientPhone" required  pattern={countryState === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"} />
                   </label>
                   <label htmlFor="orderClientEmail">
                     Email Klienta *

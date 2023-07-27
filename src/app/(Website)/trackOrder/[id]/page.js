@@ -44,7 +44,12 @@ export default function TrackOrder() {
       const orderAddress = `${address}, ${res.order.orderPostCode} ${res.order.orderCity}`;
 
       // Generate Delivery Date
-      const deliveryDate = "Oczekuje na potwierdzenie";
+      let deliveryDate;
+      if (res.order.deliveryDate) {
+        deliveryDate = res.order.deliveryDate;
+      } else {
+        deliveryDate = "Oczekuje na potwierdzenie";
+      }
 
       // Generate Payment Ammount
       let price = 0;
@@ -56,8 +61,19 @@ export default function TrackOrder() {
       price += " " + res.order.currency;
 
       // Generate Courier Data
-      const courier = "Oczekuje na potwierdzenie";
-      const courierNumber = "Oczekuje na potwierdzenie";
+      let courier;
+      if (res.order.courier !== null) {
+        courier = res.order.courier.name;
+      } else {
+        courier = "Oczekuje na potwierdzenie";
+      }
+
+      let courierNumber;
+      if (res.order.courier !== null) {
+        courierNumber = res.order.courier.phone;
+      } else {
+        courierNumber = "Oczekuje na potwierdzenie";
+      }
 
       // Generate Packages
       const packages = res.order.packages.map((item, index) => {
