@@ -67,7 +67,7 @@ export default function LoginPage() {
         </button>
 
         <p className="dimInfo">Zapomniałeś hasła?</p>
-        <Link href="/reset-password" className="link">
+        <Link href="/resetPassword" className="link">
           Zresetuj hasło
         </Link>
       </form>
