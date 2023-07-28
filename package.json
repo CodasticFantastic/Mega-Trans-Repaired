@@ -6,14 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "prisma generate",
-    "dockerStart": "docker-compose up",
-    "dockerBuild": "docker-compose build",
-    "dockerStop": "docker-compose down",
-    "dockerClean": "docker system prune -af",
-    "clean:volumes": "docker volume prune -f",
-    "seed": "docker exec -it prisma npm run seed"
+    "start:migrate:prod": "npx prisma migrate deploy && npm run start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",
