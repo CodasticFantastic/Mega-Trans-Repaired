@@ -5,7 +5,7 @@ const handler = NextAuth({
   providers: [
     CredentialsProvider({
       async authorize(credentials, req) {
-        const res = await fetch("http://localhost:3000/api/login", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
