@@ -70,7 +70,7 @@ export default function SettingsPage() {
       address: data.get("address"),
     };
 
-    const request = await fetch("http://localhost:3000/api/user/updateUser", {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/updateUser`, {
       method: "POST",
       body: JSON.stringify(userData),
       headers: {
