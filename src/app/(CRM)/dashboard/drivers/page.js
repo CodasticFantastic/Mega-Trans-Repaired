@@ -26,7 +26,7 @@ export default function DriversPage() {
 
   // Get all drivers from database
   async function getDrivers() {
-    const request = await fetch("http://localhost:3000/api/drivers/getDrivers", {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/getDrivers`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,
@@ -76,7 +76,7 @@ export default function DriversPage() {
       driverPasswordConfirm: data.get("passwordConfirm"),
     };
 
-    const request = await fetch("http://localhost:3000/api/drivers/createDriver", {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/createDriver`, {
       method: "POST",
       body: JSON.stringify(driverData),
       headers: {
@@ -104,7 +104,7 @@ export default function DriversPage() {
   // Action - Delete driver
 
   async function deleteDriver(driverId) {
-    const request = await fetch(`http://localhost:3000/api/drivers/deleteDriver?id=${driverId}`, {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/deleteDriver?id=${driverId}`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,

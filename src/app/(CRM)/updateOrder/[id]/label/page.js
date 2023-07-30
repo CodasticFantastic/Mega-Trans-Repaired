@@ -42,7 +42,7 @@ export default function Waybill() {
 
   // Get order from API
   async function getOrder() {
-    const req = await fetch(`http://localhost:3000/api/order/getOrder?id=${id}`, {
+    const req = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,

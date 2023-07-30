@@ -19,7 +19,7 @@ export default function ClientsPage() {
 
   // Get all clients from database
   async function getClients() {
-    const request = await fetch("http://localhost:3000/api/user/getUsers", {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/getUsers`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,

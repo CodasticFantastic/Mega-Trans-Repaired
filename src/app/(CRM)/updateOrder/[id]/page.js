@@ -51,7 +51,7 @@ export default function UpdateOrder({ params }) {
 
   // Actions - Get Order Data from Backend
   async function getOrderData() {
-    const request = await fetch("http://localhost:3000/api/order/getOrder?id=" + params.id, {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${params.id}`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,

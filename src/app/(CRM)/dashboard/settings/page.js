@@ -28,7 +28,7 @@ export default function SettingsPage() {
 
   // Get user data from database
   async function getUserData() {
-    let request = await fetch("http://localhost:3000/api/user/getUser", {
+    let request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/user/getUser`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,

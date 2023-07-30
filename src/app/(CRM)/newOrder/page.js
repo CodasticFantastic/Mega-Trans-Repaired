@@ -66,7 +66,7 @@ export default function NewOrder() {
       orderItems: commodityList,
     };
 
-    const request = await fetch("http://localhost:3000/api/order/newOrder", {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`, {
       method: "POST",
       body: JSON.stringify(orderData),
       headers: {

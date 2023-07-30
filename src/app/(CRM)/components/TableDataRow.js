@@ -28,7 +28,7 @@ export default function TableDataRow({ order, session, setExportOrders }) {
   }
 
   async function chnageStatus(e, id) {
-    const request = await fetch(`http://localhost:3000/api/order/updateOrderStatus`, {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrderStatus`, {
       method: "POST",
       headers: {
         Authorization: session?.accessToken,

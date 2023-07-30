@@ -30,7 +30,7 @@ export default function TrackOrder() {
   }, []);
 
   async function getOrder() {
-    const req = await fetch(`/api/trackOrder?id=${id}`);
+    const req = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/trackOrder?id=${id}`);
     const res = await req.json();
 
     if (res.error) {

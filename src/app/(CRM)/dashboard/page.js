@@ -29,9 +29,9 @@ export default function Dashboard() {
   async function fetchUserOrders() {
     let request;
     if (session.user.role === "USER") {
-      request = await fetch(`http://localhost:3000/api/order/showAllOrders`, { headers: { Authorization: session?.accessToken } });
+      request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders`, { headers: { Authorization: session?.accessToken } });
     } else if (session.user.role === "ADMIN") {
-      request = await fetch(`http://localhost:3000/api/order/showAllOrdersAdmin`, { headers: { Authorization: session?.accessToken } });
+      request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin`, { headers: { Authorization: session?.accessToken } });
     }
 
     let response = await request.json();
