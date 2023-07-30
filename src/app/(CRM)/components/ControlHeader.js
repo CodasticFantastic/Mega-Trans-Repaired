@@ -34,7 +34,7 @@ export default function ControlHeader({ orders, currentOrders, completedOrders, 
         </div>
       )}
 
-      <h1 className={session && session.user.role === "ADMIN" && "admin"}>Zlecenia</h1>
+      <h1 className={session && session.user.role === "ADMIN" ? "admin" : ""}>Zlecenia</h1>
       <div className="info">
         <div className="stats">
           <div className="statTile all">
