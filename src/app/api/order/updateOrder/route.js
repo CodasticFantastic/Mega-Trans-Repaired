@@ -25,7 +25,7 @@ export async function POST(req) {
     });
 
     // Check if user is authorized to view this order
-    if (order && order.userId === verifyJwt(accessToken).id.id) {
+    if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).role === "ADMIN") {
       // Update order
       const updatedOrder = await prisma.order.update({
         where: {
