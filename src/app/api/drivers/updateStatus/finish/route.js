@@ -23,28 +23,19 @@ export async function POST(req) {
         packages: true,
       },
     });
-
     if (!order) throw new Error("Nie ma takiego zamówienia");
 
     // Check if user is authorized to view this order
-    if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).id.role === "ADMIN") {
+    if (verifyJwt(accessToken).id.role === "DRIVER") {
+      let newStatus = request.paymentType === "Pobranie" ? "Pobranie" : "Zrealizowane";
+
       // Update order
       const updatedOrder = await prisma.order.update({
         where: {
           orderId: request.orderId,
         },
         data: {
-          orderType: request.orderType,
-          orderStreet: request.orderStreet,
-          orderStreetNumber: request.orderStreetNumber,
-          orderFlatNumber: request.orderFlatNumber,
-          orderCity: request.orderCity,
-          orderPostCode: request.orderPostCode,
-          orderState: request.orderState,
-          orderNote: request.orderNote,
-          recipientName: request.orderClientName,
-          recipientPhone: request.orderClientPhone,
-          recipientEmail: request.orderClientEmail,
+          status: newStatus,
         },
       });
 

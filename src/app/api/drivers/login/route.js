@@ -42,7 +42,7 @@ export async function POST(request) {
     }
   } catch (error) {
     // Send Error response
-    console.error("LoginPageError: ", error);
+    console.error("Driver Login Page Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
