@@ -6,7 +6,7 @@ export async function POST(req) {
   const accessToken = req.headers.get("Authorization");
 
   if (!accessToken || !verifyJwt(accessToken)) {
-    console.error(verifyJwt(accessToken));
+    console.error("JwtError: ", verifyJwt(accessToken));
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -25,7 +25,7 @@ export async function POST(req) {
     });
 
     // Check if user is authorized to view this order
-    if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).role === "ADMIN") {
+    if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).id.role === "ADMIN") {
       // Update order
       const updatedOrder = await prisma.order.update({
         where: {
@@ -33,7 +33,6 @@ export async function POST(req) {
         },
         data: {
           orderType: request.orderType,
-          orderCountry: request.orderCountry,
           orderStreet: request.orderStreet,
           orderStreetNumber: request.orderStreetNumber,
           orderFlatNumber: request.orderFlatNumber,
@@ -59,7 +58,7 @@ export async function POST(req) {
     }
   } catch (error) {
     // Send Error response
-    console.error("Add Order Error: ", error);
+    console.error("Update Order Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

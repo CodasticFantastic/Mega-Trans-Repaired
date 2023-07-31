@@ -112,7 +112,6 @@ export default function UpdateOrder({ params }) {
       orderId: orderForm.orderId,
       userId: session?.user.id,
       orderType: data.get("orderType"),
-      orderCountry: data.get("orderCountry"),
       orderStreet: data.get("orderStreet"),
       orderStreetNumber: data.get("orderStreetNumber"),
       orderFlatNumber: data.get("orderFlatNumber"),
@@ -173,15 +172,6 @@ export default function UpdateOrder({ params }) {
     }
   }
 
-  // Actions - PDF Waybill
-  async function pdfWaybill() {
-    console.log("PDF");
-
-    let pdfWaybill = document.getElementById("test");
-
-    html2pdf(pdfWaybill);
-  }
-
   return (
     <div id="test" className="CrmPage">
       <InstructionsSideBar orderId={orderForm.orderId} />
@@ -213,9 +203,9 @@ export default function UpdateOrder({ params }) {
                         });
                       }}
                     >
-                      <option value="Delivery">Dostawa</option>
-                      <option value="Collect">Odbór</option>
-                      <option value="Producer">Zwrot</option>
+                      <option value="Dostawa">Dostawa</option>
+                      <option value="Odbior">Odbór</option>
+                      <option value="Zwrot">Zwrot</option>
                     </select>
                   </label>
                   <label htmlFor="orderCountry">
@@ -374,7 +364,7 @@ export default function UpdateOrder({ params }) {
                     />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    {countryState === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
+                    {orderForm.orderCountry === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
                     <input
                       type="text"
                       name="orderClientPhone"
@@ -386,7 +376,7 @@ export default function UpdateOrder({ params }) {
                           return { ...prevState, orderClientPhone: e.target.value };
                         });
                       }}
-                      pattern={`countryState === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"`}
+                      pattern={orderForm.orderCountry === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"}
                     />
                   </label>
                   <label htmlFor="orderClientEmail">

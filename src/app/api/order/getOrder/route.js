@@ -9,7 +9,7 @@ export async function GET(req) {
   const accessToken = req.headers.get("Authorization");
 
   if (!accessToken || !verifyJwt(accessToken)) {
-    console.error(verifyJwt(accessToken));
+    console.error("JwtError: ", verifyJwt(accessToken));
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -30,7 +30,7 @@ export async function GET(req) {
     });
 
     // Check if user is authorized to view this order
-    if (order && order.userId === verifyJwt(accessToken).id.id) {
+    if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).id.role === "ADMIN") {
       return new Response(JSON.stringify({ order }), { status: 200 });
     } else {
       throw new Error("Nie jestesteś upoważniony do wyświetlenia tego zamówienia");
