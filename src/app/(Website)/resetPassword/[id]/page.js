@@ -1,23 +1,27 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPageStep2() {
+  const token = usePathname().split("/")[2];
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  console.log(token)
 
   async function resetPassword(e) {
     setError(false);
     setSuccess(false);
     e.preventDefault();
 
-    const email = e.target[0].value;
+    const password = e.target[0].value;
 
-    const req = await fetch("/api/resetPassword", {
+    const req = await fetch("/api/resetPassword/newPassword", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ password, token }),
     });
 
     const res = await req.json();
@@ -32,10 +36,10 @@ export default function ResetPasswordPage() {
   return (
     <main className="ResetPassword">
       <form onSubmit={resetPassword}>
-        <h1>Zrestartuj hasło</h1>
-        <label htmlFor="email">Email</label>
-        <input type="email" name="email" id="email" required />
-        <button type="submit">Wyślij</button>
+        <h1>Podaj Nowe Hasło</h1>
+        <label htmlFor="password">Nowe Hasło</label>
+        <input type="password" name="password" id="password" required />
+        <button type="submit">Zmień hasło</button>
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
       </form>
