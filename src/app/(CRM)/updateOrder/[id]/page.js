@@ -70,7 +70,7 @@ export default function UpdateOrder({ params }) {
             orderCommodityPayType: item.commodityPaymentType,
             orderCommodityId: item.packageId,
             orderCommodityName: item.commodityName,
-            orderCommodityPayAmount: item.commodityPrice + response.order.currency,
+            orderCommodityPayAmount: item.commodityPrice + " " + response.order.currency,
             orderCommodityNote: item.commodityNote,
           };
         })
@@ -125,7 +125,7 @@ export default function UpdateOrder({ params }) {
       orderItems: commodityList,
     };
 
-    const request = await fetch("http://localhost:3000/api/order/updateOrder", {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`, {
       method: "POST",
       body: JSON.stringify(orderDataUpdate),
       headers: {
@@ -156,7 +156,7 @@ export default function UpdateOrder({ params }) {
 
   // Actions - Cancel Order
   async function cancelOrder() {
-    const request = await fetch("http://localhost:3000/api/order/cancelOrder?id=" + params.id, {
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${params.id}`, {
       method: "GET",
       headers: {
         Authorization: session?.accessToken,
@@ -293,7 +293,7 @@ export default function UpdateOrder({ params }) {
                 </div>
                 <div className="row">
                   <label htmlFor="orderPostCode">
-                    Kod Pocztowy *
+                    {orderForm.orderCountry === "Polska" ? "Kod Pocztowy (##-###) *" : "Kod Pocztowy (### ##) *"}
                     <input
                       type="text"
                       name="orderPostCode"
@@ -304,23 +304,38 @@ export default function UpdateOrder({ params }) {
                           return { ...prevState, orderPostCode: e.target.value };
                         });
                       }}
+                      pattern={orderForm.orderCountry === "Polska" ? "[0-9]{2}-[0-9]{3}" : "[0-9]{3} [0-9]{2}"}
                       required
                     />
                   </label>
                   <label htmlFor="orderState">
                     Województwo *
-                    <input
-                      type="text"
+                    <select
                       name="orderState"
                       id="orderState"
                       value={orderForm.orderState}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderState: e.target.value };
-                        });
+                      onChange={(prevState) => {
+                        return { ...prevState, orderState: e.target.value };
                       }}
                       required
-                    />
+                    >
+                      <option value="Dolnośląskie">Dolnośląskie</option>
+                      <option value="Kujawsko-Pomorskie">Kujawsko-Pomorskie</option>
+                      <option value="Lubelskie">Lubelskie</option>
+                      <option value="Lubuskie">Lubuskie</option>
+                      <option value="Łódzkie">Łódzkie</option>
+                      <option value="Małopolskie">Małopolskie</option>
+                      <option value="Mazowieckie">Mazowieckie</option>
+                      <option value="Opolskie">Opolskie</option>
+                      <option value="Podkarpackie">Podkarpackie</option>
+                      <option value="Podlaskie">Podlaskie</option>
+                      <option value="Pomorskie">Pomorskie</option>
+                      <option value="Śląskie">Śląskie</option>
+                      <option value="Świętokrzyskie">Świętokrzyskie</option>
+                      <option value="Warmińsko-Mazurskie">Warmińsko-Mazurskie</option>
+                      <option value="Wielkopolskie">Wielkopolskie</option>
+                      <option value="Zachodniopomorskie">Zachodniopomorskie</option>
+                    </select>
                   </label>
                 </div>
                 <div className="row">

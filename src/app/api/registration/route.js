@@ -1,6 +1,7 @@
 import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import validator from "validator";
 
 export async function POST(request) {
   // Get data from request
@@ -36,14 +37,14 @@ export async function POST(request) {
 
       let user = await prisma.user.create({
         data: {
-          email: requestBody.email,
-          phone: requestBody.phone,
+          email: validator.escape(requestBody.email),
+          phone: validator.escape(requestBody.phone),
           password: hashedPassword,
-          company: requestBody.companyName,
-          nip: requestBody.nip,
-          country: requestBody.country,
-          city: requestBody.city,
-          address: requestBody.street,
+          company: validator.escape(requestBody.companyName),
+          nip: validator.escape(requestBody.nip),
+          country: validator.escape(requestBody.country),
+          city: validator.escape(requestBody.city),
+          address: validator.escape(requestBody.street),
         },
       });
 

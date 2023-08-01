@@ -1,5 +1,6 @@
 import { verifyJwt } from "@/helpers/generateJwToken";
 import prisma from "@/helpers/prismaClient";
+import validator from "validator";
 
 export async function POST(req) {
   // Check if user is authorized to call this endpoint
@@ -17,34 +18,34 @@ export async function POST(req) {
     // Create packages array
     let packages = request.orderItems.map((item) => {
       return {
-        packageId: item.orderCommodityId,
-        commodityType: item.orderCommodityType,
-        commodityName: item.orderCommodityName,
-        commodityPaymentType: item.orderCommodityPayType,
-        commodityPrice: +item.orderCommodityPayAmount,
-        commodityNote: item.orderCommodityNote,
+        packageId: validator.escape(item.orderCommodityId),
+        commodityType: validator.escape(item.orderCommodityType),
+        commodityName: validator.escape(item.orderCommodityName),
+        commodityPaymentType: validator.escape(item.orderCommodityPayType),
+        commodityPrice: parseFloat(validator.escape(item.orderCommodityPayAmount + "")),
+        commodityNote: validator.escape(item.orderCommodityNote),
       };
     });
 
     // Create new order
     const newOrder = await prisma.order.create({
       data: {
-        orderId: request.orderId,
+        orderId: validator.escape(request.orderId),
         userId: verifyJwt(accessToken).id.id,
-        status: request.status,
-        orderType: request.orderType,
-        orderCountry: request.orderCountry,
-        orderStreet: request.orderStreet,
-        orderStreetNumber: request.orderStreetNumber,
-        orderFlatNumber: request.orderFlatNumber,
-        orderCity: request.orderCity,
-        orderPostCode: request.orderPostCode,
-        orderState: request.orderState,
-        orderNote: request.orderNote,
-        recipientName: request.orderClientName,
-        recipientPhone: request.orderClientPhone,
-        recipientEmail: request.orderClientEmail,
-        currency: request.currency,
+        status: validator.escape(request.status),
+        orderType: validator.escape(request.orderType),
+        orderCountry: validator.escape(request.orderCountry),
+        orderStreet: validator.escape(request.orderStreet),
+        orderStreetNumber: validator.escape(request.orderStreetNumber),
+        orderFlatNumber: validator.escape(request.orderFlatNumber),
+        orderCity: validator.escape(request.orderCity),
+        orderPostCode: validator.escape(request.orderPostCode),
+        orderState: validator.escape(request.orderState),
+        orderNote: validator.escape(request.orderNote),
+        recipientName: validator.escape(request.orderClientName),
+        recipientPhone: validator.escape(request.orderClientPhone),
+        recipientEmail: validator.escape(request.orderClientEmail),
+        currency: validator.escape(request.currency),
         packages: {
           create: packages,
         },

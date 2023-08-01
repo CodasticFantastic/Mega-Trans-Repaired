@@ -1,5 +1,6 @@
 import { verifyJwt } from "@/helpers/generateJwToken";
 import prisma from "@/helpers/prismaClient";
+import validator from "validator";
 
 export async function POST(req) {
   // Check if user is authorized to call this endpoint
@@ -19,13 +20,13 @@ export async function POST(req) {
         id: verifyJwt(accessToken).id.id,
       },
       data: {
-        company: body.companyName,
-        email: body.email,
-        phone: body.phone,
-        nip: body.nip,
-        address: body.address,
-        country: body.country,
-        city: body.city,
+        company: validator.escape(body.companyName),
+        email: validator.escape(body.email),
+        phone: validator.escape(body.phone),
+        nip: validator.escape(body.nip),
+        address: validator.escape(body.address),
+        country: validator.escape(body.country),
+        city: validator.escape(body.city),
       },
     });
 

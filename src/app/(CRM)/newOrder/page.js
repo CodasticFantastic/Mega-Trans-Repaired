@@ -192,12 +192,35 @@ export default function NewOrder() {
                 </div>
                 <div className="row">
                   <label htmlFor="orderPostCode">
-                    Kod Pocztowy *
-                    <input type="text" name="orderPostCode" id="orderPostCode" required />
+                    {countryState === "Polska" ? "Kod Pocztowy (##-###) *" : "Kod Pocztowy (### ##) *"}
+                    <input
+                      type="text"
+                      name="orderPostCode"
+                      id="orderPostCode"
+                      pattern={countryState === "Polska" ? "[0-9]{2}-[0-9]{3}" : "[0-9]{3} [0-9]{2}"}
+                      required
+                    />
                   </label>
                   <label htmlFor="orderState">
                     Województwo *
-                    <input type="text" name="orderState" id="orderState" required />
+                    <select name="orderState" id="orderState" required>
+                      <option value="Dolnośląskie">Dolnośląskie</option>
+                      <option value="Kujawsko-Pomorskie">Kujawsko-Pomorskie</option>
+                      <option value="Lubelskie">Lubelskie</option>
+                      <option value="Lubuskie">Lubuskie</option>
+                      <option value="Łódzkie">Łódzkie</option>
+                      <option value="Małopolskie">Małopolskie</option>
+                      <option value="Mazowieckie">Mazowieckie</option>
+                      <option value="Opolskie">Opolskie</option>
+                      <option value="Podkarpackie">Podkarpackie</option>
+                      <option value="Podlaskie">Podlaskie</option>
+                      <option value="Pomorskie">Pomorskie</option>
+                      <option value="Śląskie">Śląskie</option>
+                      <option value="Świętokrzyskie">Świętokrzyskie</option>
+                      <option value="Warmińsko-Mazurskie">Warmińsko-Mazurskie</option>
+                      <option value="Wielkopolskie">Wielkopolskie</option>
+                      <option value="Zachodniopomorskie">Zachodniopomorskie</option>
+                    </select>
                   </label>
                 </div>
                 <div className="row">
@@ -220,7 +243,13 @@ export default function NewOrder() {
                   </label>
                   <label htmlFor="orderClientPhone">
                     {countryState === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
-                    <input type="text" name="orderClientPhone" id="orderClientPhone" required  pattern={countryState === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"} />
+                    <input
+                      type="text"
+                      name="orderClientPhone"
+                      id="orderClientPhone"
+                      required
+                      pattern={countryState === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"}
+                    />
                   </label>
                   <label htmlFor="orderClientEmail">
                     Email Klienta *
