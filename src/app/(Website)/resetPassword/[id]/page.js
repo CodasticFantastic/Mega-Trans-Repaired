@@ -7,8 +7,6 @@ export default function ResetPasswordPageStep2() {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  console.log(token)
-
   async function resetPassword(e) {
     setError(false);
     setSuccess(false);
