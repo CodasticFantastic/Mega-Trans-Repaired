@@ -69,8 +69,8 @@
     input::placeholder{
         color: rgba(255, 255, 255, 0.8);
         text-align: center;
-        background-image: url("/icons/boxIcon.png");
-        background-repeat: no-repeat;
+        // background-image: url("/icons/boxIcon.png");
+        // background-repeat: no-repeat;
         background-position: 10px;
         background-size: 20px;
     }
@@ -109,5 +109,11 @@
       font-weight: 600;
     }
 
+  }
+}
+
+@media(max-width: 980px){
+  .LoginRegisterPage{
+    margin-top: 160px;
   }
 }
