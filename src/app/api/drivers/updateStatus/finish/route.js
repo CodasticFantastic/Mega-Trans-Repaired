@@ -6,7 +6,7 @@ export async function POST(req) {
   const accessToken = req.headers.get("Authorization");
 
   if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError: ", verifyJwt(accessToken));
+    console.error("JwtError: Update Status - Driver - Finish Page Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -51,7 +51,7 @@ export async function POST(req) {
     }
   } catch (error) {
     // Send Error response
-    console.error("Update Order Error: ", error);
+    console.error("Update Status - Driver - Finish Page Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

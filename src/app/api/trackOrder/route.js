@@ -47,7 +47,7 @@ export async function GET(req) {
     }
   } catch (error) {
     // Send Error response
-    console.error("Get Order Error: ", error);
+    console.error("Track Order Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

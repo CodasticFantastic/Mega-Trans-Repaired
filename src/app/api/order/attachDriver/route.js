@@ -64,7 +64,7 @@ export async function PATCH(req) {
     return new Response(JSON.stringify({ success: "Rekordy zaktualizowano pomyślnie" }), { status: 200 });
   } catch (error) {
     // Send Error response
-    console.error("Get Order Error: ", error);
+    console.error("Attach Driver Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

@@ -9,7 +9,7 @@ export async function GET(req) {
   const accessToken = req.headers.get("Authorization");
 
   if (!accessToken || !verifyJwt(accessToken)) {
-    console.error(verifyJwt(accessToken));
+    console.error("JwtError: Cancel Order Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -41,7 +41,7 @@ export async function GET(req) {
     }
   } catch (error) {
     // Send Error response
-    console.error("Get Order Error: ", error);
+    console.error("Cancel Order Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

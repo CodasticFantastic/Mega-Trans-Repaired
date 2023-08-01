@@ -5,7 +5,8 @@ export async function GET(req) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if ((!accessToken || !verifyJwt(accessToken)) || verifyJwt(accessToken).id.role !== "ADMIN") {
+  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
+    console.error("JwtError: Get Drivers Page Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -20,7 +21,7 @@ export async function GET(req) {
     });
   } catch (error) {
     // Send Error response
-    console.error("Add Order Error: ", error);
+    console.error("Get Drivers Page Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

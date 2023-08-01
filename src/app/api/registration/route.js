@@ -8,21 +8,18 @@ export async function POST(request) {
 
   try {
     // Check if all required fields are filled
-    if (!requestBody.email) throw new Error("Please enter an email");
-    if (!requestBody.phone) throw new Error("Please enter a phone number");
-    if (!requestBody.password) throw new Error("Please enter a password");
-    if (!requestBody.passwordConfirmation)
-      throw new Error("Please enter a password confirmation");
-    if (!requestBody.companyName)
-      throw new Error("Please enter a company name");
-    if (!requestBody.nip) throw new Error("Please enter a nip");
-    if (!requestBody.country) throw new Error("Please enter a country");
-    if (!requestBody.city) throw new Error("Please enter a city");
-    if (!requestBody.street) throw new Error("Please enter a street");
+    if (!requestBody.email) throw new Error("Wprowadź adres email");
+    if (!requestBody.phone) throw new Error("Wprowadź numer telefonu");
+    if (!requestBody.password) throw new Error("Wprowadź hasło");
+    if (!requestBody.passwordConfirmation) throw new Error("Wprowadź potwierdzenie hasła");
+    if (!requestBody.companyName) throw new Error("Wprowadź nazwę firmy");
+    if (!requestBody.nip) throw new Error("Wprowadź NIP");
+    if (!requestBody.country) throw new Error("Wprowadź kraj");
+    if (!requestBody.city) throw new Error("Wprowadź miasto");
+    if (!requestBody.street) throw new Error("Wpropwadź ulicę i numer");
 
     // Check if passwords match
-    if (requestBody.password !== requestBody.passwordConfirmation)
-      throw new Error("Passwords do not match");
+    if (requestBody.password !== requestBody.passwordConfirmation) throw new Error("Hasła nie są takie same");
 
     // Check if user already exists
     const userExists = await prisma.user.findUnique({
@@ -54,12 +51,11 @@ export async function POST(request) {
 
       return NextResponse.json({ user: userWithoutPassword });
     } else {
-      throw new Error("User already exists");
+      throw new Error("Użytkownik o takim mailu już istnieje");
     }
   } catch (error) {
     // Disconect Prisma and send Error response
-    console.error("Error Error Error Error Error: ", error);
-    await prisma.$disconnect();
+    console.error("Registration Page Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

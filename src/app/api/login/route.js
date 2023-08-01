@@ -8,8 +8,8 @@ export async function POST(request) {
 
   try {
     // Check if all required fields are filled
-    if (!requestBody.email) throw new Error("Please enter an email");
-    if (!requestBody.password) throw new Error("Please enter a password");
+    if (!requestBody.email) throw new Error("Wprowadź adres email");
+    if (!requestBody.password) throw new Error("Wprowadź hasło");
 
     // Check if user already exists
     const user = await prisma.user.findUnique({
@@ -17,7 +17,7 @@ export async function POST(request) {
         email: requestBody.email,
       },
     });
-    if (!user) throw new Error("There is no user with this email");
+    if (!user) throw new Error("Nie ma użytkownika o takim mailu");
 
     // Check if passwords match
     if (user && (await Bcrypt.compare(requestBody.password, user.password))) {
@@ -36,11 +36,11 @@ export async function POST(request) {
       // Send Success response
       return NextResponse.json({ user: result });
     } else {
-      throw new Error("Invalid credentials");
+      throw new Error("Niepoprawne dane logowania");
     }
   } catch (error) {
     // Send Error response
-    console.error("LoginPageError: ", error);
+    console.error("Login Page Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

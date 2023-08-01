@@ -6,7 +6,7 @@ export async function POST(req) {
   const accessToken = req.headers.get("Authorization");
 
   if (!accessToken || !verifyJwt(accessToken)) {
-    console.error(verifyJwt(accessToken));
+    console.error("JwtError: New Order Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -26,7 +26,7 @@ export async function POST(req) {
       };
     });
 
-    // Create new order 
+    // Create new order
     const newOrder = await prisma.order.create({
       data: {
         orderId: request.orderId,
@@ -57,7 +57,7 @@ export async function POST(req) {
     });
   } catch (error) {
     // Send Error response
-    console.error("Add Order Error: ", error);
+    console.error("New Order Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

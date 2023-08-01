@@ -7,17 +7,17 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const id = +searchParams.get("id");
 
-  if ((!accessToken || !verifyJwt(accessToken)) || verifyJwt(accessToken).id.role !== "ADMIN") {
+  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
+    console.error("JwtError: Delete Driver Page Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
   try {
-
     //Delete driver from db
     const deletedDriver = await prisma.driver.delete({
-        where: {
-            id: id,
-        },
+      where: {
+        id: id,
+      },
     });
 
     return new Response(JSON.stringify({ Succes: "Kierowca usunięty" }), {
@@ -26,7 +26,7 @@ export async function GET(req) {
     });
   } catch (error) {
     // Send Error response
-    console.error("Add Order Error: ", error);
+    console.error("Delete Driver Page Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },

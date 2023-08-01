@@ -6,7 +6,7 @@ export async function GET(req) {
 
   try {
     if (!accessToken || !verifyJwt(accessToken)) {
-      console.error("JwtError: Driver Login Page Error", );
+      console.error("JwtError: Driver Login Page Error");
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 

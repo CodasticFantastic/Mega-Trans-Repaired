@@ -6,7 +6,7 @@ export async function POST(req) {
   const accessToken = req.headers.get("Authorization");
 
   if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError: ", verifyJwt(accessToken));
+    console.error("JwtError: Update Order Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 

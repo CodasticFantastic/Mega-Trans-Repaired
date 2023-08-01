@@ -5,7 +5,8 @@ export async function GET(req) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if ((!accessToken || !verifyJwt(accessToken)) || verifyJwt(accessToken).id.role !== "ADMIN") {
+  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
+    console.error("JwtError: Show All Orders Admin Error");
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -28,7 +29,7 @@ export async function GET(req) {
     return new Response(JSON.stringify({ allUserOrder }), { status: 200 });
   } catch (error) {
     // Send Error response
-    console.error("Get Order Error: ", error);
+    console.error("Show All Orders Admin Error: ", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
