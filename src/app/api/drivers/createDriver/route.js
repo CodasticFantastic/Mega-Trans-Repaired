@@ -1,6 +1,7 @@
 import { verifyJwt } from "@/helpers/generateJwToken";
 import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
+import validator from "validator";
 
 export async function POST(req) {
   // Check if user is authorized to call this endpoint
@@ -17,7 +18,9 @@ export async function POST(req) {
 
     if (!request.driverName) throw new Error("Nie podano imienia kierowcy");
     if (!request.driverEmail) throw new Error("Nie podano adresu email kierowcy");
+    if (!validator.isEmail(request.driverEmail)) throw new Error("Podany adres email jest nieprawidłowy");
     if (!request.driverPhone) throw new Error("Nie podano numeru telefonu kierowcy");
+    if (!validator.isMobilePhone(request.driverPhone)) throw new Error("Podany numer telefonu jest nieprawidłowy");
     if (!request.driverPassword) throw new Error("Nie podano hasła kierowcy");
     if (!request.driverPasswordConfirm) throw new Error("Nie podano potwierdzenia hasła kierowcy");
 
@@ -39,9 +42,9 @@ export async function POST(req) {
 
     const newDriver = await prisma.driver.create({
       data: {
-        name: request.driverName,
-        email: request.driverEmail,
-        phone: request.driverPhone,
+        name: validator.escape(request.driverName),
+        email: validator.escape(request.driverEmail),
+        phone: validator.escape(request.driverPhone),
         password: hashedPassword,
       },
     });
