@@ -17,8 +17,6 @@ export default function InstructionsSideBar({ orderId }) {
   let pathname = usePathname();
   pathname = pathname.split("/")[1];
 
-  console.log(pathname);
-
   return (
     <aside className="SideBar">
       <div className="logo">

@@ -86,10 +86,8 @@ export default function DeliveryPage() {
     const json = await response.json();
 
     if (json.error) {
-      console.log(json.error);
       setError(json.error);
     } else if (json.success) {
-      console.log(json.success);
       setSuccess(json.success);
     }
   }
