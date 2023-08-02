@@ -58,10 +58,12 @@
 
           .th {
             font-size: abstracts.$SecondaryFontSize;
+            color: abstracts.$white;
             text-align: center;
           }
 
           .td {
+            color: abstracts.$white;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -106,7 +108,7 @@
                   border-radius: 4px;
                   background-color: abstracts.$dark-primary;
                   outline: none;
-                  &.select{
+                  &.select {
                     width: 104px;
                   }
                 }
@@ -117,7 +119,7 @@
                   border-radius: 4px;
                   background-color: abstracts.$dark-primary;
                   outline: none;
-                  &.select{
+                  &.select {
                     width: 98px;
                   }
                 }
@@ -128,7 +130,7 @@
                   border-radius: 4px;
                   background-color: abstracts.$dark-primary;
                   outline: none;
-                  &.select{
+                  &.select {
                     width: 94px;
                   }
                 }
@@ -139,7 +141,7 @@
                   border-radius: 4px;
                   background-color: abstracts.$dark-primary;
                   outline: none;
-                  &.select{
+                  &.select {
                     width: 122px;
                   }
                 }
@@ -150,7 +152,7 @@
                   border-radius: 4px;
                   background-color: abstracts.$dark-primary;
                   outline: none;
-                  &.select{
+                  &.select {
                     width: 110px;
                   }
                 }
@@ -161,7 +163,7 @@
                   border-radius: 4px;
                   background-color: abstracts.$dark-primary;
                   outline: none;
-                  &.select{
+                  &.select {
                     width: 96px;
                   }
                 }
@@ -188,6 +190,10 @@
             max-height: 0px;
             overflow: hidden;
             transition: 0.4s linear;
+
+            p {
+              color: abstracts.$white !important;
+            }
 
             .tr {
               width: 100%;
@@ -299,6 +305,7 @@
       p {
         font-size: abstracts.$PrimaryFontSize;
         text-align: center;
+        color: abstracts.$white;
         a {
           color: abstracts.$Blue;
           text-decoration: none;

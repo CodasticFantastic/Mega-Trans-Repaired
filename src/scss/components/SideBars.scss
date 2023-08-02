@@ -52,6 +52,7 @@ $Violet: abstracts.$Violet;
       background-position: 13px center;
       background-size: $IconSize;
       background-color: abstracts.$dark-secondary;
+      color: abstracts.$white;
     }
 
     .searchBar::placeholder {
@@ -60,6 +61,9 @@ $Violet: abstracts.$Violet;
 
     .section {
       margin-top: 15px;
+      p {
+        color: abstracts.$white !important;
+      }
 
       .expand1,
       .expand2,
@@ -130,7 +134,7 @@ $Violet: abstracts.$Violet;
       }
 
       .divWithText {
-        .tile.search{
+        .tile.search {
           margin-top: 10px;
           cursor: pointer;
         }
@@ -184,6 +188,7 @@ $Violet: abstracts.$Violet;
           font-weight: 300;
           padding-left: 40px;
           li {
+            color: abstracts.$white;
             font-size: $PrimaryFontSize;
           }
         }
@@ -308,7 +313,7 @@ $Violet: abstracts.$Violet;
         height: 146px;
       }
 
-      .expand4{
+      .expand4 {
         height: 90px;
       }
 
@@ -319,8 +324,6 @@ $Violet: abstracts.$Violet;
       .expand6 {
         height: 100px;
       }
-
-
 
       .showMoreLabel {
         .showMoreIcon {
@@ -353,7 +356,7 @@ $Violet: abstracts.$Violet;
       }
     }
 
-    .print{
+    .print {
       width: 100%;
       height: $TileHeight;
       margin-top: 20px;
@@ -367,18 +370,17 @@ $Violet: abstracts.$Violet;
       color: abstracts.$white;
       font-size: $SecondaryFontSize;
       transition: 0.4s ease-in-out;
-      &:hover{
+      &:hover {
         background-color: abstracts.$gray;
       }
 
-      img{
+      img {
         width: calc($IconSize + 2px);
         height: calc($IconSize + 2px);
         object-fit: contain;
         margin-right: 8px;
       }
     }
-
   }
 
   .userSection {
@@ -411,6 +413,7 @@ $Violet: abstracts.$Violet;
 
       .userName {
         font-size: $SecondaryFontSize;
+        color: abstracts.$white;
         font-weight: 300;
       }
     }

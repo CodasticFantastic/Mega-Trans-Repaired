@@ -10,7 +10,7 @@
     margin: 2rem 0;
     color: abstracts.$text-primary;
     font-size: 2rem;
-    font-weight:500;
+    font-weight: 500;
   }
 
   .form::before {
@@ -35,85 +35,85 @@
       font-weight: 500;
     }
 
-    .dimInfo{
-        margin-top: 10px;
-        color: abstracts.$transparent-text;
-        font-size: 1.1rem;
-        font-weight: 400;
+    .dimInfo {
+      margin-top: 10px;
+      color: abstracts.$transparent-text;
+      font-size: 1.1rem;
+      font-weight: 400;
     }
 
-    .link{
-        color: abstracts.$text-secondary;
-        font-size: 1rem;
-        margin-top: -8px;
-        margin-bottom: 20px;
-        text-decoration: none;
-        transition: 0.4s ease-in-out;
+    .link {
+      color: abstracts.$text-secondary;
+      font-size: 1rem;
+      margin-top: -8px;
+      margin-bottom: 20px;
+      text-decoration: none;
+      transition: 0.4s ease-in-out;
     }
 
-    .link:hover{
-        color: abstracts.$text-primary;
+    .link:hover {
+      color: abstracts.$text-primary;
     }
 
-    input{
-        position: relative;
-        background-color: abstracts.$transparent-bg;
-        margin: 8px;
-        height: 34px;
-        width: 100%;
-        border-radius: 50px;
-        border: none;
-        text-align: center;
+    input {
+      position: relative;
+      background-color: abstracts.$transparent-bg;
+      color: abstracts.$white;
+      margin: 8px;
+      height: 34px;
+      width: 100%;
+      border-radius: 50px;
+      border: none;
+      text-align: center;
     }
 
-    input::placeholder{
-        color: rgba(255, 255, 255, 0.8);
-        text-align: center;
-        // background-image: url("/icons/boxIcon.png");
-        // background-repeat: no-repeat;
-        background-position: 10px;
-        background-size: 20px;
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      // background-image: url("/icons/boxIcon.png");
+      // background-repeat: no-repeat;
+      background-position: 10px;
+      background-size: 20px;
     }
 
-    label{
-        width: 100%;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        input{
-            width: 5%;
-        }
-        p{
-            width: 90%;
-            font-size: .7rem;
-        }
+    label {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      input {
+        width: 5%;
+      }
+      p {
+        width: 90%;
+        font-size: 0.7rem;
+      }
     }
 
-    button{
-        margin-top: 10px;
-        height: 32px;
-        width: 136px;
-        border-radius: 50px;
-        border: none;
-        cursor: pointer;
+    button {
+      margin-top: 10px;
+      height: 32px;
+      width: 136px;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
     }
 
-    .error{
+    .error {
       background-color: abstracts.$bg-error;
       width: 100%;
       margin: 20px 0;
       padding: 8px;
       border-radius: 8px;
       text-align: center;
-      font-size: .8rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
-
   }
 }
 
-@media(max-width: 980px){
-  .LoginRegisterPage{
+@media (max-width: 980px) {
+  .LoginRegisterPage {
     margin-top: 160px;
   }
 }

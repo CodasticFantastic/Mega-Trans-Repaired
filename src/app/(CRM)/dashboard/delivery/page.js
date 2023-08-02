@@ -74,7 +74,7 @@ export default function DeliveryPage() {
     setSuccess(false);
     e.preventDefault();
 
-    const response = await fetch("http://localhost:3000/api/order/attachDriver", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/attachDriver`, {
       method: "PATCH",
       headers: {
         Authorization: session?.accessToken,
