@@ -12,7 +12,7 @@ async function main() {
   for (let i = 0; i < ammountOfOrders; i++) {
     const orderId = uuid4();
     const userId = 1;
-    const status = faker.helpers.arrayElement(["Producent", "Magazyn", "Dostawa", "Pobranie", "Zrealizowane", "Anulowane"]);
+    const status = faker.helpers.arrayElement(["Producent", "Magazyn", "Dostawa", "Zrealizowane", "Anulowane"]);
     const orderType = faker.helpers.arrayElement(["Zwrot", "Odbior", "Dostawa"]);
     const orderCountry = "Polska";
     const currency = "PLN";

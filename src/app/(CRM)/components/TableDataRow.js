@@ -73,7 +73,6 @@ export default function TableDataRow({ order, session, setExportOrders }) {
               <option value="Magazyn">Magazyn</option>
               <option value="Dostawa">Dostawa</option>
               <option value="Zrealizowane">Zrealizowane</option>
-              <option value="Pobranie">Pobranie</option>
               <option value="Anulowane">Anulowane</option>
             </select>
           )}

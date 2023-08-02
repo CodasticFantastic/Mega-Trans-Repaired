@@ -130,26 +130,6 @@ export default function FilterSideBar({ sortOrdersByDate, filterOrdersByStatus, 
               Dostawa
             </button>
             <button
-              className={`tile realized ${filterStaus === "Zrealizowane" ? "marked" : ""}`}
-              onClick={() => {
-                filterOrdersByStatus("Zrealizowane");
-                setFilterStatus("Zrealizowane");
-                setSortDate("descending");
-              }}
-            >
-              Zrealizowane
-            </button>
-            <button
-              className={`tile paid ${filterStaus === "Pobranie" ? "marked" : ""}`}
-              onClick={() => {
-                filterOrdersByStatus("Pobranie");
-                setFilterStatus("Pobranie");
-                setSortDate("descending");
-              }}
-            >
-              Pobranie
-            </button>
-            <button
               className={`tile canceled ${filterStaus === "Anulowane" ? "marked" : ""}`}
               onClick={() => {
                 filterOrdersByStatus("Anulowane");
@@ -158,6 +138,16 @@ export default function FilterSideBar({ sortOrdersByDate, filterOrdersByStatus, 
               }}
             >
               Anulowane
+            </button>
+            <button
+              className={`tile realized ${filterStaus === "Zrealizowane" ? "marked" : ""}`}
+              onClick={() => {
+                filterOrdersByStatus("Zrealizowane");
+                setFilterStatus("Zrealizowane");
+                setSortDate("descending");
+              }}
+            >
+              Zrealizowane
             </button>
           </div>
         </div>
