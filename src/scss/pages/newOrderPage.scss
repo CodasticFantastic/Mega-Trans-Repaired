@@ -151,7 +151,7 @@
             table {
               margin-top: 20px;
               width: 100%;
-              height: 180px;
+              // height: 180px;
               overflow-y: hidden;
               tbody {
                 overflow-y: hidden;
@@ -265,6 +265,111 @@
       .formSuccess {
         border: 1px solid abstracts.$Green;
         color: abstracts.$Green;
+      }
+    }
+  }
+}
+
+@media (max-width: 980px) {
+  .NewOrderPage {
+    .CRMHeader {
+      .backToDashboard {
+        margin-top: 10px;
+        margin-bottom: 20px;
+      }
+    }
+
+    .NewOrder {
+      .NewOrderForm {
+        flex-direction: column;
+        width: 100%;
+
+        .leftCol {
+          width: 100%;
+        }
+
+        .rightCol {
+          width: 100%;
+          margin-top: 16px;
+        }
+
+        .formStage {
+          .formStageName {
+            font-size: 18px;
+          }
+
+          .row {
+            label {
+              font-size: 14px;
+
+              input,
+              select {
+                height: 36px;
+              }
+            }
+          }
+
+          .row:has(label[for="orderPostCode"]) {
+            flex-direction: column;
+          }
+
+          .row:has(label[for="orderClientName"]) {
+            flex-direction: column;
+            label {
+              margin-top: 6px;
+            }
+          }
+
+          .row:has(label[for="orderCommodityType"]) {
+            flex-direction: column;
+            label {
+              margin-top: 6px;
+            }
+          }
+        }
+
+        .rightCol {
+          .row {
+            .stage4 {
+              display: none;
+            }
+
+            .stage5 {
+              width: 100%;
+              margin-left: 0px;
+            }
+
+            table {
+              tbody {
+                tr {
+                  td {
+                    width: auto!important;
+                    font-size: 16px!important;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        div:has(input[type="submit"]) {
+          width: 100%;
+          margin-bottom: 60px;
+
+          input {
+            height: 36px;
+            width: 100%;
+            background-color: abstracts.$Green;
+            color: abstracts.$dark-primary;
+          }
+
+          button {
+            width: 100%;
+            margin: 0px;
+            height: 36px;
+            margin-top: 16px;
+          }
+        }
       }
     }
   }

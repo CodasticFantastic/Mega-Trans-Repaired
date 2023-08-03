@@ -72,3 +72,13 @@
     }
   }
 }
+
+@media (max-width: 980px) {
+  .SettingsPage {
+    main {
+      form {
+        width: 100%;
+      }
+    }
+  }
+}

@@ -54,12 +54,12 @@ export default function ControlHeader({ orders, currentOrders, completedOrders, 
           </div>
           <div className="statTile warehouse">
             <p className="statName">
-              <span>{inWarehouse}</span> Zamówień na Magazynie
+              <span>{inWarehouse}</span> Na Magazynie
             </p>
           </div>
           <div className="statTile realized">
             <p className="statName">
-              <span>{completedOrders}</span> Zrealizowanych Zleceń
+              <span>{completedOrders}</span> Zrealizowanych
             </p>
           </div>
         </div>

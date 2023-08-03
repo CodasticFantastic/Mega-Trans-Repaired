@@ -473,3 +473,156 @@ $Violet: abstracts.$Violet;
     }
   }
 }
+
+@media (max-width: 980px) {
+  .SideBar {
+    width: 100%;
+    height: unset;
+
+    .logo {
+      margin-top: 20px;
+    }
+
+    .column {
+      order: 3;
+      width: 100%;
+      padding-left: 10px;
+      padding-right: 10px;
+      margin-bottom: 20px;
+
+      .searchBar {
+        height: 36px;
+        background-size: 24px;
+        padding-left: 42px;
+      }
+
+      .searchBar::placeholder {
+        font-size: 14px;
+      }
+
+      .section {
+        .categoryHeader {
+          .left{
+            .icon{
+              width: 24px;
+              height: 24px;
+            }
+            .header{
+              font-size: 14px;
+            }
+          }
+
+          .right{
+            .showMoreLabel{
+              .showMoreIcon{
+                width: 26px;
+                height: 26px;
+              }
+            }
+          }
+        }
+
+        .divWithText{
+          .info{
+            font-size: 14px;
+          }
+
+          .buttons{
+            .tile{
+              width: 49%;
+              height: 36px;
+            }
+          }
+
+          input{
+            height: 36px;
+          }
+
+          .tile.search{
+            margin-top: 16px;
+            height: 36px;
+          }
+
+          .instruction{
+            font-size: 13px;
+          }
+        }
+
+        .status{
+          margin-top: 10px;
+          .tile {
+            width: 30%;
+            height: 36px;
+          }
+
+        }
+      }
+
+      .clearFilter{
+        display: none;
+        height: 36px;
+        img{
+          width: 24px;
+          height: 24px;
+          margin-right: 4px;
+        }
+        .clearFilterText{
+          font-size: 14px;
+        }
+      }
+
+      .section:has(.showMoreInput:checked){
+        .expand1 {
+          height: 70px;
+        }
+        .expand2 {
+          height: 100px;
+        }
+        .expand3 {
+          height: 178px;
+        }
+      }
+    }
+    .userSection {
+      order: 2;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      padding-left: 10px;
+      padding-right: 10px;
+
+      .currentUser {
+        height: 36px;
+        .icon {
+          width: 24px;
+          height: 24px;
+        }
+
+        .userName {
+          font-size: 16px;
+        }
+      }
+
+      .options {
+        margin-top: 10px;
+        .logout {
+          width: 85%;
+          height: 36px;
+          .icon {
+            width: 20px;
+            height: 20px;
+          }
+
+          .logoutText {
+            font-size: 16px;
+          }
+        }
+
+        .settings {
+          width: 36px;
+          height: 36px;
+        }
+      }
+    }
+  }
+}

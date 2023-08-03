@@ -137,3 +137,74 @@
     }
   }
 }
+
+@media (max-width: 980px) {
+  .CRMHeader {
+    width: 100%;
+    .navigation {
+      display: none;
+    }
+
+    h1 {
+      display: none;
+    }
+
+    .info {
+      flex-direction: column-reverse;
+
+      .actions {
+        .eksportOrders {
+          display: none;
+        }
+
+        .newOrder {
+          width: 100%;
+          height: 36px;
+          margin-bottom: 16px;
+
+          img {
+            width: 26px;
+            height: 26px;
+          }
+
+          p {
+            margin-left: 2px;
+            font-size: 16px;
+            font-weight: 300;
+          }
+        }
+      }
+
+      .stats {
+        flex-wrap: wrap;
+        justify-content: space-around;
+        align-items: center;
+
+        .statTile {
+          margin-right: 0px;
+          margin-bottom: 12px;
+        }
+
+        .all {
+          order: 1;
+        }
+
+        .new {
+          order: 2;
+        }
+
+        .current {
+          order: 4;
+        }
+
+        .warehouse {
+          order: 3;
+        }
+
+        .realized {
+          order: 5;
+        }
+      }
+    }
+  }
+}
