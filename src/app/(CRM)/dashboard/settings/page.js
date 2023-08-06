@@ -198,6 +198,9 @@ export default function SettingsPage() {
               }
             />
           </label>
+          <Link href="/resetPassword" className="passRestart">
+            Zrestartuj hasło
+          </Link>
           <button type="submit">Aktualizuj Dane Firmy</button>
 
           <div className="row">{formError && <p className="error">{formError}</p>}</div>

@@ -69,6 +69,13 @@
       .success {
         color: abstracts.$Green;
       }
+
+      .passRestart{
+        font-size: 1rem;
+        text-decoration: none;
+        color: red;
+        cursor: pointer;
+      }
     }
   }
 }

@@ -64,76 +64,27 @@ export default function RegisterPage() {
           Zaloguj się!
         </a>
 
-        <input
-          type="email"
-          id="email"
-          name="email"
-          placeholder="Twój adres email"
-          required
-        />
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          placeholder="Twój numer telefonu"
-          required
-        />
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="Twoje hasło"
-          required
-        />
-        <input
-          type="password"
-          id="passwordConfiramtion"
-          name="passwordConfirmation"
-          placeholder="Potwierdź hasło"
-          required
-        />
+        <input type="email" id="email" name="email" placeholder="Twój adres email" required />
+        <input type="tel" id="phone" name="phone" maxLength={11} minLength={9} placeholder="Telefon (Bez spacji i myślników)" required />
+        <input type="password" id="password" name="password" placeholder="Hasło (Minimum 6 znaków)" minLength={6} required />
+        <input type="password" id="passwordConfiramtion" name="passwordConfirmation" placeholder="Potwierdź hasło" required />
         <p className="companyData">Dane Do Faktury</p>
-        <input
-          type="text"
-          id="companyName"
-          name="companyName"
-          placeholder="Nazwa Firmy"
-          required
-        />
-        <input type="number" id="nip" name="nip" placeholder="NIP" required />
-        <input
-          type="text"
-          id="country"
-          name="country"
-          placeholder="Kraj"
-          required
-        />
-        <input
-          type="text"
-          id="city"
-          name="city"
-          placeholder="Miejscowość"
-          required
-        />
-        <input
-          type="text"
-          id="street"
-          name="street"
-          placeholder="Ulica i Numer"
-          required
-        />
+        <input type="text" id="companyName" name="companyName" placeholder="Nazwa Firmy" required />
+        <input type="text" id="nip" name="nip" placeholder="NIP (Bez spacji i myślników)" required minLength={10} maxLength={10} />
+        <input type="text" id="country" name="country" placeholder="Kraj" required />
+        <input type="text" id="city" name="city" placeholder="Miejscowość" required />
+        <input type="text" id="street" name="street" placeholder="Ulica i Numer" required />
         <label htmlFor="regulations">
           <input id="regulations" name="regulations" type="checkbox" required />
           <p>
-            Akceptuję <Link href="/regulamin">regulamin</Link> usługi.
+            Akceptuję <Link href="/regulamin">regulamin</Link> serwisu.
           </p>
         </label>
         <label htmlFor="rodo">
           <input id="rodo" name="rodo" type="checkbox" required />
           <p>
-            Wyrażam zgodę na przetwarzanie moich danych osobowych przez firmę
-            MEGA-TRANS Dawid Możdżanowski, w tym na kontakt telefoniczny oraz
-            mailowy, w celu realizacji powierzonych zleceń.
+            Wyrażam zgodę na przetwarzanie moich danych osobowych przez firmę MEGA-TRANS Dawid Możdżanowski, w tym na kontakt telefoniczny
+            oraz mailowy, w celu realizacji powierzonych zleceń.
           </p>
         </label>
 

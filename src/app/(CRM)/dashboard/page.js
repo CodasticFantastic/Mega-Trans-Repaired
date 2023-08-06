@@ -20,7 +20,6 @@ export default function Dashboard() {
   const { data: session } = useSession();
   const { inView, ref } = useInView();
   const [exportOrders, setExportOrders] = useState([]);
-
   const [filters, setFilters] = useState({
     searchId: "",
     orderBy: "desc",
@@ -29,7 +28,6 @@ export default function Dashboard() {
     dateTo: "",
     postalCode: "all",
   });
-
   const [stats, setStats] = useState({
     allOrders: 0,
     newOrders: 0,
@@ -37,7 +35,6 @@ export default function Dashboard() {
     warehouseOrders: 0,
     realizedOrders: 0,
   });
-
   const { allUserOrder, fetchNextPage, hasNextPage, isFetchingNextPage } = getOrders();
 
   function getOrders() {
@@ -72,7 +69,6 @@ export default function Dashboard() {
           warehouseOrders: data.warehouseOrdersCounter,
           realizedOrders: data.realizedOrdersCounter,
         });
-        console.log(data);
         return data;
       }
     };
@@ -236,7 +232,7 @@ export default function Dashboard() {
                   );
                 })}
               {isFetchingNextPage && <div>Loading...</div>}
-              <div style={{ width: "100%", height: "40px", background: "red" }} ref={ref} />
+              <div style={{ width: "100%", height: "20px" }} ref={ref} />
             </div>
           </div>
         </main>
