@@ -37,6 +37,7 @@ CREATE TABLE `Driver` (
 
 -- CreateTable
 CREATE TABLE `Order` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `orderId` VARCHAR(191) NOT NULL,
     `userId` INTEGER NOT NULL,
     `courierId` INTEGER NULL,
@@ -60,7 +61,7 @@ CREATE TABLE `Order` (
     `deletedAt` DATETIME(3) NULL,
 
     UNIQUE INDEX `Order_orderId_key`(`orderId`),
-    PRIMARY KEY (`orderId`)
+    PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
