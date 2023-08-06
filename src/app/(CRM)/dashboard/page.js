@@ -13,23 +13,29 @@ import { signOut } from "next-auth/react";
 import FileSaver from "file-saver";
 import XLSX from "sheetjs-style";
 
-import { useInfiniteQuery, useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 
 export default function Dashboard() {
-  const [userOrders, setUserOrders] = useState([]);
-  const [initialUserOrders, setInitialUserOrders] = useState([]);
-
   const { data: session } = useSession();
   const { inView, ref } = useInView();
   const [exportOrders, setExportOrders] = useState([]);
 
   const [filters, setFilters] = useState({
+    searchId: "",
     orderBy: "desc",
     status: "Wszystkie",
     dateFrom: "",
     dateTo: "",
     postalCode: "all",
+  });
+
+  const [stats, setStats] = useState({
+    allOrders: 0,
+    newOrders: 0,
+    currentOrders: 0,
+    warehouseOrders: 0,
+    realizedOrders: 0,
   });
 
   const { allUserOrder, fetchNextPage, hasNextPage, isFetchingNextPage } = getOrders();
@@ -39,12 +45,15 @@ export default function Dashboard() {
       let request;
 
       if (session.user.role === "USER") {
-        request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders`, {
-          headers: { Authorization: session?.accessToken },
-        });
+        request = await fetch(
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
+          {
+            headers: { Authorization: session?.accessToken },
+          }
+        );
       } else if (session.user.role === "ADMIN") {
         request = await fetch(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}`,
+          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
           {
             headers: { Authorization: session?.accessToken },
           }
@@ -55,8 +64,15 @@ export default function Dashboard() {
 
       if (session && data.error) {
         signOut();
-        console.log(data)
       } else {
+        setStats({
+          allOrders: data.allOrdersCounter,
+          newOrders: data.newOrdersCounter,
+          currentOrders: data.currentOrdersCounter,
+          warehouseOrders: data.warehouseOrdersCounter,
+          realizedOrders: data.realizedOrdersCounter,
+        });
+        console.log(data);
         return data;
       }
     };
@@ -82,8 +98,8 @@ export default function Dashboard() {
   ///////////////// Filters Section
   // Search orders by id
   function searchOrdersById(id) {
-    let filtered = [...initialUserOrders].filter((order) => order.props.order.orderId.indexOf(id) !== -1);
-    setUserOrders(filtered);
+    setExportOrders([]);
+    setFilters((prev) => ({ ...prev, searchId: id }));
   }
 
   // Sort orders by date
@@ -97,6 +113,7 @@ export default function Dashboard() {
 
   // Filter orders by status
   function filterOrdersByStatus(status) {
+    setExportOrders([]);
     switch (status) {
       case "Producent":
         setFilters((prev) => ({ ...prev, status: "Producent" }));
@@ -121,16 +138,19 @@ export default function Dashboard() {
 
   // Filter orders by date
   function filterOrdersByDate(from, to) {
+    setExportOrders([]);
     setFilters((prev) => ({ ...prev, dateFrom: from, dateTo: to }));
   }
 
   // Filter orders by postal code
   function filterOrdersByPostalCode(code) {
+    setExportOrders([]);
     setFilters((prev) => ({ ...prev, postalCode: code }));
   }
 
   // Clear filters
   function clearFilters() {
+    setExportOrders([]);
     setFilters({
       orderBy: "desc",
       status: "Wszystkie",
@@ -139,24 +159,6 @@ export default function Dashboard() {
       postalCode: "all",
     });
   }
-
-  ///////////////// Info Data Section
-  // Count all orders
-  let allOrders = initialUserOrders.length;
-
-  // Current orders
-  let currentOrders = initialUserOrders.filter(
-    (order) => order.props.order.status !== "Zrealizowane" && order.props.order.status !== "Anulowane"
-  ).length;
-
-  // Completed orders
-  let completedOrders = initialUserOrders.filter((order) => order.props.order.status === "Zrealizowane").length;
-
-  // New Orders
-  let newOrders = initialUserOrders.filter((order) => order.props.order.status === "Producent").length;
-
-  // In Warehouse
-  let inWarehouse = initialUserOrders.filter((order) => order.props.order.status === "Magazyn").length;
 
   ///////////////// Export Data To Excel
   async function exportOrdersData() {
@@ -202,11 +204,11 @@ export default function Dashboard() {
       />
       <div className="mainContent">
         <ControlHeader
-          orders={allOrders}
-          currentOrders={currentOrders}
-          completedOrders={completedOrders}
-          newOrders={newOrders}
-          inWarehouse={inWarehouse}
+          orders={stats.allOrders}
+          currentOrders={stats.currentOrders}
+          completedOrders={stats.realizedOrders}
+          newOrders={stats.newOrders}
+          inWarehouse={stats.warehouseOrders}
           exportOrdersData={exportOrdersData}
         />
         <main>

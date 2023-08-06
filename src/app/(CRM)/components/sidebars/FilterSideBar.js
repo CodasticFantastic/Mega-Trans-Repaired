@@ -218,10 +218,13 @@ export default function FilterSideBar({
           </div>
           <div className="divWithText expand7">
             <p className="info">Kod pocztowy zaczynający się od</p>
-            <select className="tile" style={{ textAlign: "center" }} onChange={(e) => filterByPostalCode(e.target.value)}>
-              <option value="all" selected>
-                Wszystkie
-              </option>
+            <select
+              className="tile"
+              defaultValue="all"
+              style={{ textAlign: "center" }}
+              onChange={(e) => filterByPostalCode(e.target.value)}
+            >
+              <option value="all">Wszystkie</option>
               <option value="0">0#-###</option>
               <option value="1">1#-###</option>
               <option value="2">2#-###</option>

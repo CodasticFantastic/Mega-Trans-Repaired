@@ -417,9 +417,15 @@ $Violet: abstracts.$Violet;
       }
 
       .userName {
+        padding-top: 5px;
         font-size: $SecondaryFontSize;
         color: abstracts.$white;
         font-weight: 300;
+        max-width: 150px;
+        height: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
 
@@ -507,19 +513,19 @@ $Violet: abstracts.$Violet;
 
       .section {
         .categoryHeader {
-          .left{
-            .icon{
+          .left {
+            .icon {
               width: 24px;
               height: 24px;
             }
-            .header{
+            .header {
               font-size: 14px;
             }
           }
 
-          .right{
-            .showMoreLabel{
-              .showMoreIcon{
+          .right {
+            .showMoreLabel {
+              .showMoreIcon {
                 width: 26px;
                 height: 26px;
               }
@@ -527,56 +533,55 @@ $Violet: abstracts.$Violet;
           }
         }
 
-        .divWithText{
-          .info{
+        .divWithText {
+          .info {
             font-size: 14px;
           }
 
-          .buttons{
-            .tile{
+          .buttons {
+            .tile {
               width: 49%;
               height: 36px;
             }
           }
 
-          input{
+          input {
             height: 36px;
           }
 
-          .tile.search{
+          .tile.search {
             margin-top: 16px;
             height: 36px;
           }
 
-          .instruction{
+          .instruction {
             font-size: 13px;
           }
         }
 
-        .status{
+        .status {
           margin-top: 10px;
           .tile {
             width: 30%;
             height: 36px;
           }
-
         }
       }
 
-      .clearFilter{
+      .clearFilter {
         display: none;
         height: 36px;
-        img{
+        img {
           width: 24px;
           height: 24px;
           margin-right: 4px;
         }
-        .clearFilterText{
+        .clearFilterText {
           font-size: 14px;
         }
       }
 
-      .section:has(.showMoreInput:checked){
+      .section:has(.showMoreInput:checked) {
         .expand1 {
           height: 70px;
         }

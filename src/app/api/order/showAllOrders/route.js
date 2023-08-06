@@ -10,12 +10,24 @@ export async function GET(req) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
+  // Pagination
+  const { searchParams } = new URL(req.url);
+  // const id = searchParams.get("id");
+  const take = 20;
+  const cursorQuery = searchParams.get("cursor") ?? undefined;
+  const skip = cursorQuery ? 1 : 0;
+  const cursor = cursorQuery ? { id: +cursorQuery } : undefined;
+
+  const searchId = searchParams.get("searchId");
+  const orderBy = searchParams.get("orderBy");
+  const status = searchParams.get("status");
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
+  const postalCode = searchParams.get("postalCode");
+
   try {
     // Show all orders for this user
     const allUserOrder = await prisma.order.findMany({
-      where: {
-        userId: verifyJwt(accessToken).id.id,
-      },
       include: {
         user: {
           select: {
@@ -25,11 +37,70 @@ export async function GET(req) {
         packages: true,
       },
       orderBy: {
-        updatedAt: "desc",
+        updatedAt: orderBy === "asc" ? "asc" : "desc",
+      },
+      where: {
+        userId: verifyJwt(accessToken).id.id,
+        orderId: { contains: searchId ? searchId : undefined },
+        status: status === "Wszystkie" ? undefined : status,
+        createdAt: {
+          gte: dateFrom ? new Date(dateFrom) : undefined,
+          lte: dateTo ? new Date(dateTo) : undefined,
+        },
+        orderPostCode: {
+          startsWith: postalCode === "all" ? undefined : postalCode,
+        },
+      },
+      skip,
+      take,
+      cursor,
+    });
+
+    // Return Data Counters
+    const allOrdersCounter = await prisma.order.count({
+      where: {
+        userId: verifyJwt(accessToken).id.id,
+      },
+    });
+    const newOrdersCounter = await prisma.order.count({
+      where: {
+        userId: verifyJwt(accessToken).id.id,
+        status: "Producent",
+      },
+    });
+    const currentOrdersCounter = await prisma.order.count({
+      where: {
+        userId: verifyJwt(accessToken).id.id,
+        status: { in: ["Producent", "Magazyn", "Dostawa"] },
+      },
+    });
+    const warehouseOrdersCounter = await prisma.order.count({
+      where: {
+        userId: verifyJwt(accessToken).id.id,
+        status: "Magazyn",
+      },
+    });
+    const realizedOrdersCounter = await prisma.order.count({
+      where: {
+        userId: verifyJwt(accessToken).id.id,
+        status: "Zrealizowane",
       },
     });
 
-    return new Response(JSON.stringify({ allUserOrder }), { status: 200 });
+    const nextId = allUserOrder.length < take ? undefined : allUserOrder[take - 1].id;
+
+    return new Response(
+      JSON.stringify({
+        allUserOrder,
+        nextId,
+        allOrdersCounter,
+        newOrdersCounter,
+        currentOrdersCounter,
+        warehouseOrdersCounter,
+        realizedOrdersCounter,
+      }),
+      { status: 200 }
+    );
   } catch (error) {
     // Send Error response
     console.error("Show All Orders Error: ", error);

@@ -18,6 +18,7 @@ export async function GET(req) {
   const skip = cursorQuery ? 1 : 0;
   const cursor = cursorQuery ? { id: +cursorQuery } : undefined;
 
+  const searchId = searchParams.get("searchId");
   const orderBy = searchParams.get("orderBy");
   const status = searchParams.get("status");
   const dateFrom = searchParams.get("dateFrom");
@@ -38,6 +39,7 @@ export async function GET(req) {
         updatedAt: orderBy === "asc" ? "asc" : "desc",
       },
       where: {
+        orderId: { contains: searchId ? searchId : undefined },
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {
           gte: dateFrom ? new Date(dateFrom) : undefined,
