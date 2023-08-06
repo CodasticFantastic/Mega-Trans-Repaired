@@ -16,68 +16,77 @@ import XLSX from "sheetjs-style";
 import { useInfiniteQuery, useQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 
-export default function Dashboard() {
+export default function Dashboard({ initialData, nextId }) {
+  const { data: session } = useSession();
   const [userOrders, setUserOrders] = useState([]);
   const [initialUserOrders, setInitialUserOrders] = useState([]);
-
-  const { data: session } = useSession();
-  const { inView, ref } = useInView();
   const [exportOrders, setExportOrders] = useState([]);
 
-  const [filters, setFilters] = useState({
-    orderBy: "desc",
-    status: "Wszystkie",
-    dateFrom: "",
-    dateTo: "",
-    postalCode: "all",
-  });
+  const getOrders = async ({ pageParam = "" }) => {
+    let request;
 
-  const { allUserOrder, fetchNextPage, hasNextPage, isFetchingNextPage } = getOrders();
-
-  function getOrders() {
-    const getOrders = async ({ pageParam = "", filters }) => {
-      let request;
-
+    if (session) {
       if (session.user.role === "USER") {
         request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders`, {
           headers: { Authorization: session?.accessToken },
         });
       } else if (session.user.role === "ADMIN") {
-        request = await fetch(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}`,
-          {
-            headers: { Authorization: session?.accessToken },
-          }
-        );
+        request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}`, {
+          headers: { Authorization: session?.accessToken },
+        });
       }
 
       let data = await request.json();
+      return data;
+    }
+  };
 
-      if (session && data.error) {
-        signOut();
-        console.log(data)
-      } else {
-        return data;
-      }
-    };
+  const {
+    data: allUserOrder,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(["allUserOrder", session], ({ pageParam = "" }) => getOrders({ pageParam }), {
+    getNextPageParam: (lastPage) => lastPage.nextId ?? false,
+  });
 
-    const {
-      data: allUserOrder,
-      fetchNextPage,
-      hasNextPage,
-      isFetchingNextPage,
-    } = useInfiniteQuery(["allUserOrder", session, filters], ({ pageParam = "" }) => getOrders({ pageParam, filters }), {
-      getNextPageParam: (lastPage) => lastPage.nextId ?? false,
-    });
-
-    return { allUserOrder, fetchNextPage, hasNextPage, isFetchingNextPage };
-  }
+  const { inView, ref } = useInView();
 
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
   }, [inView, hasNextPage]);
+
+  // console.log(session);
+
+  // useEffect(() => {
+  //   if (session) {
+  //     fetchUserOrders();
+  //   }
+  // }, [session]);
+
+  // // Fetch all orders for this user
+  // async function fetchUserOrders() {
+  //   let request;
+
+  //   let response = await request.json();
+
+  //   if (response.error) {
+  //     signOut();
+  //   } else {
+  //     setUserOrders(
+  //       response.allUserOrder.map((order) => {
+  //         return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
+  //       })
+  //     );
+  //     setInitialUserOrders(
+  //       response.allUserOrder.map((order) => {
+  //         return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
+  //       })
+  //     );
+  //   }
+  // }
 
   ///////////////// Filters Section
   // Search orders by id
@@ -89,55 +98,74 @@ export default function Dashboard() {
   // Sort orders by date
   function sortOrdersByDate(order) {
     if (order === "ascending") {
-      setFilters((prev) => ({ ...prev, orderBy: "asc" }));
+      const sorted = [...userOrders].sort((a, b) =>
+        new Date(a.props.order.updatedAt) > new Date(b.props.order.updatedAt)
+          ? 1
+          : new Date(b.props.order.updatedAt) > new Date(a.props.order.updatedAt)
+          ? -1
+          : 0
+      );
+
+      setUserOrders(sorted);
     } else {
-      setFilters((prev) => ({ ...prev, orderBy: "desc" }));
+      const sorted = [...userOrders].sort((a, b) =>
+        new Date(a.props.order.updatedAt) < new Date(b.props.order.updatedAt)
+          ? 1
+          : new Date(b.props.order.updatedAt) < new Date(a.props.order.updatedAt)
+          ? -1
+          : 0
+      );
+
+      setUserOrders(sorted);
     }
   }
 
   // Filter orders by status
   function filterOrdersByStatus(status) {
+    let filtered;
     switch (status) {
+      case "Wszystkie":
+        fetchUserOrders();
+        break;
       case "Producent":
-        setFilters((prev) => ({ ...prev, status: "Producent" }));
+        filtered = [...initialUserOrders].filter((order) => order.props.order.status === "Producent");
+        setUserOrders(filtered);
         break;
       case "Magazyn":
-        setFilters((prev) => ({ ...prev, status: "Magazyn" }));
+        filtered = [...initialUserOrders].filter((order) => order.props.order.status === "Magazyn");
+        setUserOrders(filtered);
         break;
       case "Dostawa":
-        setFilters((prev) => ({ ...prev, status: "Dostawa" }));
+        filtered = [...initialUserOrders].filter((order) => order.props.order.status === "Dostawa");
+        setUserOrders(filtered);
+        break;
+      case "Pobranie":
+        filtered = [...initialUserOrders].filter((order) => order.props.order.status === "Pobranie");
+        setUserOrders(filtered);
         break;
       case "Zrealizowane":
-        setFilters((prev) => ({ ...prev, status: "Zrealizowane" }));
+        filtered = [...initialUserOrders].filter((order) => order.props.order.status === "Zrealizowane");
+        setUserOrders(filtered);
         break;
       case "Anulowane":
-        setFilters((prev) => ({ ...prev, status: "Anulowane" }));
-        break;
-      default:
-        setFilters((prev) => ({ ...prev, status: "Wszystkie" }));
+        filtered = [...initialUserOrders].filter((order) => order.props.order.status === "Anulowane");
+        setUserOrders(filtered);
         break;
     }
   }
 
   // Filter orders by date
   function filterOrdersByDate(from, to) {
-    setFilters((prev) => ({ ...prev, dateFrom: from, dateTo: to }));
-  }
+    let filtered = [...initialUserOrders].filter((order) => {
+      return new Date(order.props.order.createdAt) >= new Date(from) && new Date(order.props.order.createdAt) <= new Date(to);
+    });
 
-  // Filter orders by postal code
-  function filterOrdersByPostalCode(code) {
-    setFilters((prev) => ({ ...prev, postalCode: code }));
+    setUserOrders(filtered);
   }
 
   // Clear filters
   function clearFilters() {
-    setFilters({
-      orderBy: "desc",
-      status: "Wszystkie",
-      dateFrom: "",
-      dateTo: "",
-      postalCode: "all",
-    });
+    setUserOrders(initialUserOrders);
   }
 
   ///////////////// Info Data Section
@@ -196,9 +224,7 @@ export default function Dashboard() {
         filterOrdersByStatus={filterOrdersByStatus}
         searchOrdersById={searchOrdersById}
         filterOrdersByDate={filterOrdersByDate}
-        filterByPostalCode={filterOrdersByPostalCode}
         clearFilters={clearFilters}
-        session={session}
       />
       <div className="mainContent">
         <ControlHeader
@@ -224,17 +250,10 @@ export default function Dashboard() {
             </div>
             <div className="tbody">
               {allUserOrder &&
-                allUserOrder.pages?.flatMap((page, i) => {
-                  return (
-                    <div key={i}>
-                      {page.allUserOrder.map((order) => {
-                        return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
-                      })}
-                    </div>
-                  );
+                allUserOrder.pages[0].allUserOrder.map((order) => {
+                  return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
                 })}
-              {isFetchingNextPage && <div>Loading...</div>}
-              <div style={{ width: "100%", height: "40px", background: "red" }} ref={ref} />
+              <div ref={ref} />
             </div>
           </div>
         </main>
@@ -251,4 +270,8 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
+
+export const getServerSideProps = async () => {
+  
 }

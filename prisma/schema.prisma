@@ -73,7 +73,8 @@ model Driver {
 }
 
 model Order{
-  orderId   String      @id @unique
+  id       Int      @id @default(autoincrement())
+  orderId   String  @unique
   user      User     @relation(fields: [userId], references: [id])
   userId    Int
   courier   Driver?   @relation(fields: [courierId], references: [id])

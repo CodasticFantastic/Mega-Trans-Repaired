@@ -1,17 +1,11 @@
-"use client"
-
 import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
 import "@/scss/main.scss";
 import { Poppins } from "next/font/google";
-
-import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 
 const poppins = Poppins({
   subsets: ["latin-ext"],
   weight: ["300", "400", "500", "600", "700"],
 });
-
-const queryClient = new QueryClient();
 
 export const metadata = {
   title: "Create Next App",
@@ -22,9 +16,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pl">
       <body className={`${poppins.className} crm`}>
-        <NextAuthProvider>
-          <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-        </NextAuthProvider>
+        <NextAuthProvider>{children}</NextAuthProvider>
       </body>
     </html>
   );

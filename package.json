@@ -11,7 +11,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "^5.1.0",
     "bcryptjs": "^2.4.3",
     "eslint": "8.44.0",
     "eslint-config-next": "13.4.9",
@@ -24,7 +24,9 @@
     "nodemailer": "^6.9.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-intersection-observer": "^9.5.2",
     "react-qr-code": "^2.0.11",
+    "react-query": "^3.39.3",
     "sass": "^1.63.6",
     "sharp": "^0.32.4",
     "sheetjs-style": "^0.15.8",

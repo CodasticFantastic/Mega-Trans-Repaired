@@ -10,17 +10,25 @@ import redTrashIcon from "@/images/icons/redTrashIcon.png";
 import userIcon from "@/images/icons/userIcon.png";
 import settingsIcon from "@/images/icons/settingsIcon.png";
 import arrowDownIcon from "@/images/icons/arrowDown.png";
+import postalIcon from "@/images/icons/postalIcon.png";
 import LogoutButton from "../LogoutButton";
 
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 
-export default function FilterSideBar({ sortOrdersByDate, filterOrdersByStatus, searchOrdersById, filterOrdersByDate, clearFilters }) {
-  const { data: session } = useSession();
+export default function FilterSideBar({
+  sortOrdersByDate,
+  filterOrdersByStatus,
+  searchOrdersById,
+  filterOrdersByDate,
+  filterByPostalCode,
+  clearFilters,
+  session,
+}) {
   const [sortDate, setSortDate] = useState("descending");
   const [filterStaus, setFilterStatus] = useState("Wszystkie");
   const [filterDate, setFilterDate] = useState({ from: "", to: "" });
+  const [filterPostalCode, setFilterPostalCode] = useState("all");
 
   return (
     <aside className="SideBar">
@@ -193,6 +201,38 @@ export default function FilterSideBar({ sortOrdersByDate, filterOrdersByStatus, 
             <button className="tile search" onClick={() => filterOrdersByDate(filterDate.from, filterDate.to)}>
               Szukaj
             </button>
+          </div>
+        </div>
+        <div className="section filter">
+          <div className="categoryHeader">
+            <div className="left">
+              <Image src={postalIcon} alt="Ikona filtrowania" className="icon" />
+              <p className="header">Filtruj Kod Pocztowy</p>
+            </div>
+            <div className="right">
+              <input className="showMoreInput" type="checkbox" id="showMore7" />
+              <label className="showMoreLabel" htmlFor="showMore7">
+                <Image src={arrowDownIcon} alt="Ikona sortowania" className="showMoreIcon" />
+              </label>
+            </div>
+          </div>
+          <div className="divWithText expand7">
+            <p className="info">Kod pocztowy zaczynający się od</p>
+            <select className="tile" style={{ textAlign: "center" }} onChange={(e) => filterByPostalCode(e.target.value)}>
+              <option value="all" selected>
+                Wszystkie
+              </option>
+              <option value="0">0#-###</option>
+              <option value="1">1#-###</option>
+              <option value="2">2#-###</option>
+              <option value="3">3#-###</option>
+              <option value="4">4#-###</option>
+              <option value="5">5#-###</option>
+              <option value="6">6#-###</option>
+              <option value="7">7#-###</option>
+              <option value="8">8#-###</option>
+              <option value="9">9#-###</option>
+            </select>
           </div>
         </div>
         <div

@@ -5,7 +5,7 @@ import { v4 as uuid4 } from "uuid";
 const prisma = new PrismaClient();
 
 async function main() {
-  const ammountOfOrders = 100;
+  const ammountOfOrders = 100000;
 
   // let orders = [];
 

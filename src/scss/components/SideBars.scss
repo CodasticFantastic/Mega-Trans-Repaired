@@ -70,7 +70,8 @@ $Violet: abstracts.$Violet;
       .expand3,
       .expand4,
       .expand5,
-      .expand6 {
+      .expand6,
+      .expand7 {
         height: 0px;
         overflow: hidden;
         transition: 0.4s ease-in-out;
@@ -323,6 +324,10 @@ $Violet: abstracts.$Violet;
 
       .expand6 {
         height: 100px;
+      }
+
+      .expand7 {
+        height: 300px;
       }
 
       .showMoreLabel {
