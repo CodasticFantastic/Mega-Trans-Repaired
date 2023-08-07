@@ -224,7 +224,8 @@
         border: none;
         margin-top: 22px;
         padding: 0 20px;
-        background-color: abstracts.$dark-tertiary;
+        background-color: abstracts.$Green;
+        color: abstracts.$dark-primary;
         border-radius: 4px;
         font-size: 14px;
         transition: 0.4s ease-in-out;
@@ -232,8 +233,8 @@
       }
 
       .confirmOrder:hover {
-        background-color: abstracts.$Green;
-        color: abstracts.$dark-primary;
+        background-color: abstracts.$dark-secondary;
+        color: abstracts.$white;
       }
 
       .confirmOrder.orderCanceled:hover {

@@ -12,7 +12,7 @@ export async function GET(req) {
       },
       include: {
         packages: {
-          select: { commodityName: true, commodityPrice: true },
+          select: { commodityName: true },
         },
         user: {
           select: { company: true },
@@ -39,6 +39,8 @@ export async function GET(req) {
         packages: order.packages,
         orderPayment: order.orderPayment,
         courier: order.courier,
+        orderPaymentType: order.orderPaymentType,
+        orderPrice: order.orderPrice,
       };
 
       return new Response(JSON.stringify({ order }), { status: 200 });

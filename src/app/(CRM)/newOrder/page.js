@@ -332,7 +332,7 @@ export default function NewOrder() {
                     <>
                       <label htmlFor="orderPaymentAmount">
                         Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                        <input type="number" name="orderPaymentAmount" id="orderPaymentAmount" required />
+                        <input type="number" name="orderPaymentAmount" id="orderPaymentAmount" step="0.01" required />
                       </label>
                     </>
                   )}

@@ -51,15 +51,6 @@ export default function TrackOrder() {
         deliveryDate = "Oczekuje na potwierdzenie";
       }
 
-      // Generate Payment Ammount
-      let price = 0;
-
-      res.order.packages.forEach((item) => {
-        price += item.commodityPrice;
-      });
-
-      price += " " + res.order.currency;
-
       // Generate Courier Data
       let courier;
       if (res.order.courier !== null) {
@@ -92,7 +83,7 @@ export default function TrackOrder() {
         status: res.order.status,
         address: orderAddress,
         deliveryDate: deliveryDate,
-        payment: price === 0 ? "Opłacona" : price,
+        payment: res.order.orderPaymentType === "Pobranie" ? `${res.order.orderPrice} ${res.order.currency}` : "Opłacone",
         courier: courier,
         courierNumber: courierNumber,
       });
