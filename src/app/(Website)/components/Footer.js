@@ -26,14 +26,22 @@ export default function Footer() {
           </div>
           <div className="row">
             <p className="bold">Usługi</p>
-            <p>Transport Części <br/>Samochodowych</p>
+            <p>
+              Transport Części <br />
+              Samochodowych
+            </p>
             <p>Transport Gabarytów</p>
             <p>Transport Paczek</p>
             <p>Transport Palet</p>
           </div>
           <div className="row">
             <p className="bold">Adres</p>
-            <p> Kościuszki 5<br/>63-600 Kępno</p>
+            <p>
+              Grębanin-Kolonia
+              <br /> Pierwsza 6<br />
+              <br />
+              63-604 Baranów
+            </p>
           </div>
         </div>
         <div className="down">

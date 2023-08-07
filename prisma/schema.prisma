@@ -93,6 +93,8 @@ model Order{
   recipientName String
   recipientPhone String
   recipientEmail String
+  orderPaymentType CommodityPaymentType
+  orderPrice Float?
   packages  Package[]
   currency String?
   createdAt DateTime @default(now())
@@ -106,8 +108,8 @@ model Package {
   orderId   String
   commodityType CommodityType 
   commodityName String
-  commodityPaymentType CommodityPaymentType
-  commodityPrice Float?
+  // commodityPaymentType CommodityPaymentType
+  // commodityPrice Float?
   commodityNote String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -119,8 +119,18 @@ export default function TableDataRow({ order, session, setExportOrders }) {
         </div>
         <div className="tr">
           <div className="addInfoHeader">
-            <p className="title">Ilość Paczek</p>
-            <p className="counter">{order.packages.length}</p>
+            {order.orderPaymentType === "Pobranie" && (
+              <>
+                <div>
+                  <p className="title">Kwota Pobrania</p>
+                  <p className="counter">{`${order.orderPrice} ${order.currency}`}</p>
+                </div>
+              </>
+            )}
+            <div>
+              <p className="title">Ilość Paczek</p>
+              <p className="counter">{order.packages.length}</p>
+            </div>
           </div>
           <div className="addInfoContent col">
             {order.packages.map((packageItem) => {
@@ -128,23 +138,24 @@ export default function TableDataRow({ order, session, setExportOrders }) {
                 <div className="row" key={packageItem.packageId}>
                   <p className="rowData1 rowData">{packageItem.packageId}</p>
                   <p className="rowData2 rowData">{packageItem.commodityName}</p>
-                  <p className="rowData3 rowData">
-                    {packageItem.commodityPaymentType === "Pobranie" ? packageItem.commodityPrice : "Opłacona"}
-                  </p>
                   <p className="rowData4 rowData">{packageItem.commodityNote}</p>
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="tr">
-          <div className="addInfoHeader">
-            <p>Notatka</p>
-          </div>
-          <div className="addInfoContent note">
-            <p>{order.orderNote}</p>
-          </div>
-        </div>
+        {order.orderNote && (
+          <>
+            <div className="tr">
+              <div className="addInfoHeader">
+                <p>Notatka</p>
+              </div>
+              <div className="addInfoContent note">
+                <p>{order.orderNote}</p>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

@@ -35,6 +35,15 @@
         .formStage:nth-child(3) {
           margin-top: 22px;
         }
+
+        .row {
+          .stage4 {
+            padding-top: 38px;
+            label{
+              margin-bottom: 12px;
+            }
+          }
+        }
       }
 
       .formStage {
@@ -177,23 +186,18 @@
                   }
 
                   td:nth-child(2) {
-                    width: 55%;
+                    width: 75%;
                   }
 
                   td:nth-child(3) {
                     border-right: none;
-                    width: 23%;
-                  }
-
-                  td:nth-child(4) {
-                    border-right: none;
-                    padding: 4px;
                     width: 7%;
                     transition: 0.4s linear;
+                    padding: 4px;
                     cursor: pointer;
                   }
 
-                  td:nth-child(4):hover {
+                  td:nth-child(3):hover {
                     border-radius: 50px;
                     background-color: abstracts.$transparent-text;
                   }
@@ -330,8 +334,10 @@
 
         .rightCol {
           .row {
+            flex-direction: column;
             .stage4 {
-              display: none;
+              width: 100%;
+              margin-top: 24px;
             }
 
             .stage5 {
@@ -343,8 +349,11 @@
               tbody {
                 tr {
                   td {
-                    width: auto!important;
-                    font-size: 16px!important;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: auto !important;
+                    font-size: 12px !important;
                   }
                 }
               }

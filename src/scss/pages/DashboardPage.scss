@@ -205,8 +205,8 @@
               .addInfoHeader {
                 width: 300px;
                 display: flex;
-                flex-direction: column;
-                justify-content: center;
+                flex-direction: row;
+                justify-content: space-evenly;
                 font-size: abstracts.$PrimaryFontSize;
                 text-align: center;
 

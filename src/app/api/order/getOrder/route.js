@@ -28,6 +28,9 @@ export async function GET(req) {
         },
       },
     });
+    if (!order) {
+      throw new Error("Nie znaleziono zamówienia");
+    }
 
     // Check if user is authorized to view this order
     if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).id.role === "ADMIN") {

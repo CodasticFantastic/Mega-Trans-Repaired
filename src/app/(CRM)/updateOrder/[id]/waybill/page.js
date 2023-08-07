@@ -58,11 +58,6 @@ export default function Waybill() {
     if (res.error) {
       console.log(res.error);
     } else if (res.order) {
-      let price = 0;
-      for (let i = 0; i < res.order.packages.length; i++) {
-        price += +res.order.packages[i].commodityPrice;
-      }
-
       let address = res.order.orderStreet + " " + res.order.orderStreetNumber;
       if (res.order.orderFlatNumber) address += "/" + res.order.orderFlatNumber;
 
@@ -73,7 +68,7 @@ export default function Waybill() {
         orderType: res.order.orderType,
         recipient: res.order.recipientName,
         recipientPhone: res.order.recipientPhone,
-        price: price + res.order.currency,
+        price: res.order.orderPaymentType === "Pobranie" ? res.order.orderPrice + res.order.currency : "Opłacone",
         address: address,
         city: res.order.orderPostCode + " " + res.order.orderCity,
         orderNote: res.order.orderNote,
@@ -87,7 +82,6 @@ export default function Waybill() {
                 <p className="number">{index + 1}</p>
                 <p className="id">{item.packageId}</p>
                 <p className="name">{item.commodityName}</p>
-                <p className="price">{item.commodityPrice + res.order.currency}</p>
               </div>
             </div>
           );

@@ -21,8 +21,6 @@ export async function POST(req) {
         packageId: validator.escape(item.orderCommodityId),
         commodityType: validator.escape(item.orderCommodityType),
         commodityName: validator.escape(item.orderCommodityName),
-        commodityPaymentType: validator.escape(item.orderCommodityPayType),
-        commodityPrice: parseFloat(validator.escape(item.orderCommodityPayAmount + "")),
         commodityNote: validator.escape(item.orderCommodityNote),
       };
     });
@@ -46,6 +44,8 @@ export async function POST(req) {
         recipientPhone: validator.escape(request.orderClientPhone),
         recipientEmail: validator.escape(request.orderClientEmail),
         currency: validator.escape(request.currency),
+        orderPaymentType: validator.escape(request.orderPaymentType),
+        orderPrice: parseFloat(validator.escape(request.orderPaymentPrice + "")),
         packages: {
           create: packages,
         },

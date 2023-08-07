@@ -64,8 +64,6 @@ export default function NewOrder() {
       orderClientPhone: data.get("orderClientPhone"),
       orderClientEmail: data.get("orderClientEmail"),
       currency: currency,
-      orderPaymentType: data.get("orderPaymentType"),
-      orderPaymentPrice: data.get("orderPaymentAmount"),
       orderItems: commodityList,
     };
 
@@ -92,6 +90,11 @@ export default function NewOrder() {
     setCommodityError(false);
     if (!commodityItem.orderCommodityName) {
       setCommodityError("Nazwa Towaru jest wymagana");
+    } else if (
+      commodityItem.orderCommodityPayType === "Pobranie" &&
+      (!commodityItem.orderCommodityPayAmount || commodityItem.orderCommodityPayAmount === "")
+    ) {
+      setCommodityError("Kwota Płatności jest wymagana");
     } else {
       setcommodityItem((prevState) => {
         return { ...prevState, orderCommodityId: uuid4() };
@@ -101,8 +104,10 @@ export default function NewOrder() {
       });
       setcommodityItem({
         orderCommodityType: "Paczka",
+        orderCommodityPayType: "Pobranie",
         orderCommodityId: uuid4(),
         orderCommodityName: "",
+        orderCommodityPayAmount: 0,
         orderCommodityNote: "",
       });
     }
@@ -121,6 +126,7 @@ export default function NewOrder() {
       <tr key={commodity.orderCommodityId}>
         <td>{commodity.orderCommodityType}</td>
         <td>{commodity.orderCommodityName}</td>
+        <td>{commodity.orderCommodityPayType == "Pobranie" ? commodity.orderCommodityPayAmount : "Opłacona"}</td>
         <td>
           <Image src={redTrashIcon} alt="Usuń dany towar z listy" onClick={() => deleteComoditiFromList(commodity.orderCommodityId)} />
         </td>
@@ -288,6 +294,36 @@ export default function NewOrder() {
                       }}
                     />
                   </label>
+                  <label htmlFor="orderCommodityPayType">
+                    Rodzaj Płatności
+                    <select
+                      name="orderCommodityPayType"
+                      id="orderCommodityPayType"
+                      value={commodityItem.orderCommodityPayType}
+                      onChange={(e) => {
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityPayType: e.target.value };
+                        });
+                      }}
+                    >
+                      <option value="Pobranie">Pobranie</option>
+                      <option value="Przelew">Opłacone z Góry</option>
+                    </select>
+                  </label>
+                  <label htmlFor="orderCommodityPayAmount">
+                    Kwota Pobrania {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                    <input
+                      type="number"
+                      name="orderCommodityPayAmount"
+                      id="orderCommodityPayAmount"
+                      value={commodityItem.orderCommodityPayAmount}
+                      onChange={(e) => {
+                        setcommodityItem((prevState) => {
+                          return { ...prevState, orderCommodityPayAmount: e.target.value };
+                        });
+                      }}
+                    />
+                  </label>
                 </div>
                 <div className="row">
                   <label htmlFor="orderCommodityNote">
@@ -325,14 +361,14 @@ export default function NewOrder() {
                       onChange={(e) => setPaymentType(e.target.value)}
                     >
                       <option value="Przelew">Przelew</option>
-                      <option value="Pobranie">Pobranie</option>
+                      <option value="Gotówka">Gotówka</option>
                     </select>
                   </label>
-                  {paymentType === "Pobranie" && (
+                  {paymentType === "Gotówka" && (
                     <>
                       <label htmlFor="orderPaymentAmount">
                         Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                        <input type="number" name="orderPaymentAmount" id="orderPaymentAmount" required />
+                        <input type="number" name="orderPaymentAmount" id="orderPaymentAmount" />
                       </label>
                     </>
                   )}

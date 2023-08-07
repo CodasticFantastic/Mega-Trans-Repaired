@@ -27,15 +27,13 @@ export async function POST(req) {
 
     // Check if user is authorized to view this order
     if (verifyJwt(accessToken).id.role === "DRIVER") {
-      let newStatus = request.paymentType === "Pobranie" ? "Pobranie" : "Zrealizowane";
-
       // Update order
       const updatedOrder = await prisma.order.update({
         where: {
           orderId: request.orderId,
         },
         data: {
-          status: newStatus,
+          status: "Zrealizowane",
         },
       });
 

@@ -15,10 +15,8 @@ export default function UpdateOrder({ params }) {
   const { data: session } = useSession();
   const [commodityItem, setCommodityItem] = useState({
     orderCommodityType: "Paczka",
-    orderCommodityPayType: "Pobranie",
     orderCommodityId: uuid4(),
     orderCommodityName: "",
-    orderCommodityPayAmount: 0,
     orderCommodityNote: "",
   });
 
@@ -37,6 +35,8 @@ export default function UpdateOrder({ params }) {
     orderClientName: "",
     orderClientPhone: "",
     orderClientEmail: "",
+    orderPaymentType: "",
+    orderPrice: 0,
   });
   const [countryState, setCountryState] = useState("Polska");
 
@@ -60,6 +60,8 @@ export default function UpdateOrder({ params }) {
 
     const response = await request.json();
 
+    console.log(response);
+
     if (response.error) {
       setFormError(response.error);
     } else if (response.order) {
@@ -67,10 +69,8 @@ export default function UpdateOrder({ params }) {
         response.order.packages.map((item) => {
           return {
             orderCommodityType: item.commodityType,
-            orderCommodityPayType: item.commodityPaymentType,
             orderCommodityId: item.packageId,
             orderCommodityName: item.commodityName,
-            orderCommodityPayAmount: item.commodityPrice + " " + response.order.currency,
             orderCommodityNote: item.commodityNote,
           };
         })
@@ -91,6 +91,8 @@ export default function UpdateOrder({ params }) {
         orderClientName: response.order.recipientName,
         orderClientPhone: response.order.recipientPhone,
         orderClientEmail: response.order.recipientEmail,
+        orderPaymentType: response.order.orderPaymentType,
+        orderPrice: response.order.orderPrice,
       });
 
       setCountryState(response.order.orderCountry);
@@ -149,7 +151,6 @@ export default function UpdateOrder({ params }) {
       <tr key={commodity.orderCommodityId}>
         <td>{commodity.orderCommodityType}</td>
         <td>{commodity.orderCommodityName}</td>
-        <td>{commodity.orderCommodityPayType == "Pobranie" ? commodity.orderCommodityPayAmount : "Opłacona"}</td>
       </tr>
     );
   });
@@ -449,38 +450,6 @@ export default function UpdateOrder({ params }) {
                       disabled
                     />
                   </label>
-                  <label htmlFor="orderCommodityPayType">
-                    Rodzaj Płatności
-                    <select
-                      name="orderCommodityPayType"
-                      id="orderCommodityPayType"
-                      value={commodityItem.orderCommodityPayType}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityPayType: e.target.value };
-                        });
-                      }}
-                      disabled
-                    >
-                      <option value="Pobranie">Pobranie</option>
-                      <option value="Przelew">Opłacone z Góry</option>
-                    </select>
-                  </label>
-                  <label htmlFor="orderCommodityPayAmount">
-                    Kwota Pobrania
-                    <input
-                      type="text"
-                      name="orderCommodityPayAmount"
-                      id="orderCommodityPayAmount"
-                      value={commodityItem.orderCommodityPayAmount}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityPayAmount: e.target.value };
-                        });
-                      }}
-                      disabled
-                    />
-                  </label>
                 </div>
                 <div className="row">
                   <label htmlFor="orderCommodityNote">
@@ -505,9 +474,30 @@ export default function UpdateOrder({ params }) {
               <div className="row">
                 <div className="formStage stage4">
                   <div className="formStageName">
-                    <p>Zliczone Paczki</p>
+                    <p>Sposób Płatności</p>
                   </div>
-                  <p>{showcommodityItem.length}</p>
+                  <label htmlFor="orderPaymentType">
+                    Sposób Płatności
+                    <select name="orderPaymentType" id="orderPaymentType" value={orderForm.orderPaymentType} disabled>
+                      <option value="Przelew">Przelew</option>
+                      <option value="Pobranie">Pobranie</option>
+                    </select>
+                  </label>
+                  {orderForm.orderPrice !== 0 && (
+                    <>
+                      <label htmlFor="orderPaymentAmount">
+                        Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                        <input
+                          type="number"
+                          name="orderPaymentAmount"
+                          id="orderPaymentAmount"
+                          required
+                          value={orderForm.orderPrice}
+                          disabled
+                        />
+                      </label>
+                    </>
+                  )}
                 </div>
                 <div className="formStage stage5">
                   <div className="formStageName">
