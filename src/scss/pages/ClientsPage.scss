@@ -34,6 +34,9 @@
         width: 245px;
         padding-left: 12px;
         font-size: 18px;
+        p{
+          color: abstracts.$white;
+        }
       }
 
       .users {
@@ -55,6 +58,7 @@
           .companyAddress,
           .userRole {
             font-size: 14px;
+            color: abstracts.$white;
           }
           .userId {
             width: 40px;
@@ -101,6 +105,7 @@
           .companyAddress,
           .userRole {
             font-size: 13px;
+            color: abstracts.$white;
           }
 
           .userId {

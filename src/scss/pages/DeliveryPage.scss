@@ -33,6 +33,10 @@
         border-radius: 12px;
         width: 49%;
 
+        p {
+          color: abstracts.$white;
+        }
+
         .success,
         .error {
           display: block;
@@ -62,10 +66,23 @@
           width: 200px;
         }
 
+        #file {
+          // display: none;
+          color: abstracts.$white;
+          cursor: pointer;
+        }
+
+        #file::file-selector-button {
+          color: abstracts.$white;
+          background: abstracts.$gray;
+          cursor: pointer;
+        }
+
         label {
           font-size: 14px;
           display: flex;
           align-items: center;
+          color: abstracts.$white;
           input {
             margin-right: 12px;
           }
@@ -74,6 +91,7 @@
         button {
           margin-left: 30px;
           padding: 3px 12px;
+          color: abstracts.$white;
         }
       }
     }
@@ -95,6 +113,10 @@
         width: 245px;
         padding-left: 12px;
         font-size: 18px;
+
+        p{
+          color: abstracts.$white;
+        }
       }
 
       .orders {
@@ -114,6 +136,7 @@
           .courier,
           .date {
             font-size: 14px;
+            color: abstracts.$white;
           }
         }
 
@@ -131,6 +154,7 @@
           .courier,
           .date {
             font-size: 13px;
+            color: abstracts.$white;
           }
         }
 
