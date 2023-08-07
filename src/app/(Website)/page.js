@@ -236,9 +236,9 @@ export default function Home() {
           <div className="contactForm">
             <ContactForm />
           </div>
-          <div className="googleMap">
+          {/* <div className="googleMap">
             <ContactForm />
-          </div>
+          </div> */}
         </div>
       </section>
     </main>

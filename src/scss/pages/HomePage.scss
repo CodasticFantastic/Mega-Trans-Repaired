@@ -331,6 +331,11 @@
   .contactDetails {
     margin-top: 20px;
     display: flex;
+    justify-content: center;
+
+    .contactForm{
+      width: 600px;
+    }
   }
 }
 
@@ -491,6 +496,10 @@
 
     .contactDetails {
       flex-direction: column;
+
+      .contactForm {
+        width: 100%;
+      }
     }
   }
 }
