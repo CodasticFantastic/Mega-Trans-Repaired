@@ -138,12 +138,19 @@ $Violet: abstracts.$Violet;
         .tile.search {
           margin-top: 10px;
           cursor: pointer;
+          background-color: abstracts.$gray;
+          color: abstracts.$white;
         }
 
         .info {
           padding-left: 13px;
           font-size: $TertiaryFontSize;
           font-weight: 300;
+        }
+
+        select {
+          background: abstracts.$dark-secondary;
+          color: abstracts.$white;
         }
 
         .buttons {
@@ -154,6 +161,7 @@ $Violet: abstracts.$Violet;
             width: 108px;
             background-color: abstracts.$dark-secondary;
             cursor: pointer;
+            color: abstracts.$white;
           }
           .tile.marked {
             background-color: abstracts.$gray;
@@ -167,6 +175,8 @@ $Violet: abstracts.$Violet;
         input {
           cursor: pointer;
           padding: 6px 13px;
+          background-color: abstracts.$dark-secondary;
+          color: abstracts.$white;
         }
 
         .info:nth-of-type(2) {
@@ -217,6 +227,7 @@ $Violet: abstracts.$Violet;
         .all {
           width: 100%;
           background-color: abstracts.$dark-secondary;
+          color: abstracts.$white;
         }
 
         .all:hover {

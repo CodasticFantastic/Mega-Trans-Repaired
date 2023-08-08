@@ -34,7 +34,7 @@
         padding-left: 12px;
         font-size: 18px;
 
-        p{
+        p {
           color: abstracts.$white;
         }
       }
@@ -85,7 +85,7 @@
           }
         }
 
-        .error{
+        .error {
           color: abstracts.$Red;
           margin-top: 10px;
           font-size: 14px;
@@ -110,7 +110,7 @@
         width: 245px;
         padding-left: 12px;
         font-size: 18px;
-        p{
+        p {
           color: abstracts.$white;
         }
       }
@@ -120,6 +120,12 @@
         margin-top: 20px;
         display: flex;
         flex-wrap: wrap;
+
+        .noDrivers {
+          p {
+            color: abstracts.$white;
+          }
+        }
 
         .driver {
           width: 15%;

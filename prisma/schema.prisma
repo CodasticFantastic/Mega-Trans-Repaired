@@ -92,7 +92,7 @@ model Order{
   orderNote String?
   recipientName String
   recipientPhone String
-  recipientEmail String
+  recipientEmail String?
   orderPaymentType CommodityPaymentType
   orderPrice Float?
   packages  Package[]

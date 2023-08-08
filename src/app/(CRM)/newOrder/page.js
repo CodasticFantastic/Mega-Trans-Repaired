@@ -171,7 +171,7 @@ export default function NewOrder() {
                 </div>
                 <div className="row">
                   <label htmlFor="orderStreetNumber">
-                    Numer Ulicy *
+                    Numer Budynku *
                     <input type="text" name="orderStreetNumber" id="orderStreetNumber" required />
                   </label>
                   <label htmlFor="orderFlatNumber">
@@ -237,18 +237,18 @@ export default function NewOrder() {
                     <input type="text" name="orderClientName" id="orderClientName" required />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    {countryState === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
+                    {countryState === "Polska" ? "Telefon (Bez spacji) *" : "Telefo (Bez spacji) *"}
                     <input
                       type="text"
                       name="orderClientPhone"
                       id="orderClientPhone"
                       required
-                      pattern={countryState === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"}
+                      pattern={countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"}
                     />
                   </label>
                   <label htmlFor="orderClientEmail">
-                    Email Klienta *
-                    <input type="text" name="orderClientEmail" id="orderClientEmail" required />
+                    Email Klienta
+                    <input type="text" name="orderClientEmail" id="orderClientEmail" />
                   </label>
                 </div>
               </div>

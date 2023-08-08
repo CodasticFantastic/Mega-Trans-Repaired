@@ -246,7 +246,7 @@ export default function UpdateOrder({ params }) {
                 </div>
                 <div className="row">
                   <label htmlFor="orderStreetNumber">
-                    Numer Ulicy *
+                    Numer Budynku *
                     <input
                       type="text"
                       name="orderStreetNumber"
@@ -380,7 +380,7 @@ export default function UpdateOrder({ params }) {
                     />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    {orderForm.orderCountry === "Polska" ? "Telefonu (48#########) *" : "Telefon (420#########) *"}
+                    {orderForm.orderCountry === "Polska" ? "Telefon (Bez spacji) *" : "Telefon (Bez spacji) *"}
                     <input
                       type="text"
                       name="orderClientPhone"
@@ -392,11 +392,11 @@ export default function UpdateOrder({ params }) {
                           return { ...prevState, orderClientPhone: e.target.value };
                         });
                       }}
-                      pattern={orderForm.orderCountry === "Polska" ? "48[0-9]{9}" : "420[0-9]{9}"}
+                      pattern={orderForm.orderCountry === "Polska" ? "[0-9]{9}" : "[0-9]{9}"}
                     />
                   </label>
                   <label htmlFor="orderClientEmail">
-                    Email Klienta *
+                    Email Klienta
                     <input
                       type="text"
                       name="orderClientEmail"
@@ -407,7 +407,6 @@ export default function UpdateOrder({ params }) {
                           return { ...prevState, orderClientEmail: e.target.value };
                         });
                       }}
-                      required
                     />
                   </label>
                 </div>

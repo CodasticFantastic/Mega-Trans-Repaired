@@ -212,6 +212,7 @@ export default function Dashboard() {
             <div className="thead">
               <div className="tr">
                 <div className="col1 th">Eksport</div>
+                <div className="col8 th">Rodzaj</div>
                 <div className="col2 th">ID Paczki</div>
                 <div className="col3 th">Status</div>
                 <div className="col4 th">Aktualizacja</div>

@@ -65,6 +65,7 @@ export default function TableDataRow({ order, session, setExportOrders }) {
         <div className="col1 td">
           <input type="checkbox" checked={ifExported} onChange={() => exportOrder(event)} />
         </div>
+        <div className="col8 td">{order.orderType}</div>
         <div className="col2 td">{order.orderId}</div>
         <div className={`col3 td ${status}`}>
           {session.user.role === "ADMIN" && (
