@@ -33,6 +33,13 @@ export default function DeliveryPage() {
 
       setDisplayData(
         json.map((order, index) => {
+          let deliveryDate = order["Data dojazdu z godziną"].split(" ");
+          let time = deliveryDate[1].split(":");
+          let hours = +time[0];
+
+          let hoursRangeFrom = hours - 1;
+          let hoursRangeTo = hours + 2;
+
           return (
             <div className="order" key={index}>
               <div className="orderNo">
@@ -48,7 +55,7 @@ export default function DeliveryPage() {
                 <p>{order.Kierowca}</p>
               </div>
               <div className="date">
-                <p>{order["Data dojazdu z godziną"]}</p>
+                <p>{`${deliveryDate[0]} ${hoursRangeFrom}:00-${hoursRangeTo}:00`}</p>
               </div>
             </div>
           );
@@ -57,10 +64,16 @@ export default function DeliveryPage() {
 
       setData(
         json.map((order) => {
+          let deliveryDate = order["Data dojazdu z godziną"].split(" ");
+          let time = deliveryDate[1].split(":");
+          let hours = +time[0];
+
+          let hoursRangeFrom = hours - 1;
+          let hoursRangeTo = hours + 2;
           return {
             id: order["Nazwa obiektu"],
             driver: order.Kierowca,
-            deliveryDate: order["Data dojazdu z godziną"],
+            deliveryDate: `${deliveryDate[0]} ${hoursRangeFrom}:00-${hoursRangeTo}:00`,
           };
         })
       );
