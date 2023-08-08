@@ -54,7 +54,7 @@ CREATE TABLE `Order` (
     `orderNote` VARCHAR(191) NULL,
     `recipientName` VARCHAR(191) NOT NULL,
     `recipientPhone` VARCHAR(191) NOT NULL,
-    `recipientEmail` VARCHAR(191) NOT NULL,
+    `recipientEmail` VARCHAR(191) NULL,
     `orderPaymentType` ENUM('Pobranie', 'Przelew') NOT NULL,
     `orderPrice` DOUBLE NULL,
     `currency` VARCHAR(191) NULL,
