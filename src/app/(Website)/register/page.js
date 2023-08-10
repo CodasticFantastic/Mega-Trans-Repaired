@@ -77,14 +77,14 @@ export default function RegisterPage() {
         <label htmlFor="regulations">
           <input id="regulations" name="regulations" type="checkbox" required />
           <p>
-            Akceptuję <Link href="/regulamin">regulamin</Link> serwisu.
+            Akceptuję <Link href="/regulamin">regulamin</Link> oraz <Link href="/polityka-prywatnosci">politykę prywatności</Link> serwisu.
           </p>
         </label>
         <label htmlFor="rodo">
           <input id="rodo" name="rodo" type="checkbox" required />
           <p>
             Wyrażam zgodę na przetwarzanie moich danych osobowych przez firmę MEGA-TRANS Dawid Możdżanowski, w tym na kontakt telefoniczny
-            oraz mailowy, w celu realizacji powierzonych zleceń.
+            oraz mailowy, w celu realizacji powierzonych zleceń (<Link href="/rodo">RODO</Link>).
           </p>
         </label>
 

@@ -148,6 +148,7 @@ export default function Dashboard() {
   function clearFilters() {
     setExportOrders([]);
     setFilters({
+      searchId: "",
       orderBy: "desc",
       status: "Wszystkie",
       dateFrom: "",

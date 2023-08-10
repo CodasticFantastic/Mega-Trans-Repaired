@@ -15,7 +15,7 @@
     align-items: center;
     padding-top: 30px;
 
-    .error{
+    .error {
       color: abstracts.$Red;
     }
 
@@ -75,6 +75,7 @@
         font-size: 1rem;
         padding: 6px 18px;
         margin-top: 12px;
+        color: white;
       }
 
       .title::before {
@@ -86,6 +87,7 @@
         font-size: 0.8rem;
         margin-top: 12px;
         text-align: center;
+        color: white;
       }
     }
 
@@ -142,52 +144,52 @@
   }
 }
 
-@media (max-width: 980px){
-    .TrackingPage{
+@media (max-width: 980px) {
+  .TrackingPage {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 140px;
+
+    .left {
+      h2 {
+        font-size: 1rem;
+      }
+
+      p {
+        display: flex;
         flex-direction: column;
-        align-items: center;
-        margin-top: 140px;
-
-        .left{
-            h2{
-                font-size: 1rem;
-            }
-
-            p{
-                display: flex;
-                flex-direction: column;
-                margin-bottom: 5px;
-                span{
-                    margin-left: 0px;
-                }
-            }
-            .orderInfo,
-            .courierInfo,
-            .packages {
-              width: 300px;
-            }
+        margin-bottom: 5px;
+        span {
+          margin-left: 0px;
         }
-
-        .right{
-            width: 100%;
-            .tile{
-                width: 100%;
-                max-width: 300px;
-                padding: 5px;
-                margin: 10px;
-                img{
-                    width: 50px;
-                }
-
-                .title{
-                    font-size: 1rem;
-                    padding: 6px 18px;
-                }
-
-                .description{
-                    font-size: 0.8rem;
-                }
-            }
-        }
+      }
+      .orderInfo,
+      .courierInfo,
+      .packages {
+        width: 300px;
+      }
     }
+
+    .right {
+      width: 100%;
+      .tile {
+        width: 100%;
+        max-width: 300px;
+        padding: 5px;
+        margin: 10px;
+        img {
+          width: 50px;
+        }
+
+        .title {
+          font-size: 1rem;
+          padding: 6px 18px;
+        }
+
+        .description {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
 }

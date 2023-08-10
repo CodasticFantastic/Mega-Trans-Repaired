@@ -54,6 +54,16 @@
 
     .rightSide {
       display: flex;
+
+      .SearchForPackage{
+        input{
+          color: abstracts.$white;
+        }
+        button{
+          color: abstracts.$white;
+        }
+      }
+
       .placeOrder {
         margin-left: 10px;
         border: none;
@@ -63,6 +73,7 @@
         border-radius: 50px;
         font-size: 14px;
         transition: 0.4s ease-in-out;
+        color: abstracts.$white;
         a {
           color: abstracts.$white;
           text-decoration: none;

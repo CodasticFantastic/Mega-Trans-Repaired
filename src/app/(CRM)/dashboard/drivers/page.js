@@ -50,7 +50,7 @@ export default function DriversPage() {
                 <p>{driver.email}</p>
               </div>
               <div className="driverPhone">
-                <p>{driver.name}</p>
+                <p>{driver.phone}</p>
               </div>
               <button onClick={() => deleteDriver(driver.id)}>
                 <p>Usuń Kierowcę</p>

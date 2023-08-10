@@ -35,6 +35,10 @@
       font-weight: 500;
     }
 
+    .companyData {
+      color: white;
+    }
+
     .dimInfo {
       margin-top: 10px;
       color: abstracts.$transparent-text;
@@ -81,6 +85,11 @@
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      color: white;
+
+      a{
+        color: aqua;
+      }
       input {
         width: 5%;
       }
@@ -97,6 +106,10 @@
       border-radius: 50px;
       border: none;
       cursor: pointer;
+    }
+
+    button:hover {
+      background-color: abstracts.$Green;
     }
 
     .error {
