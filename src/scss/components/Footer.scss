@@ -1,127 +1,128 @@
 @use "../abstracts/colors" as colors;
 
-footer{
-    margin-top: 60px;
+footer {
+  margin-top: 60px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+
+  .AnimatedWaves {
+    position: absolute;
+    top: 100px;
+    left: 0;
+    right: 0;
+    z-index: -1;
+  }
+
+  .up {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
-    position: relative;
-    overflow: hidden;
 
-    .AnimatedWaves{
-        position: absolute;
-        top: 100px;
-        left: 0;
-        right: 0;
-        z-index: -1;
-    }
-    
-    .up{
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-
-        .logo{
-            width: 20%;
-            height: 100px;
-            margin: 0 auto 10px auto;
-            img{
-                height: 100%;
-                object-fit: contain;
-            }
-        }
-
-        .row{
-            width: 20%;
-            display: flex;
-            flex-direction: column;
-            .bold{
-                font-weight: 600;
-                font-size: 1rem;
-                color: colors.$text-primary;
-                margin-bottom: 10px;
-            }
-
-            p, a{
-                text-decoration: none;
-                color: colors.$text-primary;
-                font-size: 0.9rem;
-            }
-        }
-
-
+    .logo {
+      width: 20%;
+      height: 100px;
+      margin: 0 auto 10px auto;
+      img {
+        height: 100%;
+        object-fit: contain;
+      }
     }
 
-    .down{
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
+    .row {
+      width: 20%;
+      display: flex;
+      flex-direction: column;
+      .bold {
+        font-weight: 600;
         font-size: 1rem;
+        color: colors.$text-primary;
+        margin-bottom: 10px;
+      }
 
-        
-
-        a{
-            text-decoration: none;
-            color: colors.$text-primary;
-        }
+      p,
+      a {
+        text-decoration: none;
+        color: colors.$text-primary;
+        font-size: 0.9rem;
+      }
     }
+  }
+
+  .down {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 1rem;
+
+    a {
+      text-decoration: none;
+      color: colors.$text-primary;
+    }
+
+    p {
+      color: white;
+    }
+  }
 }
 
-@media (max-width: 860px){
-    footer{
-
-        .AnimatedWaves{
-            top: 200px;
-        }
-
-        .up{
-            // flex-direction: column;
-            flex-wrap: wrap;
-            justify-content: center;
-
-            .logo{
-                width: 33%;
-            }
-
-            .row{
-                width: 33%;
-                align-items: center;
-            }
-        }
+@media (max-width: 860px) {
+  footer {
+    .AnimatedWaves {
+      top: 200px;
     }
+
+    .up {
+      // flex-direction: column;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      .logo {
+        width: 33%;
+      }
+
+      .row {
+        width: 33%;
+        align-items: center;
+      }
+    }
+  }
 }
 
-@media (max-width: 520px){
-    footer{
-        .AnimatedWaves{
-            top: 690px;
-        }
-
-        .up{
-            flex-direction: column;
-            justify-content: center;
-
-            .logo{
-                width: 100%;
-            }
-
-            .row{
-                margin-top: 15px;
-                width: 100%;
-                align-items: center;
-
-                p, a{
-                    width: 150px;
-                    text-align: left;
-                } 
-            }
-        }
-
-        .down{
-            margin-top: 20px;
-            flex-direction: column;
-            align-items: center;
-            :nth-child(2){
-                text-align: center;
-            }
-        }
+@media (max-width: 520px) {
+  footer {
+    .AnimatedWaves {
+      top: 690px;
     }
+
+    .up {
+      flex-direction: column;
+      justify-content: center;
+
+      .logo {
+        width: 100%;
+      }
+
+      .row {
+        margin-top: 15px;
+        width: 100%;
+        align-items: center;
+
+        p,
+        a {
+          width: 150px;
+          text-align: left;
+        }
+      }
+    }
+
+    .down {
+      margin-top: 20px;
+      flex-direction: column;
+      align-items: center;
+      :nth-child(2) {
+        text-align: center;
+      }
+    }
+  }
 }

@@ -31,14 +31,84 @@ export default function DeliveryPage() {
       json.pop();
       json.pop();
 
+      let isMultiDay = false;
+
       setDisplayData(
         json.map((order, index) => {
           let deliveryDate = order["Data dojazdu z godziną"].split(" ");
+          let date = deliveryDate[0].split(".");
+          let day = date[0];
+          let month = date[1];
+          let year = date[2];
           let time = deliveryDate[1].split(":");
           let hours = +time[0];
 
-          let hoursRangeFrom = hours - 1;
-          let hoursRangeTo = hours + 2;
+          let finalDate;
+          let finalHour;
+
+          // Check if the delivery is multi day
+          if (isMultiDay) {
+            let currnetDateString = new Date(`${month}.${day}.${year} ${deliveryDate[1]}`);
+            let multiDayDate = addHours(currnetDateString, 11);
+
+            hours = multiDayDate.getHours();
+
+            if (hours < 7 || hours >= 20) {
+              isMultiDay = true;
+              let currnetDateStringCheck = new Date(multiDayDate);
+              let multiDayDateCheck = addHours(currnetDateStringCheck, 11);
+
+              // Return Final Date and Hour if the delivery is multi multi day
+              finalDate = `${multiDayDateCheck.getDate()}.${
+                (multiDayDateCheck.getMonth() + 1).toString().length == 1
+                  ? `0${multiDayDateCheck.getMonth() + 1}`
+                  : multiDayDateCheck.getMonth() + 1
+              }.${multiDayDateCheck.getFullYear()}`;
+              finalHour = multiDayDateCheck.getHours();
+            } else {
+              // Return Final Date and Hour if the delivery is multi day
+              finalDate = `${multiDayDate.getDate()}.${
+                (multiDayDate.getMonth() + 1).toString().length == 1 ? `0${multiDayDate.getMonth() + 1}` : multiDayDate.getMonth() + 1
+              }.${multiDayDate.getFullYear()}`;
+              finalHour = multiDayDate.getHours();
+            }
+          } else {
+            if (hours < 7 || hours >= 20) {
+              isMultiDay = true;
+
+              let currnetDateString = new Date(`${month}.${day}.${year} ${deliveryDate[1]}`);
+              let multiDayDate = addHours(currnetDateString, 11);
+
+              // Return Final Date and Hour if detected first instance of multi day
+              finalDate = `${multiDayDate.getDate()}.${
+                (multiDayDate.getMonth() + 1).toString().length == 1 ? `0${multiDayDate.getMonth() + 1}` : multiDayDate.getMonth() + 1
+              }.${multiDayDate.getFullYear()}`;
+              finalHour = multiDayDate.getHours();
+            } else {
+              // Return Final Date and Hour if the delivery is not multi day
+              finalDate = deliveryDate[0];
+              finalHour = hours;
+            }
+          }
+
+          // Set Hours Range for the delivery
+          let hoursRangeFrom;
+
+          if (finalHour === 0) {
+            hoursRangeFrom = 23;
+          } else {
+            hoursRangeFrom = finalHour - 1;
+          }
+          let hoursRangeTo = finalHour + 2;
+
+          setData((prev) => [
+            ...prev,
+            {
+              id: order["Nazwa obiektu"],
+              driver: order.Kierowca,
+              deliveryDate: `${finalDate} ${hoursRangeFrom}:00-${hoursRangeTo}:00`,
+            },
+          ]);
 
           return (
             <div className="order" key={index}>
@@ -55,29 +125,18 @@ export default function DeliveryPage() {
                 <p>{order.Kierowca}</p>
               </div>
               <div className="date">
-                <p>{`${deliveryDate[0]} ${hoursRangeFrom}:00-${hoursRangeTo}:00`}</p>
+                <p>{`${finalDate} ${hoursRangeFrom}:00-${hoursRangeTo}:00`}</p>
               </div>
             </div>
           );
         })
       );
-
-      setData(
-        json.map((order) => {
-          let deliveryDate = order["Data dojazdu z godziną"].split(" ");
-          let time = deliveryDate[1].split(":");
-          let hours = +time[0];
-
-          let hoursRangeFrom = hours - 1;
-          let hoursRangeTo = hours + 2;
-          return {
-            id: order["Nazwa obiektu"],
-            driver: order.Kierowca,
-            deliveryDate: `${deliveryDate[0]} ${hoursRangeFrom}:00-${hoursRangeTo}:00`,
-          };
-        })
-      );
     };
+
+    function addHours(date, hours) {
+      date.setTime(date.getTime() + hours * 60 * 60 * 1000);
+      return date;
+    }
 
     reader.readAsArrayBuffer(e.target[0].files[0]);
   }

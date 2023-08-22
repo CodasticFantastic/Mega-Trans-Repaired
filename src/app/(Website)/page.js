@@ -234,7 +234,7 @@ export default function Home() {
         </div>
         <div className="contactDetails">
           <div className="contactForm">
-            <ContactForm />
+            {/* <ContactForm /> */}
           </div>
           {/* <div className="googleMap">
             <ContactForm />

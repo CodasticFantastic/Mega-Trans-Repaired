@@ -36,6 +36,7 @@
     z-index: 1000;
     transition: 0.4s ease-in-out;
     cursor: pointer;
+    color: abstracts.$white;
   }
 
   .CTA:hover {
@@ -44,7 +45,7 @@
 }
 
 .OfferSection {
-  margin-top: 140px;
+  margin-top: 180px;
   width: 100%;
 
   .offerCards {
@@ -97,6 +98,7 @@
 
 .ServiceSection {
   width: 100%;
+  margin-top: 120px;
 
   .service {
     display: flex;
@@ -223,6 +225,7 @@
 }
 
 .PriceSection {
+  margin-top: 120px;
   .priceDescription {
     display: flex;
     justify-content: center;
@@ -268,6 +271,10 @@
             width: 80px;
             height: 80px;
           }
+
+          p{
+            color: abstracts.$white;
+          }
         }
 
         .tile:first-child,
@@ -298,6 +305,7 @@
 }
 
 .ContactSection {
+  margin-top: 120px;
   .contact {
     display: flex;
     justify-content: center;
