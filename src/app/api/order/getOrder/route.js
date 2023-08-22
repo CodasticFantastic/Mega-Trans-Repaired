@@ -24,6 +24,7 @@ export async function GET(req) {
         user: {
           select: {
             company: true,
+            phone: true,
           },
         },
       },

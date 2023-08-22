@@ -5,6 +5,7 @@ import qrIcon from "@/images/icons/qrIcon.png";
 import userIcon from "@/images/icons/userIcon.png";
 import settingsIcon from "@/images/icons/settingsIcon.png";
 import arrowDownIcon from "@/images/icons/arrowDown.png";
+import documentsIcon from "@/images/icons/documentsIcon.png";
 
 import InfoIcon from "@/images/icons/infoIcon.png";
 
@@ -97,17 +98,21 @@ export default function InstructionsSideBar({ orderId }) {
             </Link>
             <Link className="print" href={`/updateOrder/${orderId}/label`} target="_blank">
               <Image src={qrIcon} alt="Ikona sortowania" className="icon" />
-              Etykiety
+              Etykiety 10x15
+            </Link>
+            <Link className="print" href={`/updateOrder/${orderId}/shortDocumentation`} target="_blank">
+              <Image src={documentsIcon} alt="Ikona sortowania" className="icon" />
+              Etykiety A4
             </Link>
           </>
         )}
       </div>
 
       <div className="userSection">
-        <div className="currentUser">
+        {/* <div className="currentUser">
           <Image src={userIcon} alt="Ikona filtrowania" className="icon" />
           <p className="userName">Jan Kowalski</p>
-        </div>
+        </div> */}
         <div className="options">
           <LogoutButton />
           <Link className="settings" href="/dashboard/settings">

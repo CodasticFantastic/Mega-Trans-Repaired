@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
 
-export default function Waybill() {
+export default function Label() {
   const listRef = useRef([]);
   const pathname = usePathname();
   const id = pathname.split("/")[2];
@@ -33,7 +33,7 @@ export default function Waybill() {
 
     for (let i = 0; i < listRef.current.length; i++) {
       const image = await toPng(listRef.current[i], { quality: 0.95 });
-      doc.addImage(image, "JPGG", 0, 0, 100, 150);
+      doc.addImage(image, "JPGG", 0, 5, 100, 140);
       if (i !== listRef.current.length - 1) doc.addPage();
     }
 

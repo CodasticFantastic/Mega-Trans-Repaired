@@ -28,6 +28,7 @@ export default function Waybill() {
     city: "",
     orderNote: "",
     currency: "",
+    senderPhone: "",
   });
 
   const [packages, setPackages] = useState([]);
@@ -73,6 +74,7 @@ export default function Waybill() {
         city: res.order.orderPostCode + " " + res.order.orderCity,
         orderNote: res.order.orderNote,
         currency: res.order.currency,
+        senderPhone: res.order.user.phone,
       });
       setPackages(
         res.order.packages.map((item, index) => {
@@ -99,6 +101,9 @@ export default function Waybill() {
             <h1>Podstawowe Informacje</h1>
             <p>
               Nadawca: <span>{orderData.sender}</span>
+            </p>
+            <p>
+              Telefon Nadawcy: <span>{orderData.senderPhone}</span>
             </p>
             <p>
               Zlecenie: <span>{orderData.id}</span>
