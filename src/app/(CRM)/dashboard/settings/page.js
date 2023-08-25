@@ -5,6 +5,7 @@ import redBackIcon from "@/images/icons/redBackIcon.png";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { Parser } from "html-to-react"
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -42,13 +43,13 @@ export default function SettingsPage() {
       setFormError(response.error);
     } else if (response.success) {
       setSettingsForm({
-        companyName: response.success.company,
-        email: response.success.email,
+        companyName: Parser().parse(response.success.company),
+        email: Parser().parse(response.success.email),
         phone: response.success.phone,
         nip: response.success.nip,
         country: response.success.country,
         city: response.success.city,
-        address: response.success.address,
+        address: Parser().parse(response.success.address),
       });
     }
   }

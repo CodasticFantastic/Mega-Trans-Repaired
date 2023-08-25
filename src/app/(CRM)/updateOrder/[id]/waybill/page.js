@@ -10,6 +10,8 @@ import { generateWaybill } from "@/helpers/generatePdf";
 
 import { useSession } from "next-auth/react";
 
+import { Parser } from "html-to-react";
+
 export default function Waybill() {
   const ref = useRef();
   const pathname = usePathname();
@@ -64,15 +66,15 @@ export default function Waybill() {
 
       setOrderData({
         id: res.order.orderId,
-        sender: res.order.user.company,
+        sender: Parser().parse(res.order.user.company),
         packagesNumber: res.order.packages.length,
         orderType: res.order.orderType,
-        recipient: res.order.recipientName,
+        recipient: Parser().parse(res.order.recipientName),
         recipientPhone: res.order.recipientPhone,
         price: res.order.orderPaymentType === "Pobranie" ? res.order.orderPrice + res.order.currency : "Opłacone",
-        address: address,
+        address: Parser().parse(address),
         city: res.order.orderPostCode + " " + res.order.orderCity,
-        orderNote: res.order.orderNote,
+        orderNote: Parser().parse(res.order.orderNote),
         currency: res.order.currency,
         senderPhone: res.order.user.phone,
       });
@@ -83,7 +85,7 @@ export default function Waybill() {
               <div className="row">
                 <p className="number">{index + 1}</p>
                 <p className="id">{item.packageId}</p>
-                <p className="name">{item.commodityName}</p>
+                <p className="name">{Parser().parse(item.commodityName)}</p>
               </div>
             </div>
           );

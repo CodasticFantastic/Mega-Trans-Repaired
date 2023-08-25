@@ -10,6 +10,8 @@ import { useSession } from "next-auth/react";
 
 import { useRouter } from "next/navigation";
 
+import { Parser } from "html-to-react";
+
 export default function UpdateOrder({ params }) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -70,8 +72,8 @@ export default function UpdateOrder({ params }) {
           return {
             orderCommodityType: item.commodityType,
             orderCommodityId: item.packageId,
-            orderCommodityName: item.commodityName,
-            orderCommodityNote: item.commodityNote,
+            orderCommodityName: Parser().parse(item.commodityName),
+            orderCommodityNote: Parser().parse(item.commodityNote),
           };
         })
       );
@@ -81,14 +83,14 @@ export default function UpdateOrder({ params }) {
         orderId: response.order.orderId,
         orderType: response.order.orderType,
         orderCountry: response.order.orderCountry,
-        orderStreet: response.order.orderStreet,
+        orderStreet: Parser().parse(response.order.orderStreet),
         orderStreetNumber: response.order.orderStreetNumber,
         orderFlatNumber: response.order.orderFlatNumber,
         orderCity: response.order.orderCity,
         orderPostCode: response.order.orderPostCode,
         orderState: response.order.orderState,
-        orderNote: response.order.orderNote,
-        orderClientName: response.order.recipientName,
+        orderNote: Parser().parse(response.order.orderNote),
+        orderClientName: Parser().parse(response.order.recipientName),
         orderClientPhone: response.order.recipientPhone,
         orderClientEmail: response.order.recipientEmail,
         orderPaymentType: response.order.orderPaymentType,
@@ -251,6 +253,7 @@ export default function UpdateOrder({ params }) {
                       type="text"
                       name="orderStreetNumber"
                       id="orderStreetNumber"
+                      pattern="[A-Za-z0-9]{1,}"
                       value={orderForm.orderStreetNumber}
                       onChange={(e) => {
                         setOrderForm((prevState) => {

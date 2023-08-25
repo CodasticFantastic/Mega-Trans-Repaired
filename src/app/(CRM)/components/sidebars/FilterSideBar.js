@@ -16,6 +16,8 @@ import LogoutButton from "../LogoutButton";
 import { useState } from "react";
 import Link from "next/link";
 
+import { Parser } from "html-to-react";
+
 export default function FilterSideBar({
   sortOrdersByDate,
   filterOrdersByStatus,
@@ -255,7 +257,7 @@ export default function FilterSideBar({
       <div className="userSection">
         <div className="currentUser">
           <Image src={userIcon} alt="Ikona filtrowania" className="icon" />
-          <p className="userName">{session?.user.company}</p>
+          <p className="userName">{Parser().parse(session?.user.company)}</p>
         </div>
         <div className="options">
           <LogoutButton />

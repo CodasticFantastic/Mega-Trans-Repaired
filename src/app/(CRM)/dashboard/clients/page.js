@@ -6,6 +6,7 @@ import redBackIcon from "@/images/icons/redBackIcon.png";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
+import { Parser } from "html-to-react";
 
 export default function ClientsPage() {
   const { data: session } = useSession();
@@ -40,7 +41,7 @@ export default function ClientsPage() {
                 <p>{user.id}</p>
               </div>
               <div className="companyName">
-                <p>{user.company}</p>
+                <p>{Parser().parse(user.company)}</p>
               </div>
               <div className="companyNip">
                 <p>{user.nip}</p>
@@ -53,7 +54,7 @@ export default function ClientsPage() {
               </div>
               <div className="companyAddress">
                 <p>
-                  {user.address}, {user.city} - {user.country}
+                  {Parser().parse(user.address)}, {user.city} - {user.country}
                 </p>
               </div>
               <div className="userRole">

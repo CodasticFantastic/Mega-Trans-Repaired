@@ -11,6 +11,8 @@ import { useSession } from "next-auth/react";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
 
+import { Parser } from "html-to-react";
+
 export default function ShortDocumentation() {
   const listRef = useRef([]);
   const waybilRef = useRef();
@@ -59,15 +61,15 @@ export default function ShortDocumentation() {
 
       setWaybillData({
         id: res.order.orderId,
-        sender: res.order.user.company,
+        sender: Parser().parse(res.order.user.company),
         packagesNumber: res.order.packages.length,
         orderType: res.order.orderType,
-        recipient: res.order.recipientName,
+        recipient: Parser().parse(res.order.recipientName),
         recipientPhone: res.order.recipientPhone,
         price: res.order.orderPaymentType === "Pobranie" ? res.order.orderPrice + res.order.currency : "Opłacone",
-        address: address,
+        address: Parser().parse(address),
         city: res.order.orderPostCode + " " + res.order.orderCity,
-        orderNote: res.order.orderNote,
+        orderNote: Parser().parse(res.order.orderNote),
         currency: res.order.currency,
         senderPhone: res.order.user.phone,
       });
@@ -79,7 +81,7 @@ export default function ShortDocumentation() {
               <div className="row">
                 <p className="number">{index + 1}</p>
                 <p className="id">{item.packageId}</p>
-                <p className="name">{item.commodityName}</p>
+                <p className="name">{Parser().parse(item.commodityName)}</p>
               </div>
             </div>
           );
@@ -109,10 +111,10 @@ export default function ShortDocumentation() {
 
                 <div className="reciepientInfo">
                   <p>
-                    Nadawca: <span>{res.order.user.company}</span>
+                    Nadawca: <span>{Parser().parse(res.order.user.company)}</span>
                   </p>
                   <p>
-                    Odbiorca: <span>{res.order.recipientName}</span>
+                    Odbiorca: <span>{Parser().parse(res.order.recipientName)}</span>
                   </p>
                   <p>
                     Adres: <span>{address}</span>
@@ -130,10 +132,10 @@ export default function ShortDocumentation() {
 
                 <div className="packageInfo">
                   <p>
-                    Towar <span>{item.commodityName}</span>
+                    Towar <span>{Parser().parse(item.commodityName)}</span>
                   </p>
                   <p>
-                    Uwagi <span>{item.commodityNote !== "" ? item.commodityNote : "Brak"}</span>
+                    Uwagi <span>{item.commodityNote !== "" ? Parser().parse(item.commodityNote) : "Brak"}</span>
                   </p>
                 </div>
               </main>

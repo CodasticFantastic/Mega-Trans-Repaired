@@ -172,7 +172,7 @@ export default function NewOrder() {
                 <div className="row">
                   <label htmlFor="orderStreetNumber">
                     Numer Budynku *
-                    <input type="text" name="orderStreetNumber" id="orderStreetNumber" required />
+                    <input type="text" name="orderStreetNumber" id="orderStreetNumber" pattern="[A-Za-z0-9]{1,}" required />
                   </label>
                   <label htmlFor="orderFlatNumber">
                     Numer Lokalu

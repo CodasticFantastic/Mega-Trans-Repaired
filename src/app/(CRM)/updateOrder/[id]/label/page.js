@@ -11,6 +11,8 @@ import { useSession } from "next-auth/react";
 import { jsPDF } from "jspdf";
 import { toPng } from "html-to-image";
 
+import { Parser } from "html-to-react";
+
 export default function Label() {
   const listRef = useRef([]);
   const pathname = usePathname();
@@ -25,7 +27,6 @@ export default function Label() {
       getOrder();
     }
   }, [session]);
-
 
   // Generate PDF with Labels
   async function generatePdf() {
@@ -79,13 +80,13 @@ export default function Label() {
 
                 <div className="reciepientInfo">
                   <p>
-                    Nadawca: <span>{res.order.user.company}</span>
+                    Nadawca: <span>{Parser().parse(res.order.user.company)}</span>
                   </p>
                   <p>
-                    Odbiorca: <span>{res.order.recipientName}</span>
+                    Odbiorca: <span>{Parser().parse(res.order.recipientName)}</span>
                   </p>
                   <p>
-                    Adres: <span>{address}</span>
+                    Adres: <span>{Parser().parse(address)}</span>
                   </p>
                   <p>
                     Miejscowość:
@@ -100,10 +101,10 @@ export default function Label() {
 
                 <div className="packageInfo">
                   <p>
-                    Towar <span>{item.commodityName}</span>
+                    Towar <span>{Parser().parse(item.commodityName)}</span>
                   </p>
                   <p>
-                    Uwagi <span>{item.commodityNote !== "" ? item.commodityNote : "Brak"}</span>
+                    Uwagi <span>{item.commodityNote !== "" ? Parser().parse(item.commodityNote) : "Brak"}</span>
                   </p>
                 </div>
               </main>
