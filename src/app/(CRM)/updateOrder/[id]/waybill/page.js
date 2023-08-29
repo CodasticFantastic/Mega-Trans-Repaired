@@ -70,7 +70,7 @@ export default function Waybill() {
         packagesNumber: res.order.packages.length,
         orderType: res.order.orderType,
         recipient: Parser().parse(res.order.recipientName),
-        recipientPhone: res.order.recipientPhone,
+        recipientPhone: res.order.recipientPhone.replace(/^(.{3})(.{3})(.*)$/, "$1 $2 $3"),
         price: res.order.orderPaymentType === "Pobranie" ? res.order.orderPrice + res.order.currency : "Opłacone",
         address: Parser().parse(address),
         city: res.order.orderPostCode + " " + res.order.orderCity,
@@ -105,7 +105,7 @@ export default function Waybill() {
               Nadawca: <span>{orderData.sender}</span>
             </p>
             <p>
-              Telefon Nadawcy: <span>{orderData.senderPhone}</span>
+              Telefon Nadawcy: <span>{orderData.senderPhone.replace(/^(.{3})(.{3})(.*)$/, "$1 $2 $3")}</span>
             </p>
             <p>
               Zlecenie: <span>{orderData.id}</span>

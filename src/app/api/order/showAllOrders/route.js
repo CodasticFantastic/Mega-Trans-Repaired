@@ -41,7 +41,12 @@ export async function GET(req) {
       },
       where: {
         userId: verifyJwt(accessToken).id.id,
-        orderId: { contains: searchId ? searchId : undefined },
+        OR: [
+          { orderId: { contains: searchId ? searchId : "" } },
+          { recipientPhone: { contains: searchId ? searchId : "" } },
+          { orderCity: { contains: searchId ? searchId : "" } },
+          { recipientName: { contains: searchId ? searchId : "" } },
+        ],
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {
           gte: dateFrom ? new Date(dateFrom) : undefined,

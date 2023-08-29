@@ -24,6 +24,7 @@ export async function GET(req) {
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
   const postalCode = searchParams.get("postalCode");
+
   try {
     // Show all orders for this user
     const allUserOrder = await prisma.order.findMany({
@@ -39,7 +40,12 @@ export async function GET(req) {
         updatedAt: orderBy === "asc" ? "asc" : "desc",
       },
       where: {
-        orderId: { contains: searchId ? searchId : undefined },
+        OR: [
+          { orderId: { contains: searchId ? searchId : "" } },
+          { recipientPhone: { contains: searchId ? searchId : "" } },
+          { orderCity: { contains: searchId ? searchId : "" } },
+          { recipientName: { contains: searchId ? searchId : "" } },
+        ],
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {
           gte: dateFrom ? new Date(dateFrom) : undefined,

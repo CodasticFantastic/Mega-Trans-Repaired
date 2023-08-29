@@ -41,7 +41,7 @@ export default function FilterSideBar({
       <div className="column">
         <input
           type="text"
-          placeholder="Wyszukaj po ID"
+          placeholder="Wyszukaj"
           className="searchBar"
           onKeyUp={(e) => {
             searchOrdersById(e.target.value);

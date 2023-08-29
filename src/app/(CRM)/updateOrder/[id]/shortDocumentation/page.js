@@ -65,7 +65,7 @@ export default function ShortDocumentation() {
         packagesNumber: res.order.packages.length,
         orderType: res.order.orderType,
         recipient: Parser().parse(res.order.recipientName),
-        recipientPhone: res.order.recipientPhone,
+        recipientPhone: res.order.recipientPhone.replace(/^(.{3})(.{3})(.*)$/, "$1 $2 $3"),
         price: res.order.orderPaymentType === "Pobranie" ? res.order.orderPrice + res.order.currency : "Opłacone",
         address: Parser().parse(address),
         city: res.order.orderPostCode + " " + res.order.orderCity,
@@ -201,7 +201,7 @@ export default function ShortDocumentation() {
                 Nadawca: <span>{waybillData.sender}</span>
               </p>
               <p>
-                Telefon Nadawcy: <span>{waybillData.senderPhone}</span>
+                Telefon Nadawcy: <span>{waybillData.senderPhone.replace(/^(.{3})(.{3})(.*)$/, "$1 $2 $3")}</span>
               </p>
               <p>
                 Zlecenie: <span>{waybillData.id}</span>
