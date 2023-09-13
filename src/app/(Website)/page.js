@@ -21,10 +21,12 @@ import EmailIcon from "@/images/icons/emailIcon.png";
 
 import Link from "next/link";
 import ContactForm from "@/app/(Website)/components/ContactForm";
+import Cookies from "./components/Cookies";
 
 export default function Home() {
   return (
     <main>
+      <Cookies />
       <section className="HeroSection">
         <Image className="heroImg" src={Hero} alt="Hero" />
         <div className="CTA">+48 661 356 818</div>

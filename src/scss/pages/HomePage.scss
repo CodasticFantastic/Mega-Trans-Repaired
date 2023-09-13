@@ -1,5 +1,28 @@
 @use "../abstracts";
 
+.cookies{
+  width: 100%;
+  min-height: 80px;
+  position: fixed;
+  bottom: 0;
+  background: black;
+  z-index: 99;
+  padding-top: 12px;
+  .container{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    p{
+      font-size: 14px;
+    }
+    button{
+      padding: 6px 12px;
+    }
+  }
+
+}
+
 .HeroSection {
   margin-top: -40px;
   width: 100%;
