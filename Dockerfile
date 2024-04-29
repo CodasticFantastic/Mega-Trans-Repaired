@@ -46,7 +46,7 @@ ENV NODE_ENV production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN chsh -s /usr/sbin/nologin root
+# RUN chsh -s /usr/sbin/nologin root
 
 COPY --from=builder /app/public ./public
 
