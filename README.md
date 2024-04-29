@@ -1,34 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# System Spedycyjny dla firmy Mega-Trans
+<strong>Twórca Aplikacji:</strong> Jakub Wojtysiak <br/>
+<strong>Licencja:</strong> Aplikacja oraz jej poszczególne elementy nie mogą być wykorzystywane, kopiowane ani powielane bez pisemnej zgody twórcy aplikacji.<br/>
+<strong>Framework:</strong> NextJS 14<br/>
 
-## Getting Started
+---
 
-First, run the development server:
+## Instalacja Aplikacji
+Aplikacja wymaga bazy MySql do poprawnego funkcjonowania
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+1. Stwórz plik .env
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Przykładowy Minimalny Plik Zmiennych Środowiskowych
+<code>
+NEXT_PUBLIC_DOMAIN="https://domena.com"
+DATABASE_URL="mysql://<user>:<password>@<db-url>:3306/<db-name>" (Dane dostępowe do bazy MySql)
+NEXTAUTH_SECRET="<long-random-char>"
+NEXTAUTH_URL="https://domena.com"
+JWT_SECRET="<long-random-char>"
+JWT_EXPIRE="1d"
+NODE_ENV="production"
+FORWARD_EMAIL="<forward-email-account-login>"
+FORWARD_PASS="<forward-email-account-password>"
+SMS_API_KEY="<sms-api-key>"
+</code>
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+2. Zedytuj plik Dockerfile odpowiednio do swoich potrzeb
+3. Uruchom kontener za pomocą komendy
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+---
 
-## Learn More
+## Jak dokonać migracji aplikacji?
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. Dokonaj zrzutu bazy danych MySql
+2. Uruchom Bazę MySql na nowym serwerze
+3. Dokonaj importu bazy danych MySql
+4. Pobierz repozytorium na nowy serwer 
+5. Ustaw zmienne środowiskowe (<strong>Instalacja Aplikacji</strong>)
+6. Uruchom Kontener
