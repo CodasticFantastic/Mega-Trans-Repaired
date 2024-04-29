@@ -10,16 +10,16 @@ Aplikacja wymaga bazy MySql do poprawnego funkcjonowania
 
 1. Stwórz plik .env
 
-<code>NEXT_PUBLIC_DOMAIN="https://domena.com"
-DATABASE_URL="mysql://USER:PASSWORD@DB-URL:3306/DB-NAME" (Dane dostępowe do bazy MySql)
-NEXTAUTH_SECRET="LONG RANDOM STRING"
-NEXTAUTH_URL="https://domena.com"
-JWT_SECRET="LONG RANDOM STRING"
-JWT_EXPIRE="1d"
-NODE_ENV="production"
-FORWARD_EMAIL="FORWARD EMAIL ACCOUNT LOGIN"
-FORWARD_PASS="FORWARD EMAIL ACCOUNT PASSWORD"
-SMS_API_KEY="SMS API KEY"
+<code>NEXT_PUBLIC_DOMAIN=https://domena.com
+DATABASE_URL=mysql://USER:PASSWORD@DB-URL:3306/DB-NAME (Dane dostępowe do bazy MySql)
+NEXTAUTH_SECRET=LONG_RANDOM_STRING
+NEXTAUTH_URL=https://domena.com
+JWT_SECRET=LONG_RANDOM_STRING
+JWT_EXPIRE=1d
+NODE_ENV=production
+FORWARD_EMAIL=FORWARD_EMAIL_ACCOUNT_LOGIN
+FORWARD_PASS=FORWARD_EMAIL_ACCOUNT_PASSWORD
+SMS_API_KEY=SMS_API_KEY
 </code>
 
 2. Zedytuj plik Dockerfile odpowiednio do swoich potrzeb
@@ -35,3 +35,16 @@ SMS_API_KEY="SMS API KEY"
 4. Pobierz repozytorium na nowy serwer 
 5. Ustaw zmienne środowiskowe (<strong>Instalacja Aplikacji</strong>)
 6. Uruchom Kontener
+
+## Przykładowy Plik Środowiskowy
+<code>NEXT_PUBLIC_DOMAIN=http://localhost:3000
+DATABASE_URL=mysql://mysql:password123@localhost:3306/megatrans-db
+NEXTAUTH_SECRET=123123123
+NEXTAUTH_URL=http://localhost:3000
+JWT_SECRET=LONGRANDOMSTRING
+JWT_EXPIRE=1d
+NODE_ENV=production
+FORWARD_EMAIL=FORWARDEMAILACCOUNTLOGIN
+FORWARD_PASS=FORWARDEMAILACCOUNTPASSWORD
+SMS_API_KEY=SMSAPIKEY
+</code>

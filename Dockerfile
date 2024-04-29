@@ -1,18 +1,34 @@
 #Initializing Command    
-# docker build -t nextjs-megatrans-cms-system .
+# docker build . -t TAG-NAME
 
 #Docker run command   
 # docker run -dp 3000:3000 nextjs-megatrans-cms-system
 
-FROM node:20-slim
+# Docker run with low privileges user and block privileged mode
+#  docker run --read-only -u jakub -it --rm --security-opt="no-new-privileges" 36bd8cad53e2 /bin/bash
+
+FROM node:current-slim
+
+LABEL maintainer="Jakub Wojtysiak <it.jakub.wojtysiak@gmail.com>"
+
+# Add low privileges user
+RUN groupadd -r jakub && useradd -r -g jakub jakub
+
+#  Completely block root shell
+RUN chsh -s /usr/sbin/nologin root
+# RUN echo "root:password" | chpasswd - Command to set root password
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN apt-get update -y && apt-get install -y openssl
+RUN apt update -y && apt upgrade -y 
+RUN apt install -y openssl
 RUN npm install
 RUN npm run build
 
 CMD ["npm", "run", "start:prod" ]
 
+# Environment Variables
+ENV HOME /home/jakub
+ENV DEBIAN_FRONTEND=noninteractive
