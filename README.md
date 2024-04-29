@@ -10,8 +10,7 @@ Aplikacja wymaga bazy MySql do poprawnego funkcjonowania
 
 1. Stwórz plik .env
 
-<code>
-NEXT_PUBLIC_DOMAIN="https://domena.com"
+<code>NEXT_PUBLIC_DOMAIN="https://domena.com"
 DATABASE_URL="mysql://<user>:<password>@<db-url>:3306/<db-name>" (Dane dostępowe do bazy MySql)
 NEXTAUTH_SECRET="<long-random-char>"
 NEXTAUTH_URL="https://domena.com"
