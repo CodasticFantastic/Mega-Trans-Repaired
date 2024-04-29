@@ -10,7 +10,6 @@ Aplikacja wymaga bazy MySql do poprawnego funkcjonowania
 
 1. Stwórz plik .env
 
-### Przykładowy Minimalny Plik Zmiennych Środowiskowych
 <code>
 NEXT_PUBLIC_DOMAIN="https://domena.com"
 DATABASE_URL="mysql://<user>:<password>@<db-url>:3306/<db-name>" (Dane dostępowe do bazy MySql)
