@@ -11,15 +11,15 @@ Aplikacja wymaga bazy MySql do poprawnego funkcjonowania
 1. Stwórz plik .env
 
 <code>NEXT_PUBLIC_DOMAIN="https://domena.com"
-DATABASE_URL="mysql://<user>:<password>@<db-url>:3306/<db-name>" (Dane dostępowe do bazy MySql)
-NEXTAUTH_SECRET="<long-random-char>"
+DATABASE_URL="mysql://USER:PASSWORD@DB-URL:3306/DB-NAME" (Dane dostępowe do bazy MySql)
+NEXTAUTH_SECRET="LONG RANDOM STRING"
 NEXTAUTH_URL="https://domena.com"
-JWT_SECRET="<long-random-char>"
+JWT_SECRET="LONG RANDOM STRING"
 JWT_EXPIRE="1d"
 NODE_ENV="production"
-FORWARD_EMAIL="<forward-email-account-login>"
-FORWARD_PASS="<forward-email-account-password>"
-SMS_API_KEY="<sms-api-key>"
+FORWARD_EMAIL="FORWARD EMAIL ACCOUNT LOGIN"
+FORWARD_PASS="FORWARD EMAIL ACCOUNT PASSWORD"
+SMS_API_KEY="SMS API KEY"
 </code>
 
 2. Zedytuj plik Dockerfile odpowiednio do swoich potrzeb
