@@ -26,9 +26,10 @@ RUN apt update -y && apt upgrade -y
 RUN apt install -y openssl
 RUN npm install
 RUN npm run build
+RUN rm -f .env
+
 
 USER jakub
-
 CMD ["npm", "run", "start:prod" ]
 
 # Environment Variables
