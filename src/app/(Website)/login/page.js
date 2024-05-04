@@ -70,6 +70,16 @@ export default function LoginPage() {
         <Link href="/resetPassword" className="link">
           Zresetuj hasło
         </Link>
+        {process.env.NEXT_PUBLIC_IS_DEMO === "TRUE" &&
+          <>
+            <div className="demo">
+              <p className="info">WERSJA DEMO</p>
+              <p className="text">Login: admin@admin.pl</p>
+              <p className="text">Hasło: admin</p>
+              <p className="textred">SMS API Niedostępne w Demo</p>
+              <p className="textred">Restart Haseł Niedostępny w Demo</p>
+            </div>
+          </>}
       </form>
     </main>
   );

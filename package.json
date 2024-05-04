@@ -5,9 +5,10 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start -p 80",
+    "start": "next start",
     "dev:prod": "npx prisma migrate deploy && npm run dev",
     "start:prod": "npx prisma migrate deploy && npm run start",
+    "dev:seed": "npx prisma db seed",
     "lint": "next lint"
   },
   "dependencies": {
@@ -40,6 +41,6 @@
     "prisma": "^5.0.0"
   },
   "prisma": {
-    "seed": "./prisma/seeders/seed.mjs"
+    "seed": "node prisma/seeders/seed.mjs"
   }
 }

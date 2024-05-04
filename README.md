@@ -20,6 +20,7 @@ NODE_ENV=production
 FORWARD_EMAIL=FORWARD_EMAIL_ACCOUNT_LOGIN
 FORWARD_PASS=FORWARD_EMAIL_ACCOUNT_PASSWORD
 SMS_API_KEY=SMS_API_KEY
+IS_DEMO=FALSE
 </code>
 
 2. Zedytuj plik Dockerfile odpowiednio do swoich potrzeb
@@ -28,7 +29,6 @@ SMS_API_KEY=SMS_API_KEY
 ---
 
 ## Jak dokonać migracji aplikacji?
-
 1. Dokonaj zrzutu bazy danych MySql
 2. Uruchom Bazę MySql na nowym serwerze
 3. Dokonaj importu bazy danych MySql
@@ -47,4 +47,5 @@ NODE_ENV=production
 FORWARD_EMAIL=FORWARDEMAILACCOUNTLOGIN
 FORWARD_PASS=FORWARDEMAILACCOUNTPASSWORD
 SMS_API_KEY=SMSAPIKEY
+IS_DEMO=FALSE
 </code>
