@@ -49,7 +49,7 @@ export default function Footer() {
           <p>
             Icons by: <Link href="https://icons8.com/">Icons8</Link>
             <br />
-            Created by: <Link href="/">Space Agency Marketing</Link>
+            Created by: <Link href="https://jakubwojtysiak.online" target="_blank">Jakub Wojtysiak</Link>
           </p>
         </div>
       </div>
