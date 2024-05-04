@@ -26,12 +26,12 @@ RUN apt update -y && apt upgrade -y
 RUN apt install -y openssl
 RUN npm install -y
 RUN npm run build
-RUN npx prisma migrate deploy
+# RUN npx prisma migrate deploy
 RUN rm -f .env
 
 EXPOSE 3000
 USER jakub
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:prod"]
 
 # Environment Variables
 ENV HOME /home/jakub
