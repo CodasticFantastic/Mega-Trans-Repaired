@@ -18,19 +18,20 @@ RUN groupadd -r jakub && useradd -r -g jakub jakub
 RUN chsh -s /usr/sbin/nologin root
 # RUN echo "root:password" | chpasswd - Command to set root password
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . .
+COPY . . 
 
 RUN apt update -y && apt upgrade -y 
 RUN apt install -y openssl
-RUN npm install
+RUN npm install -y
 RUN npm run build
+RUN npx prisma migrate deploy
 RUN rm -f .env
 
-
+EXPOSE 3000
 USER jakub
-CMD ["npm", "run", "start:prod" ]
+CMD ["npm", "run", "start"]
 
 # Environment Variables
 ENV HOME /home/jakub
