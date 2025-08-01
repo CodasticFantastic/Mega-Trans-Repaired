@@ -1,0 +1,40 @@
+services:
+  # Inicjalizacja bazy danych
+  megatrans-mysql:
+    container_name: megatrans-mysql
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: megatrans
+      MYSQL_DATABASE: megatrans
+      MYSQL_USER: megatrans
+      MYSQL_PASSWORD: megatrans
+    volumes:
+      - megatrans-mysql:/var/lib/mysql
+
+  # Inicjalizacja Next JS
+  megatrans-app:
+    container_name: megatrans-app
+    depends_on:
+      - megatrans-mysql
+    build:
+      context: ./megatransfinal
+    links:
+      - megatrans-mysql
+    expose:
+      - 80
+      - 443
+      - 5555
+    restart: always
+    environment:
+      VIRTUAL_HOST: megatrans.online,www.megatrans.online
+      LETSENCRYPT_HOST: megatrans.online,www.megatrans.online
+      LETSENCRYPT_EMAIL: it.jakub.wojtysiak@gmail.com
+
+volumes:
+  megatrans-mysql:
+
+networks:
+  default:
+    name: nginx-proxy
+    external: true
