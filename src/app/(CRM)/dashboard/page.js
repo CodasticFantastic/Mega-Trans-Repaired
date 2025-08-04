@@ -13,7 +13,7 @@ import { signOut } from "next-auth/react";
 import FileSaver from "file-saver";
 import XLSX from "sheetjs-style";
 
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
 export default function Dashboard() {
@@ -35,55 +35,54 @@ export default function Dashboard() {
     warehouseOrders: 0,
     realizedOrders: 0,
   });
-  const { allUserOrder, fetchNextPage, hasNextPage, isFetchingNextPage } = getOrders();
 
-  function getOrders() {
-    const getOrders = async ({ pageParam = "", filters }) => {
-      let request;
+  // Przeniesienie logiki zapytania poza funkcję getOrders
+  const getOrders = async ({ pageParam = "", filters }) => {
+    let request;
 
-      if (session.user.role === "USER") {
-        request = await fetch(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
-          {
-            headers: { Authorization: session?.accessToken },
-          }
-        );
-      } else if (session.user.role === "ADMIN") {
-        request = await fetch(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
-          {
-            headers: { Authorization: session?.accessToken },
-          }
-        );
-      }
+    if (session.user.role === "USER") {
+      request = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
+        {
+          headers: { Authorization: session?.accessToken },
+        }
+      );
+    } else if (session.user.role === "ADMIN") {
+      request = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
+        {
+          headers: { Authorization: session?.accessToken },
+        }
+      );
+    }
 
-      let data = await request.json();
+    let data = await request.json();
 
-      if (session && data.error) {
-        signOut();
-      } else {
-        setStats({
-          allOrders: data.allOrdersCounter,
-          newOrders: data.newOrdersCounter,
-          currentOrders: data.currentOrdersCounter,
-          warehouseOrders: data.warehouseOrdersCounter,
-          realizedOrders: data.realizedOrdersCounter,
-        });
-        return data;
-      }
-    };
+    if (session && data.error) {
+      signOut();
+    } else {
+      setStats({
+        allOrders: data.allOrdersCounter,
+        newOrders: data.newOrdersCounter,
+        currentOrders: data.currentOrdersCounter,
+        warehouseOrders: data.warehouseOrdersCounter,
+        realizedOrders: data.realizedOrdersCounter,
+      });
+      return data;
+    }
+  };
 
-    const {
-      data: allUserOrder,
-      fetchNextPage,
-      hasNextPage,
-      isFetchingNextPage,
-    } = useInfiniteQuery(["allUserOrder", session, filters], ({ pageParam = "" }) => getOrders({ pageParam, filters }), {
-      getNextPageParam: (lastPage) => lastPage.nextId ?? false,
-    });
-
-    return { allUserOrder, fetchNextPage, hasNextPage, isFetchingNextPage };
-  }
+  const {
+    data: allUserOrder,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["allUserOrder", session, filters],
+    queryFn: ({ pageParam = "" }) => getOrders({ pageParam, filters }),
+    getNextPageParam: (lastPage) => lastPage.nextId ?? false,
+    enabled: !!session,
+  });
 
   useEffect(() => {
     if (inView && hasNextPage) {

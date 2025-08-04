@@ -1,4 +1,4 @@
-import IntersectionObserverProvider from "@/helpers/providers/IntersectionObserverProvider";
+import ReactQueryProvider from "@/helpers/providers/ReactQueryProvider";
 import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
 import "@/scss/main.scss";
 import { Poppins } from "next/font/google";
@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
     <html lang="pl">
       <body className={`${poppins.className} crm`}>
         <NextAuthProvider>
-          <IntersectionObserverProvider>{children}</IntersectionObserverProvider>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
         </NextAuthProvider>
       </body>
     </html>
