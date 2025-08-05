@@ -1,9 +1,9 @@
-import { generateToken } from "@/helpers/generateJwToken";
+import { generateToken } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
-export async function POST(request) {
+export async function POST(request: Request) {
   const requestBody = await request.json();
 
   const { email, password } = requestBody.body;
@@ -24,7 +24,13 @@ export async function POST(request) {
     // Check if passwords match
     if (driver && (await Bcrypt.compare(password, driver.password))) {
       // Remove password from driver object
-      const { password, createdAt, deletedAt, updatedAt, ...driverWithoutPassword } = driver;
+      const {
+        password,
+        createdAt,
+        deletedAt,
+        updatedAt,
+        ...driverWithoutPassword
+      } = driver;
 
       // Generate JWT token
       const accessToken = generateToken(driverWithoutPassword);
@@ -43,7 +49,7 @@ export async function POST(request) {
   } catch (error) {
     // Send Error response
     console.error("Driver Login Page Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

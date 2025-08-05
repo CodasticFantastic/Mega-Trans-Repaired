@@ -1,17 +1,25 @@
 import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
 
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
+import { Role } from "@prisma/client";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   const request = await req.json();
   const password = request.password;
   const token = Buffer.from(request.token, "base64").toString("ascii");
 
   // Verify JWT
-  if (!token || !verifyJwt(token)) {
-    console.error("JwtError: Reset Password Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Get Users", token, [
+    Role.ADMIN,
+    Role.USER,
+    Role.DRIVER,
+  ]);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   try {
@@ -20,7 +28,7 @@ export async function POST(req) {
     // Find user in DB
     const user = await prisma.user.findUnique({
       where: {
-        id: verifyJwt(token).id,
+        id: authResult.userId,
       },
     });
 
@@ -33,21 +41,24 @@ export async function POST(req) {
     // Update user password
     await prisma.user.update({
       where: {
-        id: verifyJwt(token).id,
+        id: authResult.userId,
       },
       data: {
         password: hashedPassword,
       },
     });
 
-    return new Response(JSON.stringify({ success: "Hasło zmienione, zaloguj się" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ success: "Hasło zmienione, zaloguj się" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     // Send Error response
     console.error("Restart Password Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

@@ -3,7 +3,7 @@ import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 
-export async function POST(request) {
+export async function POST(request: Request) {
   const requestBody = await request.json();
 
   try {
@@ -22,7 +22,13 @@ export async function POST(request) {
     // Check if passwords match
     if (user && (await Bcrypt.compare(requestBody.password, user.password))) {
       // Remove password from user object
-      const { password, createdAt, deletedAt, updatedAt, ...userWithoutPassword } = user;
+      const {
+        password,
+        createdAt,
+        deletedAt,
+        updatedAt,
+        ...userWithoutPassword
+      } = user;
 
       // Generate JWT token
       const accessToken = generateToken(userWithoutPassword);
@@ -41,7 +47,7 @@ export async function POST(request) {
   } catch (error) {
     // Send Error response
     console.error("Login Page Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
