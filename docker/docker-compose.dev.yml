@@ -13,9 +13,30 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     networks:
-      - megatrans-dev
+      - megatrans-network-dev
 
-  phpmyadmin:
+  megatrans-app-dev:
+    container_name: megatrans-app-dev
+    depends_on:
+      - megatrans-mysql-dev
+    build:
+      context: ../
+    env_file:
+      - .env.dev
+    links:
+      - megatrans-mysql-dev
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - megatrans-network-dev
+    environment:
+      VIRTUAL_HOST: megatrans.online,www.megatrans.online
+      LETSENCRYPT_HOST: megatrans.online,www.megatrans.online
+      LETSENCRYPT_EMAIL: it.jakub.wojtysiak@gmail.com
+
+  megatrans-phpmyadmin-dev:
+    container_name: megatrans-phpmyadmin-dev
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
     ports:
@@ -32,11 +53,12 @@ services:
     depends_on:
       - megatrans-mysql-dev
     networks:
-      - megatrans-dev
+      - megatrans-network-dev
 
 volumes:
   db-data:
 
 networks:
-  megatrans-dev:
+  megatrans-network-dev:
+    name: megatrans-network-dev
     driver: bridge
