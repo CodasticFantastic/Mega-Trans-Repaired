@@ -1,19 +1,24 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
+import { UserWithoutPassword } from "types/user.types";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
-    console.error("JwtError: Get Users - Admin - Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Get Users", accessToken, Role.ADMIN);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   // Get users data from request
   try {
     // Get all users from db
-    const users = await prisma.user.findMany();
+    const users: UserWithoutPassword[] = await prisma.user.findMany();
 
     const userNoPassword = users.map((user) => {
       return {
@@ -37,7 +42,7 @@ export async function GET(req) {
   } catch (error) {
     // Send Error response
     console.error("Get Users - Admin - Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

@@ -1,22 +1,35 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError: Show All Orders Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Show All Orders", accessToken, Role.USER);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   // Pagination
   const { searchParams } = new URL(req.url);
-  // const id = searchParams.get("id");
   const take = 20;
-  const cursorQuery = searchParams.get("cursor") ?? undefined;
-  const skip = cursorQuery ? 1 : 0;
-  const cursor = cursorQuery ? { id: +cursorQuery } : undefined;
+  const cursorQuery = searchParams.get("cursor");
+
+  // Naprawiona logika cursor
+  let cursor = undefined;
+  let skip = 0;
+
+  if (cursorQuery && cursorQuery !== "" && cursorQuery !== "false") {
+    const cursorId = parseInt(cursorQuery);
+    if (!isNaN(cursorId) && cursorId > 0) {
+      cursor = { id: cursorId };
+      skip = 1;
+    }
+  }
 
   const searchId = searchParams.get("searchId");
   const orderBy = searchParams.get("orderBy");
@@ -40,7 +53,7 @@ export async function GET(req) {
         updatedAt: orderBy === "asc" ? "asc" : "desc",
       },
       where: {
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
         OR: [
           { orderId: { contains: searchId ? searchId : "" } },
           { recipientPhone: { contains: searchId ? searchId : "" } },
@@ -64,35 +77,36 @@ export async function GET(req) {
     // Return Data Counters
     const allOrdersCounter = await prisma.order.count({
       where: {
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
       },
     });
     const newOrdersCounter = await prisma.order.count({
       where: {
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
         status: "Producent",
       },
     });
     const currentOrdersCounter = await prisma.order.count({
       where: {
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
         status: { in: ["Producent", "Magazyn", "Dostawa"] },
       },
     });
     const warehouseOrdersCounter = await prisma.order.count({
       where: {
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
         status: "Magazyn",
       },
     });
     const realizedOrdersCounter = await prisma.order.count({
       where: {
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
         status: "Zrealizowane",
       },
     });
 
-    const nextId = allUserOrder.length < take ? undefined : allUserOrder[take - 1].id;
+    const nextId =
+      allUserOrder.length < take ? undefined : allUserOrder[take - 1].id;
 
     return new Response(
       JSON.stringify({
@@ -107,11 +121,9 @@ export async function GET(req) {
       { status: 200 }
     );
   } catch (error) {
-    // Send Error response
     console.error("Show All Orders Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
     });
   }
 }

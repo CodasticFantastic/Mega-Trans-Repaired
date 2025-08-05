@@ -1,13 +1,17 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
-    console.error("JwtError: Get Drivers Page Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Get Drivers", accessToken, Role.ADMIN);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   // Get drivers data from request
@@ -22,7 +26,7 @@ export async function GET(req) {
   } catch (error) {
     // Send Error response
     console.error("Get Drivers Page Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

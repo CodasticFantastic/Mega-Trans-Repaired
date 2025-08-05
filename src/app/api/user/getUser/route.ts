@@ -1,21 +1,24 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError: Get User Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-  }
+  const authResult = authGuard("Get User", accessToken, [Role.USER]);
 
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
+  }
   // Get users data from request
   try {
     // Get user from db
     const user = await prisma.user.findUnique({
       where: {
-        id: verifyJwt(accessToken).id.id,
+        id: authResult.userId,
       },
     });
 
@@ -28,7 +31,7 @@ export async function GET(req) {
   } catch (error) {
     // Send Error response
     console.error("Get User Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

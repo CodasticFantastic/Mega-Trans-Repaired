@@ -1,13 +1,21 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
-    console.error("JwtError: Show All Orders Admin Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard(
+    "Show All Orders Admin",
+    accessToken,
+    Role.ADMIN
+  );
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   // Pagination
@@ -83,7 +91,8 @@ export async function GET(req) {
       },
     });
 
-    const nextId = allUserOrder.length < take ? undefined : allUserOrder[take - 1].id;
+    const nextId =
+      allUserOrder.length < take ? undefined : allUserOrder[take - 1].id;
 
     return new Response(
       JSON.stringify({
@@ -100,9 +109,8 @@ export async function GET(req) {
   } catch (error) {
     // Send Error response
     console.error("Show All Orders Admin Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
     });
   }
 }

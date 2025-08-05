@@ -1,16 +1,23 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError:Get Order Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Get Order", accessToken, [
+    Role.ADMIN,
+    Role.USER,
+  ]);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   try {
@@ -34,17 +41,21 @@ export async function GET(req) {
     }
 
     // Check if user is authorized to view this order
-    if ((order && order.userId === verifyJwt(accessToken).id.id) || verifyJwt(accessToken).id.role === "ADMIN") {
+    if (
+      (order && order.userId === authResult.userId) ||
+      authResult.role === Role.ADMIN
+    ) {
       return new Response(JSON.stringify({ order }), { status: 200 });
     } else {
-      throw new Error("Nie jestesteś upoważniony do wyświetlenia tego zamówienia");
+      throw new Error(
+        "Nie jestesteś upoważniony do wyświetlenia tego zamówienia"
+      );
     }
   } catch (error) {
     // Send Error response
     console.error("Get Order Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
     });
   }
 }

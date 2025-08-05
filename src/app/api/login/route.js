@@ -1,4 +1,4 @@
-import { generateToken } from "@/helpers/generateJwToken";
+import { generateToken } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import Bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";

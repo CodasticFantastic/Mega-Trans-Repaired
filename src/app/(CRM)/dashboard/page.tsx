@@ -16,11 +16,58 @@ import XLSX from "sheetjs-style";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
+// Typy dla zamówienia
+interface Order {
+  orderId: string;
+  orderType: string;
+  recipientName: string;
+  orderPostCode: string;
+  orderCity: string;
+  orderStreet: string;
+  orderStreetNumber: string;
+  orderFlatNumber?: string;
+  orderCountry: string;
+  status: string;
+  updatedAt: string;
+  // dodaj inne pola według potrzeb
+}
+
+// Typy dla filtrów
+interface Filters {
+  searchId: string;
+  orderBy: "asc" | "desc";
+  status: string;
+  dateFrom: string;
+  dateTo: string;
+  postalCode: string;
+}
+
+// Typy dla statystyk
+interface Stats {
+  allOrders: number;
+  newOrders: number;
+  currentOrders: number;
+  warehouseOrders: number;
+  realizedOrders: number;
+}
+
+// Typy dla odpowiedzi API
+interface ApiResponse {
+  allUserOrder: Order[];
+  nextId?: string;
+  allOrdersCounter: number;
+  newOrdersCounter: number;
+  currentOrdersCounter: number;
+  warehouseOrdersCounter: number;
+  realizedOrdersCounter: number;
+  error?: string;
+}
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const { inView, ref } = useInView();
-  const [exportOrders, setExportOrders] = useState([]);
-  const [filters, setFilters] = useState({
+  const [exportOrders, setExportOrders] = useState<Order[]>([]);
+  const [filters, setFilters] = useState<Filters>({
     searchId: "",
     orderBy: "desc",
     status: "Wszystkie",
@@ -28,7 +75,7 @@ export default function Dashboard() {
     dateTo: "",
     postalCode: "all",
   });
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<Stats>({
     allOrders: 0,
     newOrders: 0,
     currentOrders: 0,
@@ -37,29 +84,38 @@ export default function Dashboard() {
   });
 
   // Przeniesienie logiki zapytania poza funkcję getOrders
-  const getOrders = async ({ pageParam = "", filters }) => {
-    let request;
+  const getOrders = async ({
+    pageParam = "",
+    filters,
+  }: {
+    pageParam?: string;
+    filters: Filters;
+  }): Promise<ApiResponse> => {
+    let request: Response;
 
-    if (session.user.role === "USER") {
+    if (session?.user?.role === "USER") {
       request = await fetch(
         `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
         {
-          headers: { Authorization: session?.accessToken },
+          headers: { Authorization: session?.accessToken ?? "" },
         }
       );
-    } else if (session.user.role === "ADMIN") {
+    } else if (session?.user?.role === "ADMIN") {
       request = await fetch(
         `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
         {
-          headers: { Authorization: session?.accessToken },
+          headers: { Authorization: session?.accessToken ?? "" },
         }
       );
+    } else {
+      throw new Error("Nieprawidłowa rola użytkownika");
     }
 
-    let data = await request.json();
+    const data: ApiResponse = await request.json();
 
     if (session && data.error) {
       signOut();
+      throw new Error(data.error);
     } else {
       setStats({
         allOrders: data.allOrdersCounter,
@@ -77,10 +133,14 @@ export default function Dashboard() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery({
+  } = useInfiniteQuery<ApiResponse>({
+    initialPageParam: "",
     queryKey: ["allUserOrder", session, filters],
-    queryFn: ({ pageParam = "" }) => getOrders({ pageParam, filters }),
-    getNextPageParam: (lastPage) => lastPage.nextId ?? false,
+    queryFn: ({ pageParam = "" }) =>
+      getOrders({ pageParam: pageParam as string, filters }),
+    getNextPageParam: (lastPage) => {
+      return lastPage.nextId || undefined;
+    },
     enabled: !!session,
   });
 
@@ -88,17 +148,17 @@ export default function Dashboard() {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage]);
+  }, [inView, hasNextPage, fetchNextPage]);
 
   ///////////////// Filters Section
   // Search orders by id
-  function searchOrdersById(id) {
+  function searchOrdersById(id: string) {
     setExportOrders([]);
     setFilters((prev) => ({ ...prev, searchId: id }));
   }
 
   // Sort orders by date
-  function sortOrdersByDate(order) {
+  function sortOrdersByDate(order: "ascending" | "descending") {
     if (order === "ascending") {
       setFilters((prev) => ({ ...prev, orderBy: "asc" }));
     } else {
@@ -107,7 +167,7 @@ export default function Dashboard() {
   }
 
   // Filter orders by status
-  function filterOrdersByStatus(status) {
+  function filterOrdersByStatus(status: string) {
     setExportOrders([]);
     switch (status) {
       case "Producent":
@@ -132,13 +192,13 @@ export default function Dashboard() {
   }
 
   // Filter orders by date
-  function filterOrdersByDate(from, to) {
+  function filterOrdersByDate(from: string, to: string) {
     setExportOrders([]);
     setFilters((prev) => ({ ...prev, dateFrom: from, dateTo: to }));
   }
 
   // Filter orders by postal code
-  function filterOrdersByPostalCode(code) {
+  function filterOrdersByPostalCode(code: string) {
     setExportOrders([]);
     setFilters((prev) => ({ ...prev, postalCode: code }));
   }
@@ -158,7 +218,7 @@ export default function Dashboard() {
 
   ///////////////// Export Data To Excel
   async function exportOrdersData() {
-    let ordersToExport = exportOrders.map((order) => {
+    const ordersToExport = exportOrders.map((order) => {
       let number = order.orderStreetNumber;
       if (order.orderFlatNumber) {
         number += "/" + order.orderFlatNumber;
@@ -177,7 +237,8 @@ export default function Dashboard() {
       };
     });
 
-    const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const fileType =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
     const fileExtension = ".xlsx";
 
     const ws = XLSX.utils.json_to_sheet(ordersToExport);
@@ -227,7 +288,14 @@ export default function Dashboard() {
                   return (
                     <div key={i}>
                       {page.allUserOrder.map((order) => {
-                        return <TableDataRow key={order.orderId} order={order} session={session} setExportOrders={setExportOrders} />;
+                        return (
+                          <TableDataRow
+                            key={order.orderId}
+                            order={order}
+                            session={session}
+                            setExportOrders={setExportOrders}
+                          />
+                        );
                       })}
                     </div>
                   );

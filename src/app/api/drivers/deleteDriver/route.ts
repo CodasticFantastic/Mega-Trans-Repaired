@@ -1,15 +1,25 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function GET(req) {
+export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
   const { searchParams } = new URL(req.url);
-  const id = +searchParams.get("id");
+  const id = +searchParams.get("id")!;
 
-  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
-    console.error("JwtError: Delete Driver Page Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  if (!id) {
+    return new Response(JSON.stringify({ error: "Nie podano id kierowcy" }), {
+      status: 400,
+    });
+  }
+
+  const authResult = authGuard("Delete Driver", accessToken, Role.ADMIN);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   try {
@@ -27,7 +37,7 @@ export async function GET(req) {
   } catch (error) {
     // Send Error response
     console.error("Delete Driver Page Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

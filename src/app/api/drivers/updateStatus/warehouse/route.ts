@@ -1,13 +1,17 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError: Update Status - Driver - Warehouse Page Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Get Users", accessToken, Role.DRIVER);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   // Update order in database
@@ -26,7 +30,7 @@ export async function POST(req) {
     if (!order) throw new Error("Nie ma takiego zamówienia");
 
     // Check if user is authorized to view this order
-    if (verifyJwt(accessToken).id.role === "DRIVER") {
+    if (authResult.role === Role.DRIVER) {
       // Update order
       const updatedOrder = await prisma.order.update({
         where: {
@@ -50,7 +54,7 @@ export async function POST(req) {
   } catch (error) {
     // Send Error response
     console.error("Update Status - Driver - Warehouse Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

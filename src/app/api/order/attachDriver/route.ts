@@ -1,12 +1,17 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
 
-export async function PATCH(req) {
+export async function PATCH(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken) || verifyJwt(accessToken).id.role !== "ADMIN") {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("Get Users", accessToken, Role.ADMIN);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   try {
@@ -61,7 +66,9 @@ export async function PATCH(req) {
           body: JSON.stringify({
             to: number,
             from: "2way",
-            message: `Dostawa Mebli: ${updatedOrder.deliveryDate.split(" ")[0]} \nGodzina: ${
+            message: `Dostawa Mebli: ${
+              updatedOrder.deliveryDate.split(" ")[0]
+            } \nGodzina: ${
               updatedOrder.deliveryDate.split(" ")[1]
             } \n\nKierowca nie wnosi mebli. \n\nW celu potwierdzenia dostawy odpisz POTWIERDZAM \n\nPozdrawiamy \nFirma MegaTrans`,
             format: "json",
@@ -104,7 +111,9 @@ export async function PATCH(req) {
           body: JSON.stringify({
             to: number,
             from: "2way",
-            message: `Dostawa Mebli: ${updatedOrder.deliveryDate.split(" ")[0]} \nGodzina: ${
+            message: `Dostawa Mebli: ${
+              updatedOrder.deliveryDate.split(" ")[0]
+            } \nGodzina: ${
               updatedOrder.deliveryDate.split(" ")[1]
             } \n\nKierowca nie wnosi mebli. \n\nW celu potwierdzenia dostawy odpisz POTWIERDZAM \n\nPozdrawiamy \nFirma MegaTrans`,
             format: "json",
@@ -115,11 +124,14 @@ export async function PATCH(req) {
       }
     }
 
-    return new Response(JSON.stringify({ success: "Rekordy zaktualizowano pomyślnie" }), { status: 200 });
+    return new Response(
+      JSON.stringify({ success: "Rekordy zaktualizowano pomyślnie" }),
+      { status: 200 }
+    );
   } catch (error) {
     // Send Error response
     console.error("Attach Driver Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });

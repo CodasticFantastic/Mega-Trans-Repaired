@@ -1,19 +1,27 @@
-import { verifyJwt } from "@/helpers/generateJwToken";
+import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
+import { Role } from "@prisma/client";
+import { NewOrderRequest, OrderCreateInput } from "types/oreder.types";
 import validator from "validator";
 
-export async function POST(req) {
+export async function POST(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  if (!accessToken || !verifyJwt(accessToken)) {
-    console.error("JwtError: New Order Error");
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  const authResult = authGuard("New Order", accessToken, [
+    Role.ADMIN,
+    Role.USER,
+  ]);
+
+  if (!authResult.success) {
+    return new Response(JSON.stringify({ error: authResult.error }), {
+      status: 401,
+    });
   }
 
   // Add new order to database
   try {
-    const request = await req.json();
+    const request: NewOrderRequest = await req.json();
 
     // Create packages array
     let packages = request.orderItems.map((item) => {
@@ -21,31 +29,43 @@ export async function POST(req) {
         packageId: validator.escape(item.orderCommodityId),
         commodityType: validator.escape(item.orderCommodityType),
         commodityName: validator.escape(item.orderCommodityName),
-        commodityNote: validator.escape(item.orderCommodityNote),
+        commodityNote: item.orderCommodityNote
+          ? validator.escape(item.orderCommodityNote)
+          : undefined,
       };
     });
 
     // Create new order
-    const newOrder = await prisma.order.create({
+    const newOrder: OrderCreateInput = await prisma.order.create({
       data: {
         orderId: validator.escape(request.orderId),
-        userId: verifyJwt(accessToken).id.id,
+        userId: authResult.userId,
         status: validator.escape(request.status),
         orderType: validator.escape(request.orderType),
         orderCountry: validator.escape(request.orderCountry),
         orderStreet: validator.escape(request.orderStreet),
         orderStreetNumber: validator.escape(request.orderStreetNumber),
-        orderFlatNumber: validator.escape(request.orderFlatNumber),
+        orderFlatNumber: request.orderFlatNumber
+          ? validator.escape(request.orderFlatNumber)
+          : undefined,
         orderCity: validator.escape(request.orderCity),
         orderPostCode: validator.escape(request.orderPostCode),
         orderState: validator.escape(request.orderState),
-        orderNote: validator.escape(request.orderNote),
+        orderNote: request.orderNote
+          ? validator.escape(request.orderNote)
+          : undefined,
         recipientName: validator.escape(request.orderClientName),
         recipientPhone: validator.escape(request.orderClientPhone),
-        recipientEmail: validator.escape(request.orderClientEmail),
-        currency: validator.escape(request.currency),
+        recipientEmail: request.orderClientEmail
+          ? validator.escape(request.orderClientEmail)
+          : undefined,
+        currency: request.currency
+          ? validator.escape(request.currency)
+          : undefined,
         orderPaymentType: validator.escape(request.orderPaymentType),
-        orderPrice: parseFloat(validator.escape(request.orderPaymentPrice + "")),
+        orderPrice: parseFloat(
+          validator.escape(request.orderPaymentPrice + "")
+        ),
         packages: {
           create: packages,
         },
@@ -59,9 +79,8 @@ export async function POST(req) {
   } catch (error) {
     // Send Error response
     console.error("New Order Error: ", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
     });
   }
 }
