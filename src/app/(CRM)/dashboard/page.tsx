@@ -141,7 +141,6 @@ export default function Dashboard() {
     getNextPageParam: (lastPage) => {
       return lastPage.nextId || undefined;
     },
-    enabled: !!session,
   });
 
   useEffect(() => {

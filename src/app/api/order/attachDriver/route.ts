@@ -57,7 +57,7 @@ export async function PATCH(req: Request) {
           number = "420" + updatedOrder.recipientPhone;
         }
 
-        const sms = await fetch("https://api.smsapi.pl/sms.do", {
+        await fetch("https://api.smsapi.pl/sms.do", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${process.env.SMS_API_KEY}`,
@@ -102,7 +102,7 @@ export async function PATCH(req: Request) {
           number = "420" + updatedOrder.recipientPhone;
         }
 
-        const sms = await fetch("https://api.smsapi.pl/sms.do", {
+        await fetch("https://api.smsapi.pl/sms.do", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${process.env.SMS_API_KEY}`,

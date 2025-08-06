@@ -11,28 +11,28 @@ import { v4 as uuid4 } from "uuid";
 import { useSession } from "next-auth/react";
 
 import { useRouter } from "next/navigation";
+import { OrderItem } from "types/order.types";
+import { CommodityType } from "@prisma/client";
 
 export default function NewOrder() {
   const router = useRouter();
   const { data: session } = useSession();
-  const [commodityItem, setcommodityItem] = useState({
+  const [commodityItem, setCommodityItem] = useState<OrderItem>({
     orderCommodityType: "Paczka",
-    orderCommodityPayType: "Pobranie",
     orderCommodityId: uuid4(),
     orderCommodityName: "",
-    orderCommodityPayAmount: 0,
     orderCommodityNote: "",
   });
-  const [commodityList, setcommodityList] = useState([]);
-  const [commodityError, setCommodityError] = useState(false);
-  const [formError, setFormError] = useState(null);
+  const [commodityList, setCommodityList] = useState<OrderItem[]>([]);
+  const [commodityError, setCommodityError] = useState<string>();
+  const [formError, setFormError] = useState<string>();
   const [countryState, setCountryState] = useState("Polska");
   const [paymentType, setPaymentType] = useState("Przelew");
 
   // Actions - Process Order to Backend
-  async function processOrder(event) {
+  async function processOrder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFormError(null);
+    setFormError(undefined);
     let currency;
 
     if (commodityList.length < 1) {
@@ -63,20 +63,24 @@ export default function NewOrder() {
       orderClientName: data.get("orderClientName"),
       orderClientPhone: data.get("orderClientPhone"),
       orderClientEmail: data.get("orderClientEmail"),
+      orderSupplierId: data.get("orderSupplierId"),
       currency: currency,
       orderPaymentType: data.get("orderPaymentType"),
       orderPaymentPrice: data.get("orderPaymentAmount"),
       orderItems: commodityList,
     };
 
-    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`, {
-      method: "POST",
-      body: JSON.stringify(orderData),
-      headers: {
-        Authorization: session?.accessToken,
-        "Content-Type": "application/json",
-      },
-    });
+    const request = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`,
+      {
+        method: "POST",
+        body: JSON.stringify(orderData),
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const response = await request.json();
 
@@ -87,20 +91,20 @@ export default function NewOrder() {
     }
   }
 
-  // Actions - Add Comodity Item
+  // Actions - Add Commodity Item
   function addCommodity() {
-    setCommodityError(false);
+    setCommodityError(undefined);
     if (!commodityItem.orderCommodityName) {
       setCommodityError("Nazwa Towaru jest wymagana");
     } else {
-      setcommodityItem((prevState) => {
+      setCommodityItem((prevState) => {
         return { ...prevState, orderCommodityId: uuid4() };
       });
-      setcommodityList((prevState) => {
+      setCommodityList((prevState) => {
         return [...prevState, commodityItem];
       });
-      setcommodityItem({
-        orderCommodityType: "Paczka",
+      setCommodityItem({
+        orderCommodityType: "Paczka" as CommodityType,
         orderCommodityId: uuid4(),
         orderCommodityName: "",
         orderCommodityNote: "",
@@ -108,21 +112,25 @@ export default function NewOrder() {
     }
   }
 
-  // Actions - Delete Comodity Item
-  function deleteComoditiFromList(id) {
-    setcommodityList((prevState) => {
+  // Actions - Delete Commodity Item
+  function deleteCommodityFromList(id: string) {
+    setCommodityList((prevState) => {
       return prevState.filter((commodity) => commodity.orderCommodityId !== id);
     });
   }
 
   // Actions - Show Comodity List
-  let showcommodityItem = commodityList.map((commodity, index) => {
+  let showCommodityItem = commodityList.map((commodity) => {
     return (
       <tr key={commodity.orderCommodityId}>
         <td>{commodity.orderCommodityType}</td>
         <td>{commodity.orderCommodityName}</td>
         <td>
-          <Image src={redTrashIcon} alt="Usuń dany towar z listy" onClick={() => deleteComoditiFromList(commodity.orderCommodityId)} />
+          <Image
+            src={redTrashIcon}
+            alt="Usuń dany towar z listy"
+            onClick={() => deleteCommodityFromList(commodity.orderCommodityId)}
+          />
         </td>
       </tr>
     );
@@ -130,7 +138,7 @@ export default function NewOrder() {
 
   return (
     <div className="CrmPage">
-      <InstructionsSideBar />
+      <InstructionsSideBar orderId={""} />
       <div className="mainContent NewOrderPage">
         <header className="CRMHeader">
           <Link href="/dashboard" className="backToDashboard">
@@ -151,13 +159,18 @@ export default function NewOrder() {
                     Rodzaj Zlecenia
                     <select name="orderType" id="orderType">
                       <option value="Dostawa">Dostawa</option>
-                      <option value="Odbior">Odbór</option>
+                      <option value="Odbior">Odbiór</option>
                       <option value="Zwrot">Zwrot</option>
                     </select>
                   </label>
                   <label htmlFor="orderCountry">
                     Kraj
-                    <select name="orderCountry" id="orderCountry" value={countryState} onChange={(e) => setCountryState(e.target.value)}>
+                    <select
+                      name="orderCountry"
+                      id="orderCountry"
+                      value={countryState}
+                      onChange={(e) => setCountryState(e.target.value)}
+                    >
                       <option value="Polska">Polska</option>
                       <option value="Czechy">Czechy</option>
                     </select>
@@ -166,33 +179,59 @@ export default function NewOrder() {
                 <div className="row">
                   <label htmlFor="orderStreet">
                     Ulica *
-                    <input type="text" name="orderStreet" id="orderStreet" required />
+                    <input
+                      type="text"
+                      name="orderStreet"
+                      id="orderStreet"
+                      required
+                    />
                   </label>
                 </div>
                 <div className="row">
                   <label htmlFor="orderStreetNumber">
                     Numer Budynku *
-                    <input type="text" name="orderStreetNumber" id="orderStreetNumber" pattern="[A-Za-z0-9]{1,}" required />
+                    <input
+                      type="text"
+                      name="orderStreetNumber"
+                      id="orderStreetNumber"
+                      pattern="[A-Za-z0-9]{1,}"
+                      required
+                    />
                   </label>
                   <label htmlFor="orderFlatNumber">
                     Numer Lokalu
-                    <input type="text" name="orderFlatNumber" id="orderFlatNumber" />
+                    <input
+                      type="text"
+                      name="orderFlatNumber"
+                      id="orderFlatNumber"
+                    />
                   </label>
                 </div>
                 <div className="row">
                   <label htmlFor="orderCity">
                     Miejscowość *
-                    <input type="text" name="orderCity" id="orderCity" required />
+                    <input
+                      type="text"
+                      name="orderCity"
+                      id="orderCity"
+                      required
+                    />
                   </label>
                 </div>
                 <div className="row">
                   <label htmlFor="orderPostCode">
-                    {countryState === "Polska" ? "Kod Pocztowy (##-###) *" : "Kod Pocztowy (### ##) *"}
+                    {countryState === "Polska"
+                      ? "Kod Pocztowy (##-###) *"
+                      : "Kod Pocztowy (### ##) *"}
                     <input
                       type="text"
                       name="orderPostCode"
                       id="orderPostCode"
-                      pattern={countryState === "Polska" ? "[0-9]{2}-[0-9]{3}" : "[0-9]{3} [0-9]{2}"}
+                      pattern={
+                        countryState === "Polska"
+                          ? "[0-9]{2}-[0-9]{3}"
+                          : "[0-9]{3} [0-9]{2}"
+                      }
                       required
                     />
                   </label>
@@ -200,7 +239,9 @@ export default function NewOrder() {
                     Województwo *
                     <select name="orderState" id="orderState" required>
                       <option value="Dolnośląskie">Dolnośląskie</option>
-                      <option value="Kujawsko-Pomorskie">Kujawsko-Pomorskie</option>
+                      <option value="Kujawsko-Pomorskie">
+                        Kujawsko-Pomorskie
+                      </option>
                       <option value="Lubelskie">Lubelskie</option>
                       <option value="Lubuskie">Lubuskie</option>
                       <option value="Łódzkie">Łódzkie</option>
@@ -212,16 +253,35 @@ export default function NewOrder() {
                       <option value="Pomorskie">Pomorskie</option>
                       <option value="Śląskie">Śląskie</option>
                       <option value="Świętokrzyskie">Świętokrzyskie</option>
-                      <option value="Warmińsko-Mazurskie">Warmińsko-Mazurskie</option>
+                      <option value="Warmińsko-Mazurskie">
+                        Warmińsko-Mazurskie
+                      </option>
                       <option value="Wielkopolskie">Wielkopolskie</option>
-                      <option value="Zachodniopomorskie">Zachodniopomorskie</option>
+                      <option value="Zachodniopomorskie">
+                        Zachodniopomorskie
+                      </option>
                     </select>
+                  </label>
+                </div>
+                <div className="row">
+                  <label htmlFor="orderSupplierId">
+                    Identyfikator Zlecenia Dostawcy (np. ID z systemu dostawcy)
+                    <input
+                      type="text"
+                      name="orderSupplierId"
+                      id="orderSupplierId"
+                    />
                   </label>
                 </div>
                 <div className="row">
                   <label htmlFor="orderNote">
                     Notatka do zamówienia
-                    <textarea name="orderNote" id="orderNote" cols="30" rows="10"></textarea>
+                    <textarea
+                      name="orderNote"
+                      id="orderNote"
+                      cols={30}
+                      rows={10}
+                    ></textarea>
                   </label>
                 </div>
               </div>
@@ -234,21 +294,34 @@ export default function NewOrder() {
                 <div className="row">
                   <label htmlFor="orderClientName">
                     Odbiorca *
-                    <input type="text" name="orderClientName" id="orderClientName" required />
+                    <input
+                      type="text"
+                      name="orderClientName"
+                      id="orderClientName"
+                      required
+                    />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    {countryState === "Polska" ? "Telefon (Bez spacji) *" : "Telefo (Bez spacji) *"}
+                    {countryState === "Polska"
+                      ? "Telefon (Bez spacji) *"
+                      : "Telefon (Bez spacji) *"}
                     <input
                       type="text"
                       name="orderClientPhone"
                       id="orderClientPhone"
                       required
-                      pattern={countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"}
+                      pattern={
+                        countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"
+                      }
                     />
                   </label>
                   <label htmlFor="orderClientEmail">
                     Email Klienta
-                    <input type="text" name="orderClientEmail" id="orderClientEmail" />
+                    <input
+                      type="text"
+                      name="orderClientEmail"
+                      id="orderClientEmail"
+                    />
                   </label>
                 </div>
               </div>
@@ -264,8 +337,11 @@ export default function NewOrder() {
                       id="orderCommodityType"
                       value={commodityItem.orderCommodityType}
                       onChange={(e) => {
-                        setcommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityType: e.target.value };
+                        setCommodityItem((prevState) => {
+                          return {
+                            ...prevState,
+                            orderCommodityType: e.target.value as CommodityType,
+                          };
                         });
                       }}
                     >
@@ -282,8 +358,11 @@ export default function NewOrder() {
                       id="orderCommodityName"
                       value={commodityItem.orderCommodityName}
                       onChange={(e) => {
-                        setcommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityName: e.target.value };
+                        setCommodityItem((prevState) => {
+                          return {
+                            ...prevState,
+                            orderCommodityName: e.target.value,
+                          };
                         });
                       }}
                     />
@@ -295,21 +374,32 @@ export default function NewOrder() {
                     <textarea
                       name="orderCommodityNote"
                       id="orderCommodityNote"
-                      cols="30"
-                      rows="10"
+                      cols={30}
+                      rows={10}
                       value={commodityItem.orderCommodityNote}
                       onChange={(e) => {
-                        setcommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityNote: e.target.value };
+                        setCommodityItem((prevState) => {
+                          return {
+                            ...prevState,
+                            orderCommodityNote: e.target.value,
+                          };
                         });
                       }}
                     />
                   </label>
                   <button type="button" className="addCommodity">
-                    <Image src={greenPlusIcon} alt="Dodaj Towar" onClick={addCommodity} />
+                    <Image
+                      src={greenPlusIcon}
+                      alt="Dodaj Towar"
+                      onClick={addCommodity}
+                    />
                   </button>
                 </div>
-                {commodityError ? <p className="error">{commodityError}</p> : ""}
+                {commodityError ? (
+                  <p className="error">{commodityError}</p>
+                ) : (
+                  ""
+                )}
               </div>
               <div className="row">
                 <div className="formStage stage4">
@@ -331,8 +421,15 @@ export default function NewOrder() {
                   {paymentType === "Pobranie" && (
                     <>
                       <label htmlFor="orderPaymentAmount">
-                        Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                        <input type="number" name="orderPaymentAmount" id="orderPaymentAmount" step="0.01" required />
+                        Kwota Płatności{" "}
+                        {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                        <input
+                          type="number"
+                          name="orderPaymentAmount"
+                          id="orderPaymentAmount"
+                          step="0.01"
+                          required
+                        />
                       </label>
                     </>
                   )}
@@ -342,10 +439,10 @@ export default function NewOrder() {
                     <p>Wykaz Paczek</p>
                   </div>
 
-                  {showcommodityItem.length > 0 ? (
+                  {showCommodityItem.length > 0 ? (
                     <div className="tableOverflow">
                       <table>
-                        <tbody>{showcommodityItem}</tbody>
+                        <tbody>{showCommodityItem}</tbody>
                       </table>
                     </div>
                   ) : (
@@ -356,7 +453,11 @@ export default function NewOrder() {
             </section>
             <div>
               {formError ? <p className="formError">Uwaga: {formError}</p> : ""}
-              <input type="submit" value="Zamawiam Zlecenie" className="confirmOrder" />
+              <input
+                type="submit"
+                value="Zamawiam Zlecenie"
+                className="confirmOrder"
+              />
             </div>
           </form>
         </main>

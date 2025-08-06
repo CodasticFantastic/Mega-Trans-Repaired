@@ -4,19 +4,28 @@ import InstructionsSideBar from "../../components/sidebars/InstructionsSideBar";
 import Image from "next/image";
 import redBackIcon from "@/images/icons/redBackIcon.png";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { v4 as uuid4 } from "uuid";
 import { useSession } from "next-auth/react";
 
 import { useRouter } from "next/navigation";
 
 import { Parser } from "html-to-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { OrderItem } from "types/order.types";
+import { CommodityType, Package } from "@prisma/client";
 
-export default function UpdateOrder({ params }) {
+export default function UpdateOrder({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: session } = useSession();
-  const [commodityItem, setCommodityItem] = useState({
-    orderCommodityType: "Paczka",
+  const [commodityItem, setCommodityItem] = useState<OrderItem>({
+    orderCommodityType: "Paczka" as CommodityType,
     orderCommodityId: uuid4(),
     orderCommodityName: "",
     orderCommodityNote: "",
@@ -42,9 +51,8 @@ export default function UpdateOrder({ params }) {
   });
   const [countryState, setCountryState] = useState("Polska");
 
-  const [commodityList, setcommodityList] = useState([]);
-  const [commodityError, setCommodityError] = useState(false);
-  const [formError, setFormError] = useState(null);
+  const [commodityList, setCommodityList] = useState<OrderItem[]>([]);
+  const [formError, setFormError] = useState<string>();
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
   useEffect(() => {
@@ -53,22 +61,23 @@ export default function UpdateOrder({ params }) {
 
   // Actions - Get Order Data from Backend
   async function getOrderData() {
-    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${params.id}`, {
-      method: "GET",
-      headers: {
-        Authorization: session?.accessToken,
-      },
-    });
+    const request = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+        },
+      }
+    );
 
     const response = await request.json();
-
-    console.log(response);
 
     if (response.error) {
       setFormError(response.error);
     } else if (response.order) {
-      setcommodityList(
-        response.order.packages.map((item) => {
+      setCommodityList(
+        response.order.packages.map((item: Package) => {
           return {
             orderCommodityType: item.commodityType,
             orderCommodityId: item.packageId,
@@ -102,9 +111,9 @@ export default function UpdateOrder({ params }) {
   }
 
   // Actions - Update Order
-  async function updateOrder(event) {
+  async function updateOrder(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setFormError(null);
+    setFormError(undefined);
 
     if (commodityList.length < 1) {
       setFormError("Brak Towarów w Zleceniu");
@@ -129,14 +138,17 @@ export default function UpdateOrder({ params }) {
       orderItems: commodityList,
     };
 
-    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`, {
-      method: "POST",
-      body: JSON.stringify(orderDataUpdate),
-      headers: {
-        Authorization: session?.accessToken,
-        "Content-Type": "application/json",
-      },
-    });
+    const request = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`,
+      {
+        method: "POST",
+        body: JSON.stringify(orderDataUpdate),
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const response = await request.json();
 
@@ -147,8 +159,8 @@ export default function UpdateOrder({ params }) {
     }
   }
 
-  // Actions - Show Comodity List
-  let showcommodityItem = commodityList.map((commodity, index) => {
+  // Actions - Show Commodity List
+  let showCommodityItem = commodityList.map((commodity) => {
     return (
       <tr key={commodity.orderCommodityId}>
         <td>{commodity.orderCommodityType}</td>
@@ -159,18 +171,22 @@ export default function UpdateOrder({ params }) {
 
   // Actions - Cancel Order
   async function cancelOrder() {
-    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${params.id}`, {
-      method: "GET",
-      headers: {
-        Authorization: session?.accessToken,
-      },
-    });
+    const request = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${id}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+        },
+      }
+    );
 
     const response = await request.json();
 
     if (response.error) {
       setFormError(response.error);
     } else if (response.Success) {
+      queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
       router.push("/dashboard");
     }
   }
@@ -207,7 +223,7 @@ export default function UpdateOrder({ params }) {
                       }}
                     >
                       <option value="Dostawa">Dostawa</option>
-                      <option value="Odbior">Odbór</option>
+                      <option value="Odbior">Odbiór</option>
                       <option value="Zwrot">Zwrot</option>
                     </select>
                   </label>
@@ -257,7 +273,10 @@ export default function UpdateOrder({ params }) {
                       value={orderForm.orderStreetNumber}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
-                          return { ...prevState, orderStreetNumber: e.target.value };
+                          return {
+                            ...prevState,
+                            orderStreetNumber: e.target.value,
+                          };
                         });
                       }}
                       required
@@ -272,7 +291,10 @@ export default function UpdateOrder({ params }) {
                       value={orderForm.orderFlatNumber}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
-                          return { ...prevState, orderFlatNumber: e.target.value };
+                          return {
+                            ...prevState,
+                            orderFlatNumber: e.target.value,
+                          };
                         });
                       }}
                     />
@@ -297,7 +319,9 @@ export default function UpdateOrder({ params }) {
                 </div>
                 <div className="row">
                   <label htmlFor="orderPostCode">
-                    {orderForm.orderCountry === "Polska" ? "Kod Pocztowy (##-###) *" : "Kod Pocztowy (### ##) *"}
+                    {orderForm.orderCountry === "Polska"
+                      ? "Kod Pocztowy (##-###) *"
+                      : "Kod Pocztowy (### ##) *"}
                     <input
                       type="text"
                       name="orderPostCode"
@@ -305,10 +329,17 @@ export default function UpdateOrder({ params }) {
                       value={orderForm.orderPostCode}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
-                          return { ...prevState, orderPostCode: e.target.value };
+                          return {
+                            ...prevState,
+                            orderPostCode: e.target.value,
+                          };
                         });
                       }}
-                      pattern={orderForm.orderCountry === "Polska" ? "[0-9]{2}-[0-9]{3}" : "[0-9]{3} [0-9]{2}"}
+                      pattern={
+                        orderForm.orderCountry === "Polska"
+                          ? "[0-9]{2}-[0-9]{3}"
+                          : "[0-9]{3} [0-9]{2}"
+                      }
                       required
                     />
                   </label>
@@ -318,13 +349,17 @@ export default function UpdateOrder({ params }) {
                       name="orderState"
                       id="orderState"
                       value={orderForm.orderState}
-                      onChange={(prevState) => {
-                        return { ...prevState, orderState: e.target.value };
+                      onChange={(e) => {
+                        setOrderForm((prevState) => {
+                          return { ...prevState, orderState: e.target.value };
+                        });
                       }}
                       required
                     >
                       <option value="Dolnośląskie">Dolnośląskie</option>
-                      <option value="Kujawsko-Pomorskie">Kujawsko-Pomorskie</option>
+                      <option value="Kujawsko-Pomorskie">
+                        Kujawsko-Pomorskie
+                      </option>
                       <option value="Lubelskie">Lubelskie</option>
                       <option value="Lubuskie">Lubuskie</option>
                       <option value="Łódzkie">Łódzkie</option>
@@ -336,9 +371,13 @@ export default function UpdateOrder({ params }) {
                       <option value="Pomorskie">Pomorskie</option>
                       <option value="Śląskie">Śląskie</option>
                       <option value="Świętokrzyskie">Świętokrzyskie</option>
-                      <option value="Warmińsko-Mazurskie">Warmińsko-Mazurskie</option>
+                      <option value="Warmińsko-Mazurskie">
+                        Warmińsko-Mazurskie
+                      </option>
                       <option value="Wielkopolskie">Wielkopolskie</option>
-                      <option value="Zachodniopomorskie">Zachodniopomorskie</option>
+                      <option value="Zachodniopomorskie">
+                        Zachodniopomorskie
+                      </option>
                     </select>
                   </label>
                 </div>
@@ -348,8 +387,8 @@ export default function UpdateOrder({ params }) {
                     <textarea
                       name="orderNote"
                       id="orderNote"
-                      cols="30"
-                      rows="10"
+                      cols={30}
+                      rows={10}
                       value={orderForm.orderNote}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
@@ -376,14 +415,19 @@ export default function UpdateOrder({ params }) {
                       value={orderForm.orderClientName}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
-                          return { ...prevState, orderClientName: e.target.value };
+                          return {
+                            ...prevState,
+                            orderClientName: e.target.value,
+                          };
                         });
                       }}
                       required
                     />
                   </label>
                   <label htmlFor="orderClientPhone">
-                    {orderForm.orderCountry === "Polska" ? "Telefon (Bez spacji) *" : "Telefon (Bez spacji) *"}
+                    {orderForm.orderCountry === "Polska"
+                      ? "Telefon (Bez spacji) *"
+                      : "Telefon (Bez spacji) *"}
                     <input
                       type="text"
                       name="orderClientPhone"
@@ -392,10 +436,17 @@ export default function UpdateOrder({ params }) {
                       value={orderForm.orderClientPhone}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
-                          return { ...prevState, orderClientPhone: e.target.value };
+                          return {
+                            ...prevState,
+                            orderClientPhone: e.target.value,
+                          };
                         });
                       }}
-                      pattern={orderForm.orderCountry === "Polska" ? "[0-9]{9}" : "[0-9]{9}"}
+                      pattern={
+                        orderForm.orderCountry === "Polska"
+                          ? "[0-9]{9}"
+                          : "[0-9]{9}"
+                      }
                     />
                   </label>
                   <label htmlFor="orderClientEmail">
@@ -407,7 +458,10 @@ export default function UpdateOrder({ params }) {
                       value={orderForm.orderClientEmail}
                       onChange={(e) => {
                         setOrderForm((prevState) => {
-                          return { ...prevState, orderClientEmail: e.target.value };
+                          return {
+                            ...prevState,
+                            orderClientEmail: e.target.value,
+                          };
                         });
                       }}
                     />
@@ -425,11 +479,6 @@ export default function UpdateOrder({ params }) {
                       name="orderCommodityType"
                       id="orderCommodityType"
                       value={commodityItem.orderCommodityType}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityType: e.target.value };
-                        });
-                      }}
                       disabled
                     >
                       <option value="Paczka">Paczka/Karton</option>
@@ -446,7 +495,10 @@ export default function UpdateOrder({ params }) {
                       value={commodityItem.orderCommodityName}
                       onChange={(e) => {
                         setCommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityName: e.target.value };
+                          return {
+                            ...prevState,
+                            orderCommodityName: e.target.value,
+                          };
                         });
                       }}
                       disabled
@@ -459,19 +511,21 @@ export default function UpdateOrder({ params }) {
                     <textarea
                       name="orderCommodityNote"
                       id="orderCommodityNote"
-                      cols="30"
-                      rows="10"
+                      cols={30}
+                      rows={10}
                       value={commodityItem.orderCommodityNote}
                       onChange={(e) => {
                         setCommodityItem((prevState) => {
-                          return { ...prevState, orderCommodityNote: e.target.value };
+                          return {
+                            ...prevState,
+                            orderCommodityNote: e.target.value,
+                          };
                         });
                       }}
                       disabled
                     />
                   </label>
                 </div>
-                {commodityError ? <p className="error">{commodityError}</p> : ""}
               </div>
               <div className="row">
                 <div className="formStage stage4">
@@ -480,7 +534,12 @@ export default function UpdateOrder({ params }) {
                   </div>
                   <label htmlFor="orderPaymentType">
                     Sposób Płatności
-                    <select name="orderPaymentType" id="orderPaymentType" value={orderForm.orderPaymentType} disabled>
+                    <select
+                      name="orderPaymentType"
+                      id="orderPaymentType"
+                      value={orderForm.orderPaymentType}
+                      disabled
+                    >
                       <option value="Przelew">Przelew</option>
                       <option value="Pobranie">Pobranie</option>
                     </select>
@@ -488,7 +547,8 @@ export default function UpdateOrder({ params }) {
                   {orderForm.orderPrice !== 0 && (
                     <>
                       <label htmlFor="orderPaymentAmount">
-                        Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                        Kwota Płatności{" "}
+                        {countryState === "Polska" ? "(PLN)" : "(EUR)"}
                         <input
                           type="number"
                           name="orderPaymentAmount"
@@ -506,10 +566,10 @@ export default function UpdateOrder({ params }) {
                     <p>Wykaz Paczek</p>
                   </div>
 
-                  {showcommodityItem.length > 0 ? (
+                  {showCommodityItem.length > 0 ? (
                     <div className="tableOverflow">
                       <table>
-                        <tbody>{showcommodityItem}</tbody>
+                        <tbody>{showCommodityItem}</tbody>
                       </table>
                     </div>
                   ) : (
@@ -520,11 +580,23 @@ export default function UpdateOrder({ params }) {
             </section>
             <div>
               {formError ? <p className="formError">Uwaga: {formError}</p> : ""}
-              {updateSuccess ? <p className="formSuccess">Aktualizacja danych przesyłki przebiegła prawidłowo</p> : ""}
+              {updateSuccess ? (
+                <p className="formSuccess">
+                  Aktualizacja danych przesyłki przebiegła prawidłowo
+                </p>
+              ) : (
+                ""
+              )}
               <input
                 type="submit"
-                value={orderForm.orderStatus === "Anulowane" ? "Zlecenie zostało anulowane" : "Aktualizuj Zlecenie"}
-                className={`confirmOrder ${orderForm.orderStatus === "Anulowane" ? "orderCanceled" : ""}`}
+                value={
+                  orderForm.orderStatus === "Anulowane"
+                    ? "Zlecenie zostało anulowane"
+                    : "Aktualizuj Zlecenie"
+                }
+                className={`confirmOrder ${
+                  orderForm.orderStatus === "Anulowane" ? "orderCanceled" : ""
+                }`}
                 disabled={orderForm.orderStatus === "Anulowane" ? true : false}
               />
               {orderForm.orderStatus !== "Anulowane" && (

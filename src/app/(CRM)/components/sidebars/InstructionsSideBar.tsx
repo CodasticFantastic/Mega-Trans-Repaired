@@ -2,7 +2,6 @@ import Image from "next/image";
 import Logo from "@/images/LogoBlue.png";
 import invoiceIcon from "@/images/icons/invoiceIcon.png";
 import qrIcon from "@/images/icons/qrIcon.png";
-import userIcon from "@/images/icons/userIcon.png";
 import settingsIcon from "@/images/icons/settingsIcon.png";
 import arrowDownIcon from "@/images/icons/arrowDown.png";
 import documentsIcon from "@/images/icons/documentsIcon.png";
@@ -14,7 +13,7 @@ import Link from "next/link";
 
 import { usePathname } from "next/navigation";
 
-export default function InstructionsSideBar({ orderId }) {
+export default function InstructionsSideBar({ orderId }: { orderId: string }) {
   let pathname = usePathname();
   pathname = pathname.split("/")[1];
 
@@ -34,13 +33,18 @@ export default function InstructionsSideBar({ orderId }) {
             <div className="right">
               <input className="showMoreInput" type="checkbox" id="showMore4" />
               <label className="showMoreLabel" htmlFor="showMore4">
-                <Image src={arrowDownIcon} alt="Ikona sortowania" className="showMoreIcon" />
+                <Image
+                  src={arrowDownIcon}
+                  alt="Ikona sortowania"
+                  className="showMoreIcon"
+                />
               </label>
             </div>
           </div>
           <div className="divWithText expand4">
             <p className="instruction">
-              W celu utworzenia lub aktualizacji zlecenia, wypełnij wszystkie obowiązkowe pola oznaczone gwiazdką (*).
+              W celu utworzenia lub aktualizacji zlecenia, wypełnij wszystkie
+              obowiązkowe pola oznaczone gwiazdką (*).
             </p>
           </div>
         </div>
@@ -53,13 +57,18 @@ export default function InstructionsSideBar({ orderId }) {
             <div className="right">
               <input className="showMoreInput" type="checkbox" id="showMore5" />
               <label className="showMoreLabel" htmlFor="showMore5">
-                <Image src={arrowDownIcon} alt="Ikona sortowania" className="showMoreIcon" />
+                <Image
+                  src={arrowDownIcon}
+                  alt="Ikona sortowania"
+                  className="showMoreIcon"
+                />
               </label>
             </div>
           </div>
           <div className="divWithText expand5">
             <p className="instruction">
-              Jeśli dany towar składa się z więcej niż 1 elementu a “Rodzaj płatności” to pobranie wpisz kwotę pobrania tylko do pierwszego
+              Jeśli dany towar składa się z więcej niż 1 elementu a “Rodzaj
+              płatności” to pobranie wpisz kwotę pobrania tylko do pierwszego
               elementu.
             </p>
             <p className="instructionBold">Elementy oznacz np:</p>
@@ -80,28 +89,53 @@ export default function InstructionsSideBar({ orderId }) {
             <div className="right">
               <input className="showMoreInput" type="checkbox" id="showMore6" />
               <label className="showMoreLabel" htmlFor="showMore6">
-                <Image src={arrowDownIcon} alt="Ikona sortowania" className="showMoreIcon" />
+                <Image
+                  src={arrowDownIcon}
+                  alt="Ikona sortowania"
+                  className="showMoreIcon"
+                />
               </label>
             </div>
           </div>
           <div className="divWithText expand6">
             <p className="instruction">
-              Pamiętaj aby podać prawidłowy numer telefonu. Na dany telefon będą wysyłane informacje z aktualizacją statusu przesyłki.
+              Pamiętaj aby podać prawidłowy numer telefonu. Na dany telefon będą
+              wysyłane informacje z aktualizacją statusu przesyłki.
             </p>
           </div>
         </div>
         {pathname === "updateOrder" && (
           <>
-            <Link className="print" href={`/updateOrder/${orderId}/waybill`} target="_blank">
-              <Image src={invoiceIcon} alt="Ikona sortowania" className="icon" />
+            <Link
+              className="print"
+              href={`/updateOrder/${orderId}/waybill`}
+              target="_blank"
+            >
+              <Image
+                src={invoiceIcon}
+                alt="Ikona sortowania"
+                className="icon"
+              />
               List Przewozowy
             </Link>
-            <Link className="print" href={`/updateOrder/${orderId}/label`} target="_blank">
+            <Link
+              className="print"
+              href={`/updateOrder/${orderId}/label`}
+              target="_blank"
+            >
               <Image src={qrIcon} alt="Ikona sortowania" className="icon" />
               Etykiety 10x15
             </Link>
-            <Link className="print" href={`/updateOrder/${orderId}/shortDocumentation`} target="_blank">
-              <Image src={documentsIcon} alt="Ikona sortowania" className="icon" />
+            <Link
+              className="print"
+              href={`/updateOrder/${orderId}/shortDocumentation`}
+              target="_blank"
+            >
+              <Image
+                src={documentsIcon}
+                alt="Ikona sortowania"
+                className="icon"
+              />
               Etykiety A4
             </Link>
           </>
@@ -116,7 +150,11 @@ export default function InstructionsSideBar({ orderId }) {
         <div className="options">
           <LogoutButton />
           <Link className="settings" href="/dashboard/settings">
-            <Image src={settingsIcon} alt="Ikona filtrowania" className="icon" />
+            <Image
+              src={settingsIcon}
+              alt="Ikona filtrowania"
+              className="icon"
+            />
           </Link>
         </div>
       </div>

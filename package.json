@@ -34,7 +34,8 @@
     "sheetjs-style": "^0.15.8",
     "uuid": "^11.1.0",
     "validator": "^13.15.15",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz",
+    "zod": "^4.0.15"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",
