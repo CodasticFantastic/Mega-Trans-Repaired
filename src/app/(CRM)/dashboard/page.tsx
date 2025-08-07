@@ -15,22 +15,7 @@ import XLSX from "sheetjs-style";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
-
-// Typy dla zamówienia
-interface Order {
-  orderId: string;
-  orderType: string;
-  recipientName: string;
-  orderPostCode: string;
-  orderCity: string;
-  orderStreet: string;
-  orderStreetNumber: string;
-  orderFlatNumber?: string;
-  orderCountry: string;
-  status: string;
-  updatedAt: string;
-  // dodaj inne pola według potrzeb
-}
+import { Order } from "@prisma/client";
 
 // Typy dla filtrów
 interface Filters {

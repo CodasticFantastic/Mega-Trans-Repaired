@@ -1,5 +1,6 @@
 import ReactQueryProvider from "@/helpers/providers/ReactQueryProvider";
 import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
+import "@/css/tailwind.css";
 import "@/scss/main.scss";
 import { Poppins } from "next/font/google";
 
@@ -15,7 +16,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pl">
+    <html lang="pl" className="dark">
       <body className={`${poppins.className} crm`}>
         <NextAuthProvider>
           <ReactQueryProvider>{children}</ReactQueryProvider>
