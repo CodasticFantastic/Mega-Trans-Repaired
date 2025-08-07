@@ -48,6 +48,7 @@ export default function UpdateOrder({
     orderClientEmail: "",
     orderPaymentType: "",
     orderPrice: 0,
+    orderSupplierId: "",
   });
   const [countryState, setCountryState] = useState("Polska");
 
@@ -104,6 +105,7 @@ export default function UpdateOrder({
         orderClientEmail: response.order.recipientEmail,
         orderPaymentType: response.order.orderPaymentType,
         orderPrice: response.order.orderPrice,
+        orderSupplierId: response.order.orderSupplierId,
       });
 
       setCountryState(response.order.orderCountry);
@@ -135,6 +137,7 @@ export default function UpdateOrder({
       orderClientName: data.get("orderClientName"),
       orderClientPhone: data.get("orderClientPhone"),
       orderClientEmail: data.get("orderClientEmail"),
+      orderSupplierId: data.get("orderSupplierId"),
       orderItems: commodityList,
     };
 
@@ -379,6 +382,22 @@ export default function UpdateOrder({
                         Zachodniopomorskie
                       </option>
                     </select>
+                  </label>
+                </div>
+                <div className="row">
+                  <label htmlFor="orderSupplierId">
+                    Identyfikator Zlecenia Dostawcy (np. ID z systemu dostawcy)
+                    <input
+                      type="text"
+                      name="orderSupplierId"
+                      id="orderSupplierId"
+                      value={orderForm.orderSupplierId}
+                      onChange={(e) => {
+                        setOrderForm((prevState) => {
+                          return { ...prevState, orderSupplierId: e.target.value };
+                        });
+                      }}
+                    />
                   </label>
                 </div>
                 <div className="row">

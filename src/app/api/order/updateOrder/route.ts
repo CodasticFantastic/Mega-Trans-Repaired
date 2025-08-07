@@ -56,6 +56,7 @@ export async function POST(req: Request) {
           recipientName: validator.escape(request.orderClientName),
           recipientPhone: validator.escape(request.orderClientPhone),
           recipientEmail: validator.escape(request.orderClientEmail),
+          orderSupplierId: validator.escape(request.orderSupplierId),
         },
       });
 

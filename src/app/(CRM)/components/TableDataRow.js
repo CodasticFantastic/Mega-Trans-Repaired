@@ -1,13 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import EditIcon from "@/images/icons/editIcon.png";
-import CircleArrowDownIcon from "@/images/icons/circleArrowDownIcon.png";
 import PhoneIcon from "@/images/icons/phoneIcon.png";
 import EmailIcon from "@/images/icons/emailIcon.png";
 import CompanyIcon from "@/images/icons/companyIcon.png";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
+import { CircleChevronDownIcon, EditIcon } from "lucide-react";
+import { Button } from "@/components/shadcn/ui/button";
 
 export default function TableDataRow({ order, session, setExportOrders }) {
   const [status, setStatus] = useState(order.status);
@@ -28,17 +28,20 @@ export default function TableDataRow({ order, session, setExportOrders }) {
   }
 
   async function chnageStatus(e, id) {
-    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrderStatus`, {
-      method: "POST",
-      headers: {
-        Authorization: session?.accessToken,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        orderId: id,
-        status: e,
-      }),
-    });
+    const request = await fetch(
+      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrderStatus`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: session?.accessToken,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: id,
+          status: e,
+        }),
+      }
+    );
 
     const response = await request.json();
 
@@ -55,21 +58,35 @@ export default function TableDataRow({ order, session, setExportOrders }) {
     if (e.target.checked) {
       setExportOrders((prev) => [...prev, order]);
     } else {
-      setExportOrders((prev) => prev.filter((item) => item.orderId !== order.orderId));
+      setExportOrders((prev) =>
+        prev.filter((item) => item.orderId !== order.orderId)
+      );
     }
   }
+
+  useEffect(() => {
+    setStatus(order.status);
+  }, [order.status]);
 
   return (
     <div className="tr">
       <div className="mainInfo">
         <div className="col1 td">
-          <input type="checkbox" checked={ifExported} onChange={() => exportOrder(event)} />
+          <input
+            type="checkbox"
+            checked={ifExported}
+            onChange={() => exportOrder(event)}
+          />
         </div>
         <div className="col8 td">{order.orderType}</div>
         <div className="col2 td">{order.orderId}</div>
         <div className={`col3 td ${status}`}>
           {session.user.role === "ADMIN" && (
-            <select className="status select" value={status} onChange={(e) => chnageStatus(e.target.value, order.orderId)}>
+            <select
+              className="status select"
+              value={status}
+              onChange={(e) => chnageStatus(e.target.value, order.orderId)}
+            >
               <option value="Producent">Producent</option>
               <option value="Magazyn">Magazyn</option>
               <option value="Dostawa">Dostawa</option>
@@ -77,7 +94,7 @@ export default function TableDataRow({ order, session, setExportOrders }) {
               <option value="Anulowane">Anulowane</option>
             </select>
           )}
-          {session.user.role === "USER" && <p className="status">{order.status}</p>}
+          {session.user.role === "USER" && <p className="status">{status}</p>}
         </div>
         <div className="col4 td">
           {formatDate(order.updatedAt)}
@@ -85,17 +102,22 @@ export default function TableDataRow({ order, session, setExportOrders }) {
         </div>
         <div className="col5 td">{order.recipientName}</div>
         <div className="col6 td">
-          {order.orderPostCode} {order.orderCity} <br /> {order.orderStreet} {order.orderStreetNumber}{" "}
+          {order.orderPostCode} {order.orderCity} <br /> {order.orderStreet}{" "}
+          {order.orderStreetNumber}{" "}
           {order.orderFlatNumber && `/ ${order.orderFlatNumber}`}
         </div>
         <div className="col7 td">
           <Link href={`/updateOrder/${order.orderId}`}>
-            <Image src={EditIcon} alt={`Edytuj zamwienie nr: ${order.orderId}`} />
+            <Button variant="ghost" size="icon" className="cursor-pointer">
+              <EditIcon className="text-[var(--color-text-primary)]" />
+            </Button>
           </Link>
-          <label className="showMoreLabel">
-            <input type="checkbox" className="showMoreInput" />
-            <Image src={CircleArrowDownIcon} alt={`Rozwiń zamwienie nr: ${order.orderId}`} />
-          </label>
+          <Button variant="ghost" size="icon" className="cursor-pointer">
+            <label className="showMoreLabel">
+              <input type="checkbox" className="showMoreInput" />
+              <CircleChevronDownIcon className="text-[var(--color-text-primary)]" />
+            </label>
+          </Button>
         </div>
       </div>
       <div className="detailInfo">
@@ -138,8 +160,12 @@ export default function TableDataRow({ order, session, setExportOrders }) {
               return (
                 <div className="row" key={packageItem.packageId}>
                   <p className="rowData1 rowData">{packageItem.packageId}</p>
-                  <p className="rowData2 rowData">{packageItem.commodityName}</p>
-                  <p className="rowData4 rowData">{packageItem.commodityNote}</p>
+                  <p className="rowData2 rowData">
+                    {packageItem.commodityName}
+                  </p>
+                  <p className="rowData4 rowData">
+                    {packageItem.commodityNote}
+                  </p>
                 </div>
               );
             })}

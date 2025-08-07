@@ -2,7 +2,9 @@ import ReactQueryProvider from "@/helpers/providers/ReactQueryProvider";
 import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
 import "@/css/tailwind.css";
 import "@/scss/main.scss";
+
 import { Poppins } from "next/font/google";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   subsets: ["latin-ext"],
@@ -20,6 +22,7 @@ export default function RootLayout({ children }) {
       <body className={`${poppins.className} crm`}>
         <NextAuthProvider>
           <ReactQueryProvider>{children}</ReactQueryProvider>
+          <Toaster />
         </NextAuthProvider>
       </body>
     </html>

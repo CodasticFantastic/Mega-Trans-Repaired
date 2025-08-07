@@ -12,6 +12,15 @@ import { BlocksIcon } from "lucide-react";
 import Link from "next/link";
 
 import { useSession } from "next-auth/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/shadcn/ui/dialog";
+import { IntegrationsModal } from "./IntegrationsModal/IntegrationsModal";
 
 interface ControlHeaderProps {
   orders: number;
@@ -53,10 +62,7 @@ export default function ControlHeader({
 
       {session?.user.role === "USER" && (
         <div className="navigation">
-          <Link href="/dashboard/delivery" className="icon-text">
-            <BlocksIcon size={20} />
-            Moje Integracje
-          </Link>
+          <IntegrationsModal />
         </div>
       )}
 

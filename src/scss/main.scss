@@ -4,6 +4,14 @@
 @use "components";
 @use "pages";
 
+:root {
+  --color-text-primary: #{abstracts.$text-primary};
+  --color-blue: #{abstracts.$Blue};
+  --color-dark-primary: #{abstracts.$dark-primary};
+  --color-red: #{abstracts.$Red};
+  --color-gray: #{abstracts.$gray};
+}
+
 .icon-text {
   display: flex;
   align-items: center;
