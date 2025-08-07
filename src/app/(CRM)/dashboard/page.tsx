@@ -307,10 +307,14 @@ export default function Dashboard() {
         {session && session.user.role === "USER" && (
           <footer>
             <p>
-              Create by: <Link href="/">Space Agency Marketing</Link>
-            </p>
-            <p>
-              Icons by: <Link href="https://icons8.com/">Icons8</Link>
+              Developed by:{" "}
+              <Link
+                href="https://jakubwojtysiak.online"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                JW.online
+              </Link>
             </p>
           </footer>
         )}

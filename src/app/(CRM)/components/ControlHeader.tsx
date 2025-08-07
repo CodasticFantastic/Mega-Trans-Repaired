@@ -7,17 +7,34 @@ import DashboardIcon from "@/images/icons/dashboardIcon.png";
 import DeliveryIcon from "@/images/icons/deliveryIcon.png";
 import CourierIcon from "@/images/icons/courierIcon.png";
 import UsersIcon from "@/images/icons/usersIcon.png";
+import { BlocksIcon } from "lucide-react";
 
 import Link from "next/link";
 
 import { useSession } from "next-auth/react";
 
-export default function ControlHeader({ orders, currentOrders, completedOrders, newOrders, inWarehouse, exportOrdersData }) {
+interface ControlHeaderProps {
+  orders: number;
+  currentOrders: number;
+  completedOrders: number;
+  newOrders: number;
+  inWarehouse: number;
+  exportOrdersData: () => void;
+}
+
+export default function ControlHeader({
+  orders,
+  currentOrders,
+  completedOrders,
+  newOrders,
+  inWarehouse,
+  exportOrdersData,
+}: ControlHeaderProps) {
   const { data: session } = useSession();
 
   return (
     <header className="CRMHeader">
-      {session && session.user.role === "ADMIN" && (
+      {session?.user.role === "ADMIN" && (
         <div className="navigation">
           <Link href="/dashboard/delivery">
             <Image src={DeliveryIcon} alt="Menu - Dostawa" />
@@ -34,7 +51,18 @@ export default function ControlHeader({ orders, currentOrders, completedOrders, 
         </div>
       )}
 
-      <h1 className={session && session.user.role === "ADMIN" ? "admin" : ""}>Zlecenia</h1>
+      {session?.user.role === "USER" && (
+        <div className="navigation">
+          <Link href="/dashboard/delivery" className="icon-text">
+            <BlocksIcon size={20} />
+            Moje Integracje
+          </Link>
+        </div>
+      )}
+
+      <h1 className={session && session.user.role === "ADMIN" ? "admin" : ""}>
+        Zlecenia
+      </h1>
       <div className="info">
         <div className="stats">
           <div className="statTile all">

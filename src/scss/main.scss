@@ -3,3 +3,9 @@
 @use "base";
 @use "components";
 @use "pages";
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
