@@ -1,0 +1,66 @@
+services:
+  megatrans-mysql-dev-server:
+    container_name: megatrans-mysql-dev-server
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: megatrans
+      MYSQL_DATABASE: megatrans
+      MYSQL_USER: megatrans
+      MYSQL_PASSWORD: megatrans
+    volumes:
+      - db-megatrans-mysql-data-dev-server:/var/lib/mysql
+    networks:
+      - megatrans-network-dev-server
+
+  megatrans-app-dev-server:
+    container_name: megatrans-app-dev-server
+    depends_on:
+      - megatrans-mysql-dev-server
+    build:
+      context: ../
+    env_file:
+      - .env.dev
+    expose:
+      - "3000"
+    restart: always
+    networks:
+      - megatrans-network-dev-server
+      - nginx-proxy
+    environment:
+      VIRTUAL_PORT: 3000
+      VIRTUAL_HOST: test.megatrans.online
+      LETSENCRYPT_HOST: test.megatrans.online
+      LETSENCRYPT_EMAIL: it.jakub.wojtysiak@gmail.com
+
+  megatrans-phpmyadmin-dev-server:
+    container_name: megatrans-phpmyadmin-dev-server
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: megatrans-mysql-dev-server
+      PMA_USER: root
+      PMA_PASSWORD: megatrans
+      UPLOAD_LIMIT: 100M
+      MAX_EXECUTION_TIME: 300
+      MEMORY_LIMIT: 512M
+      POST_MAX_SIZE: 100M
+      UPLOAD_MAX_FILESIZE: 100M
+    depends_on:
+      - megatrans-mysql-dev-server
+    networks:
+      - megatrans-network-dev-server
+
+volumes:
+  db-megatrans-mysql-data-dev-server:
+
+networks:
+  megatrans-network-dev-server:
+    name: megatrans-network-dev-server
+    driver: bridge
+  nginx-proxy:
+    external: true

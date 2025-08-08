@@ -1,9 +1,6 @@
 import { apiKeyAuth } from "@/helpers/apiKey.handler";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
-import {
-  ExternalApiNewOrderRequest,
-  ExternalApiNewOrderRequestSchema,
-} from "types/order.types";
+import { ExternalApiNewOrderRequestSchema } from "types/order.types";
 import z from "zod";
 import validator from "validator";
 import { v4 as uuidv4 } from "uuid";
@@ -11,7 +8,6 @@ import {
   CommodityPaymentType,
   CommodityType,
   OrderType,
-  Package,
   Prisma,
   Status,
 } from "@prisma/client";
@@ -45,8 +41,6 @@ export async function POST(request: Request) {
     }
 
     const validatedData = validatedRequest.data;
-
-    console.log(validatedRequest);
 
     // Create packages array
     const packages: Omit<Prisma.PackageCreateInput, "belongsTo">[] =
