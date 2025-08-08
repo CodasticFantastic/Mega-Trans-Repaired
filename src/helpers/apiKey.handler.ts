@@ -7,9 +7,13 @@ interface ApiKeyAuthResult {
   error?: string;
 }
 
+/**
+ * Authenticates an external API key (For external API calls)
+ * @param apiKey - The API key to authenticate
+ * @returns An object containing the authentication result
+ */
 export async function apiKeyAuth(
-  apiKey: string | null,
-  userId: string | null
+  apiKey: string | null
 ): Promise<ApiKeyAuthResult> {
   if (!apiKey) {
     return {
@@ -18,19 +22,10 @@ export async function apiKeyAuth(
     };
   }
 
-  if (!userId) {
-    return {
-      success: false,
-      error: "User ID required",
-    };
-  }
-
   try {
-    // Znajdź aktywny klucz API
     const keyRecord = await prisma.apiKey.findFirst({
       where: {
-        key: apiKey,
-        userId: userId,
+        apiKey: apiKey,
         isActive: true,
         deletedAt: null,
       },
@@ -46,7 +41,7 @@ export async function apiKeyAuth(
       };
     }
 
-    // Aktualizuj lastUsed
+    // Update lastUsed date
     await prisma.apiKey.update({
       where: { id: keyRecord.id },
       data: { lastUsed: new Date() },

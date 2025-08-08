@@ -47,9 +47,16 @@ export async function POST(request: Request) {
   } catch (error) {
     // Send Error response
     console.error("Login Page Error: ", error);
-    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    if (error instanceof Error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 }

@@ -124,3 +124,80 @@ export const NewOrderRequestSchema = z
       });
     }
   });
+
+// CUSTOM API REQUEST (FOR EXTERNAL AUTOMATED CLIENTS)
+export interface ExternalApiOrderItem
+  extends Omit<OrderItem, "orderCommodityId"> {}
+
+export interface ExternalApiNewOrderRequest
+  extends Omit<NewOrderRequest, "orderId" | "orderItems"> {
+  status: "Producent";
+  orderItems: ExternalApiOrderItem[];
+}
+
+export const ExternalApiOrderItemSchema = z.object({
+  orderCommodityType: z.enum(
+    SupportedCommodityType,
+    "Wymagana wartość: Paczka | Gabaryt | Paleta"
+  ),
+  orderCommodityName: z.string().min(1, "Nazwa towaru jest wymagana"),
+  orderCommodityNote: z.string().optional(),
+});
+
+export const ExternalApiNewOrderRequestSchema = z
+  .object({
+    orderType: z.enum(
+      SupportedOrderType,
+      "Wymagana wartość: Zwrot | Odbiór | Dostawa"
+    ),
+    orderCountry: z.enum(SupportedCountry, "Wymagana wartość: Polska | Czechy"),
+    orderStreet: z.string().min(1, "Ulica jest wymagana"),
+    orderStreetNumber: z.string().min(1, "Numer ulicy jest wymagany"),
+    orderFlatNumber: z.string().optional(),
+    orderCity: z.string().min(1, "Miasto jest wymagane"),
+    orderPostCode: z.string().min(1, "Kod pocztowy jest wymagany"),
+    orderState: z.string().min(1, "Województwo jest wymagane"),
+    orderNote: z.string().optional(),
+    orderClientName: z.string().min(1, "Nazwa klienta jest wymagana"),
+    orderClientPhone: z.string().min(1, "Telefon klienta jest wymagany"),
+    orderClientEmail: z
+      .string()
+      .email("Nieprawidłowy format email")
+      .optional()
+      .or(z.literal("")),
+    orderSupplierId: z.string().optional(),
+    currency: z.string().optional(),
+    orderPaymentType: z.enum(
+      SupportedPaymentType,
+      "Wymagana wartość: Pobranie | Przelew"
+    ),
+    orderPaymentPrice: z
+      .union([
+        z.number().positive("Cena musi być liczbą dodatnią"),
+        z
+          .string()
+          .min(1, "Cena jest wymagana")
+          .transform((val) => {
+            const num = parseFloat(val);
+            if (isNaN(num) || num <= 0) {
+              throw new Error("Cena musi być liczbą dodatnią");
+            }
+            return num;
+          }),
+        z.null(),
+        z.undefined(),
+      ])
+      .optional(),
+    orderItems: z
+      .array(ExternalApiOrderItemSchema)
+      .min(1, "Wymagany jest przynajmniej jeden element w tablicy orderItems"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.orderPaymentType === "Pobranie" && !data.orderPaymentPrice) {
+      ctx.addIssue({
+        path: ["orderPaymentPrice"],
+        code: "custom",
+        message: "Cena jest wymagana, gdy wybrano 'Pobranie'",
+      });
+    }
+  });
