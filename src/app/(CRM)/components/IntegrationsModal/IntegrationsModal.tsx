@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/shadcn/ui/input";
 import { ApiKey } from "@prisma/client";
 import {
-  AlertCircleIcon,
   BlocksIcon,
   InfoIcon,
   Loader2Icon,
@@ -26,6 +25,7 @@ import {
   TriangleAlertIcon,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -214,8 +214,15 @@ export const IntegrationsModal = () => {
           <DialogTitle asChild>
             <p className="text-md">Moje Integracje</p>
           </DialogTitle>
-          <DialogDescription className="text-sm">
-            Zarządzaj kluczami API
+          <DialogDescription className="text-sm flex items-center justify-between w-full gap-2">
+            Zarządzaj kluczami API{" "}
+            <Link
+              href="/apiDocs"
+              className="text-[var(--color-blue)] hover:underline"
+              target="_blank"
+            >
+              Pokaż dokumentację
+            </Link>
           </DialogDescription>
         </DialogHeader>
         <Alert variant="default" className="!p-2">

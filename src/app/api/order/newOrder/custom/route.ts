@@ -105,7 +105,7 @@ export async function POST(request: Request) {
     // Create new order
     await prisma.order.create({ data: newOrderData });
 
-    return new Response(JSON.stringify({ message: "SUCCESS" }), {
+    return new Response(JSON.stringify({ message: "Success" }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
