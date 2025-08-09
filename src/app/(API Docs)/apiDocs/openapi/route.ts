@@ -42,7 +42,7 @@ export async function GET() {
   "orderState": "Mazowieckie",
   "orderNote": "Proszę dzwonić przed dostawą",
   "orderClientName": "Jan Kowalski",
-  "orderClientPhone": "+48 123 456 789",
+  "orderClientPhone": "500600700",
   "orderClientEmail": "jan.kowalski@example.com",
   "orderSupplierId": "#123456789",
   "currency": "PLN",
@@ -138,6 +138,8 @@ export async function GET() {
                       type: "string",
                       format: "tel",
                       example: "500600700",
+                      description:
+                        "Numer telefonu może zawierać wyłącznie cyfry (bez spacji)",
                     },
                     orderClientEmail: {
                       title: "Email klienta",

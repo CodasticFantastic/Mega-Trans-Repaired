@@ -159,10 +159,16 @@ export const ExternalApiNewOrderRequestSchema = z
     orderState: z.string().min(1, "Województwo jest wymagane"),
     orderNote: z.string().optional(),
     orderClientName: z.string().min(1, "Nazwa klienta jest wymagana"),
-    orderClientPhone: z.string().min(1, "Telefon klienta jest wymagany"),
+    orderClientPhone: z
+      .string()
+      .min(1, "Telefon klienta jest wymagany")
+      .regex(
+        /^\d+$/,
+        "Numer telefonu może zawierać wyłącznie cyfry (bez spacji)"
+      ),
     orderClientEmail: z
       .string()
-      .email("Nieprawidłowy format email")
+      .email({ message: "Nieprawidłowy format email" })
       .optional()
       .or(z.literal("")),
     orderSupplierId: z.string().optional(),
