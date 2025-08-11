@@ -1,10 +1,13 @@
 import ReactQueryProvider from "@/helpers/providers/ReactQueryProvider";
 import NextAuthProvider from "@/helpers/providers/NextAuthProvider";
-import "@/css/tailwind.css";
-import "@/scss/main.scss";
-
 import { Poppins } from "next/font/google";
 import { Toaster } from "sonner";
+import dayjs from "dayjs";
+import "dayjs/locale/pl";
+import "@/css/tailwind.css";
+import { ThemeProvider } from "./components/theme.provider";
+
+dayjs.locale("pl");
 
 const poppins = Poppins({
   subsets: ["latin-ext"],
@@ -16,12 +19,25 @@ export const metadata = {
   description: "Zamów usługę transportu gabarytów w firmie MegaTrans",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="pl" className="dark">
+    <html lang="pl" className="dark" suppressHydrationWarning>
       <body className={`${poppins.className} crm`}>
         <NextAuthProvider>
-          <ReactQueryProvider>{children}</ReactQueryProvider>
+          <ReactQueryProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </ReactQueryProvider>
           <Toaster />
         </NextAuthProvider>
       </body>

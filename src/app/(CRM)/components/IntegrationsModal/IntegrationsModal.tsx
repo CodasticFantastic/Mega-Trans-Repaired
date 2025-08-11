@@ -5,6 +5,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/shadcn/ui/alert";
+import { Badge } from "@/components/shadcn/ui/badge";
 import { Button } from "@/components/shadcn/ui/button";
 import {
   Dialog,
@@ -205,9 +206,11 @@ export const IntegrationsModal = () => {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger className="icon-text cursor-pointer">
-        <BlocksIcon size={20} />
-        Moje Integracje
+      <DialogTrigger className="icon-text cursor-pointer text-sm" asChild>
+        <Button variant="link" size="sm" className="!p-0">
+          <BlocksIcon />
+          <p>Moje Integracje</p>
+        </Button>
       </DialogTrigger>
       <DialogContent className="!p-4">
         <DialogHeader>

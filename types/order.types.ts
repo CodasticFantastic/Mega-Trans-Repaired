@@ -1,4 +1,9 @@
-import { CommodityPaymentType, CommodityType, OrderType } from "@prisma/client";
+import {
+  CommodityPaymentType,
+  CommodityType,
+  OrderType,
+  Prisma,
+} from "@prisma/client";
 import { z } from "zod";
 
 export const SupportedCountry = {
@@ -22,6 +27,13 @@ export const SupportedCommodityType = {
   Gabaryt: "Gabaryt",
   Paleta: "Paleta",
 } as const;
+
+export type OrderWithUserAndPackages = Prisma.OrderGetPayload<{
+  include: {
+    user: true;
+    packages: true;
+  };
+}>;
 
 // Typy dla request body
 export interface NewOrderRequest {

@@ -1,8 +1,11 @@
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { Role } from "@prisma/client";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 
 export async function GET(req: Request) {
+  dayjs.extend(utc);
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
@@ -33,6 +36,10 @@ export async function GET(req: Request) {
   const dateTo = searchParams.get("dateTo");
   const postalCode = searchParams.get("postalCode");
 
+  console.log("TEST:", dateFrom);
+  console.log("TEST:", new Date(dateFrom!));
+  console.log("TEST:", dayjs.utc(dateFrom).toDate());
+
   try {
     // Show all orders for this user
     const allUserOrder = await prisma.order.findMany({
@@ -53,11 +60,12 @@ export async function GET(req: Request) {
           { recipientPhone: { contains: searchId ? searchId : "" } },
           { orderCity: { contains: searchId ? searchId : "" } },
           { recipientName: { contains: searchId ? searchId : "" } },
+          { user: { company: { contains: searchId ? searchId : "" } } },
         ],
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {
-          gte: dateFrom ? new Date(dateFrom) : undefined,
-          lte: dateTo ? new Date(dateTo) : undefined,
+          gte: dateFrom ? dayjs.utc(dateFrom).toDate() : undefined,
+          lte: dateTo ? dayjs.utc(dateTo).toDate() : undefined,
         },
         orderPostCode: {
           startsWith: postalCode === "all" ? undefined : postalCode,

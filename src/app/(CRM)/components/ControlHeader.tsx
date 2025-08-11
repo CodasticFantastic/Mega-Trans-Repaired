@@ -7,7 +7,7 @@ import DashboardIcon from "@/images/icons/dashboardIcon.png";
 import DeliveryIcon from "@/images/icons/deliveryIcon.png";
 import CourierIcon from "@/images/icons/courierIcon.png";
 import UsersIcon from "@/images/icons/usersIcon.png";
-import { BlocksIcon } from "lucide-react";
+import { BlocksIcon, TruckIcon, UserSearchIcon } from "lucide-react";
 
 import Link from "next/link";
 
@@ -21,6 +21,8 @@ import {
   DialogTitle,
 } from "@/components/shadcn/ui/dialog";
 import { IntegrationsModal } from "./IntegrationsModal/IntegrationsModal";
+import { ToggleDarkMode } from "./toggleDarkMode";
+import { Button } from "@/components/shadcn/ui/button";
 
 interface ControlHeaderProps {
   orders: number;
@@ -42,22 +44,47 @@ export default function ControlHeader({
   const { data: session } = useSession();
 
   return (
-    <header className="CRMHeader">
+    <header className="py-3 shadow flex justify-end items-center gap-4 ">
       {session?.user.role === "ADMIN" && (
-        <div className="navigation">
-          <Link href="/dashboard/delivery">
-            <Image src={DeliveryIcon} alt="Menu - Dostawa" />
-            Dostawa
+        <>
+          <Link
+            href="/dashboard/delivery"
+            className="icon-text text-md text-foreground hover:text-primary"
+          >
+            <Button variant="link" size="sm" className="!p-0">
+              <TruckIcon />
+              <p>Dostawa</p>
+            </Button>
           </Link>
-          <Link href="/dashboard/drivers">
-            <Image src={CourierIcon} alt="Menu - Kierwocy" />
-            Kierowcy
+          <Link
+            href="/dashboard/drivers"
+            className="icon-text text-md text-foreground"
+          >
+            <Button variant="link" size="sm" className="!p-0">
+              <UserSearchIcon />
+              <p>Kierowcy</p>
+            </Button>
           </Link>
-          <Link href="/dashboard/clients">
-            <Image src={UsersIcon} alt="Menu - Klieci" />
-            Klienci
+          <Link
+            href="/dashboard/clients"
+            className="icon-text text-md text-foreground"
+          >
+            <Button variant="link" size="sm" className="!p-0">
+              <UserSearchIcon />
+              <p>Klienci</p>
+            </Button>
           </Link>
-        </div>
+          <div className="navigation">
+            <IntegrationsModal />
+          </div>
+
+          {/* <DialogTrigger className="icon-text cursor-pointer text-sm" asChild>
+            <Button variant="link" size="sm" className="!p-0">
+              <BlocksIcon />
+              <p>Moje Integracje</p>
+            </Button>
+          </DialogTrigger> */}
+        </>
       )}
 
       {session?.user.role === "USER" && (
@@ -66,6 +93,9 @@ export default function ControlHeader({
         </div>
       )}
 
+      <ToggleDarkMode />
+
+      {/* 
       <h1 className={session && session.user.role === "ADMIN" ? "admin" : ""}>
         Zlecenia
       </h1>
@@ -107,7 +137,7 @@ export default function ControlHeader({
             <p>Nowe Zlecenie</p>
           </Link>
         </div>
-      </div>
+      </div> */}
     </header>
   );
 }

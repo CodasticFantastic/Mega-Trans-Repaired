@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ControlHeader from "../components/ControlHeader";
-import FilterSideBar from "../components/sidebars/FilterSideBar";
+import DashboardSidebar from "../components/sidebars/DashboardSidebar/DashboardSidebar";
+import {
+  DashboardSidebarFilters,
+  DashboardSidebarProvider,
+} from "../components/sidebars/DashboardSidebar/DashboardSidebar.context";
 import TableDataRow from "../components/TableDataRow";
 
 import { useSession } from "next-auth/react";
@@ -15,17 +19,16 @@ import XLSX from "sheetjs-style";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
-import { Order } from "@prisma/client";
-
-// Typy dla filtrów
-interface Filters {
-  searchId: string;
-  orderBy: "asc" | "desc";
-  status: string;
-  dateFrom: string;
-  dateTo: string;
-  postalCode: string;
-}
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/ui/table";
+import { OrderWithUserAndPackages } from "types/order.types";
+import { Loader2Icon } from "lucide-react";
 
 // Typy dla statystyk
 interface Stats {
@@ -38,7 +41,7 @@ interface Stats {
 
 // Typy dla odpowiedzi API
 interface ApiResponse {
-  allUserOrder: Order[];
+  allUserOrder: OrderWithUserAndPackages[];
   nextId?: string;
   allOrdersCounter: number;
   newOrdersCounter: number;
@@ -50,16 +53,18 @@ interface ApiResponse {
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  const { inView, ref } = useInView();
-  const [exportOrders, setExportOrders] = useState<Order[]>([]);
-  const [filters, setFilters] = useState<Filters>({
-    searchId: "",
-    orderBy: "desc",
-    status: "Wszystkie",
-    dateFrom: "",
-    dateTo: "",
-    postalCode: "all",
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [observerRoot, setObserverRoot] = useState<Element | null>(null);
+
+  const { inView, ref: sentinelRef } = useInView({
+    root: observerRoot,
+    rootMargin: "300px 0px 300px 0px",
+    threshold: 0,
   });
+  const [exportOrders, setExportOrders] = useState<OrderWithUserAndPackages[]>(
+    []
+  );
+
   const [stats, setStats] = useState<Stats>({
     allOrders: 0,
     newOrders: 0,
@@ -68,13 +73,23 @@ export default function Dashboard() {
     realizedOrders: 0,
   });
 
+  // [DashboardSidebarProvider] Filters
+  const [filters, setFilters] = useState<DashboardSidebarFilters>({
+    searchId: "",
+    orderBy: "desc",
+    status: "Wszystkie",
+    dateFrom: "",
+    dateTo: "",
+    postalCode: "all",
+  });
+
   // Przeniesienie logiki zapytania poza funkcję getOrders
   const getOrders = async ({
     pageParam = "",
     filters,
   }: {
     pageParam?: string;
-    filters: Filters;
+    filters: DashboardSidebarFilters;
   }): Promise<ApiResponse> => {
     let request: Response;
 
@@ -117,6 +132,7 @@ export default function Dashboard() {
     data: allUserOrder,
     fetchNextPage,
     hasNextPage,
+    isFetching,
     isFetchingNextPage,
   } = useInfiniteQuery<ApiResponse>({
     initialPageParam: "",
@@ -129,76 +145,17 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (
+      inView &&
+      hasNextPage &&
+      !isFetchingNextPage &&
+      !isFetching &&
+      allUserOrder?.pages.length &&
+      allUserOrder?.pages.length > 0
+    ) {
       fetchNextPage();
     }
   }, [inView, hasNextPage, fetchNextPage]);
-
-  ///////////////// Filters Section
-  // Search orders by id
-  function searchOrdersById(id: string) {
-    setExportOrders([]);
-    setFilters((prev) => ({ ...prev, searchId: id }));
-  }
-
-  // Sort orders by date
-  function sortOrdersByDate(order: "ascending" | "descending") {
-    if (order === "ascending") {
-      setFilters((prev) => ({ ...prev, orderBy: "asc" }));
-    } else {
-      setFilters((prev) => ({ ...prev, orderBy: "desc" }));
-    }
-  }
-
-  // Filter orders by status
-  function filterOrdersByStatus(status: string) {
-    setExportOrders([]);
-    switch (status) {
-      case "Producent":
-        setFilters((prev) => ({ ...prev, status: "Producent" }));
-        break;
-      case "Magazyn":
-        setFilters((prev) => ({ ...prev, status: "Magazyn" }));
-        break;
-      case "Dostawa":
-        setFilters((prev) => ({ ...prev, status: "Dostawa" }));
-        break;
-      case "Zrealizowane":
-        setFilters((prev) => ({ ...prev, status: "Zrealizowane" }));
-        break;
-      case "Anulowane":
-        setFilters((prev) => ({ ...prev, status: "Anulowane" }));
-        break;
-      default:
-        setFilters((prev) => ({ ...prev, status: "Wszystkie" }));
-        break;
-    }
-  }
-
-  // Filter orders by date
-  function filterOrdersByDate(from: string, to: string) {
-    setExportOrders([]);
-    setFilters((prev) => ({ ...prev, dateFrom: from, dateTo: to }));
-  }
-
-  // Filter orders by postal code
-  function filterOrdersByPostalCode(code: string) {
-    setExportOrders([]);
-    setFilters((prev) => ({ ...prev, postalCode: code }));
-  }
-
-  // Clear filters
-  function clearFilters() {
-    setExportOrders([]);
-    setFilters({
-      searchId: "",
-      orderBy: "desc",
-      status: "Wszystkie",
-      dateFrom: "",
-      dateTo: "",
-      postalCode: "all",
-    });
-  }
 
   ///////////////// Export Data To Excel
   async function exportOrdersData() {
@@ -232,78 +189,120 @@ export default function Dashboard() {
     FileSaver.saveAs(data, "Zamówienia" + fileExtension);
   }
 
+  const orders = useMemo(
+    () => allUserOrder?.pages?.flatMap((p) => p.allUserOrder) ?? [],
+    [allUserOrder]
+  );
+
+  useEffect(() => {
+    // Set the root once the element is mounted so the observer uses the correct scroll container
+    setObserverRoot(scrollRef.current);
+  }, []);
+
+  // [DashboardSidebarProvider] Handle Filters Change
+  const handleFiltersChange = (newFilters: DashboardSidebarFilters) => {
+    setExportOrders([]);
+    setFilters(newFilters);
+  };
+
+  // [DashboardSidebarProvider] Handle Clear Filters
+  const handleClearFilters = () => {
+    setExportOrders([]);
+    setFilters({
+      searchId: "",
+      orderBy: "desc",
+      status: "Wszystkie",
+      dateFrom: "",
+      dateTo: "",
+      postalCode: "all",
+    });
+  };
+
   return (
-    <div className="CrmPage">
-      <FilterSideBar
-        sortOrdersByDate={sortOrdersByDate}
-        filterOrdersByStatus={filterOrdersByStatus}
-        searchOrdersById={searchOrdersById}
-        filterOrdersByDate={filterOrdersByDate}
-        filterByPostalCode={filterOrdersByPostalCode}
-        clearFilters={clearFilters}
-        session={session}
-      />
-      <div className="mainContent">
-        <ControlHeader
-          orders={stats.allOrders}
-          currentOrders={stats.currentOrders}
-          completedOrders={stats.realizedOrders}
-          newOrders={stats.newOrders}
-          inWarehouse={stats.warehouseOrders}
-          exportOrdersData={exportOrdersData}
-        />
-        <main>
-          <div className="table">
-            <div className="thead">
-              <div className="tr">
-                <div className="col1 th">Eksport</div>
-                <div className="col8 th">Rodzaj</div>
-                <div className="col2 th">ID Paczki</div>
-                <div className="col3 th">Status</div>
-                <div className="col4 th">Aktualizacja</div>
-                <div className="col5 th">Nazwa Klienta</div>
-                <div className="col6 th">Adres</div>
-                <div className="col7 th">Opcje</div>
+    <DashboardSidebarProvider
+      onFiltersChange={handleFiltersChange}
+      onClearFilters={handleClearFilters}
+    >
+      <div className="flex w-full flex-col md:flex-row">
+        <DashboardSidebar />
+
+        <div className="w-full pr-2">
+          <ControlHeader
+            orders={stats.allOrders}
+            currentOrders={stats.currentOrders}
+            completedOrders={stats.realizedOrders}
+            newOrders={stats.newOrders}
+            inWarehouse={stats.warehouseOrders}
+            exportOrdersData={exportOrdersData}
+          />
+          <main className="mt-5 w-full pl-8">
+            <div
+              className="relative w-full rounded-md border h-[calc(100vh-100px)] overflow-y-auto"
+              ref={scrollRef}
+            >
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="min-w-10 text-center"></TableHead>
+                    <TableHead className="min-w-22 text-center">
+                      Rodzaj
+                    </TableHead>
+                    <TableHead className="min-w-64 text-center">
+                      ID Paczki
+                    </TableHead>
+                    <TableHead className="min-w-36 text-center">
+                      Status
+                    </TableHead>
+                    <TableHead className="min-w-38 hidden lg:table-cell text-center">
+                      Aktualizacja
+                    </TableHead>
+                    <TableHead className="min-w-48 hidden md:table-cell text-center">
+                      Nazwa Klienta
+                    </TableHead>
+                    <TableHead className="min-w-48 hidden md:table-cell text-center">
+                      Adres
+                    </TableHead>
+                    <TableHead className="w-24 text-right"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableDataRow
+                      key={order.orderId}
+                      order={order}
+                      setExportOrders={setExportOrders}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="sticky bottom-0 z-10 flex h-8 items-center justify-center bg-background/80 text-sm text-muted-foreground">
+                {isFetchingNextPage && (
+                  <>
+                    <Loader2Icon className="mr-2 inline size-4 animate-spin" />
+                    Ładowanie...
+                  </>
+                )}
               </div>
+              <div ref={sentinelRef} className="h-6 w-full" />
             </div>
-            <div className="tbody">
-              {allUserOrder &&
-                allUserOrder.pages?.flatMap((page, i) => {
-                  return (
-                    <div key={i}>
-                      {page.allUserOrder.map((order) => {
-                        return (
-                          <TableDataRow
-                            key={order.orderId}
-                            order={order}
-                            session={session}
-                            setExportOrders={setExportOrders}
-                          />
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              {isFetchingNextPage && <div>Loading...</div>}
-              <div style={{ width: "100%", height: "20px" }} ref={ref} />
-            </div>
-          </div>
-        </main>
-        {session && session.user.role === "USER" && (
-          <footer>
-            <p>
-              Developed by:{" "}
-              <Link
-                href="https://jakubwojtysiak.online"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                JW.online
-              </Link>
-            </p>
-          </footer>
-        )}
+          </main>
+          {session && session.user.role === "USER" && (
+            <footer className="mt-0 flex flex-col items-end justify-center">
+              <p className="text-sm text-foreground">
+                Developed by:{" "}
+                <Link
+                  href="https://jakubwojtysiak.online"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500"
+                >
+                  JW.online
+                </Link>
+              </p>
+            </footer>
+          )}
+        </div>
       </div>
-    </div>
+    </DashboardSidebarProvider>
   );
 }
