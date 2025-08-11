@@ -235,7 +235,7 @@ export default function Dashboard() {
             inWarehouse={stats.warehouseOrders}
             exportOrdersData={exportOrdersData}
           />
-          <main className="mt-5 w-full pl-8">
+          <main className="w-full pl-8">
             <div
               className="relative w-full rounded-md border h-[calc(100vh-100px)] overflow-y-auto"
               ref={scrollRef}

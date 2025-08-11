@@ -44,7 +44,7 @@ export default function ControlHeader({
   const { data: session } = useSession();
 
   return (
-    <header className="py-3 shadow flex justify-end items-center gap-4 ">
+    <header className="py-3 flex justify-end items-center gap-4">
       {session?.user.role === "ADMIN" && (
         <>
           <Link
