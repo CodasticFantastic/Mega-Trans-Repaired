@@ -1,18 +1,53 @@
 "use client";
 import Link from "next/link";
 import InstructionsSideBar from "../components/sidebars/InstructionsSideBar";
-import Image from "next/image";
-import redBackIcon from "@/images/icons/redBackIcon.png";
-import greenPlusIcon from "@/images/icons/greenPlusIcon.png";
-import redTrashIcon from "@/images/icons/redTrashIcon.png";
-
 import { useState } from "react";
 import { v4 as uuid4 } from "uuid";
 import { useSession } from "next-auth/react";
-
 import { useRouter } from "next/navigation";
 import { OrderItem } from "types/order.types";
 import { CommodityType } from "@prisma/client";
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Package,
+  User,
+  CreditCard,
+  MapPin,
+  FileText,
+  ShoppingCart,
+} from "lucide-react";
+
+// shadcn/ui components
+import { Button } from "@/components/shadcn/ui/button";
+import { Input } from "@/components/shadcn/ui/input";
+import { Label } from "@/components/shadcn/ui/label";
+import { Textarea } from "@/components/shadcn/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/shadcn/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/ui/table";
+import { Alert, AlertDescription } from "@/components/shadcn/ui/alert";
+import { Separator } from "@/components/shadcn/ui/separator";
+import { Badge } from "@/components/shadcn/ui/badge";
 
 export default function NewOrder() {
   const router = useRouter();
@@ -70,24 +105,29 @@ export default function NewOrder() {
       orderItems: commodityList,
     };
 
-    const request = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`,
-      {
-        method: "POST",
-        body: JSON.stringify(orderData),
-        headers: {
-          Authorization: session?.accessToken || "",
-          "Content-Type": "application/json",
-        },
+    try {
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`,
+        {
+          method: "POST",
+          body: JSON.stringify(orderData),
+          headers: {
+            Authorization: session?.accessToken || "",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const response = await request.json();
+
+      if (response.error) {
+        setFormError(response.error);
+      } else if (response.Success) {
+        router.push("/updateOrder/" + orderData.orderId);
       }
-    );
-
-    const response = await request.json();
-
-    if (response.error) {
-      setFormError(response.error);
-    } else if (response.Success) {
-      router.push("/updateOrder/" + orderData.orderId);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      setFormError("Błąd podczas tworzenia zlecenia");
     }
   }
 
@@ -119,348 +159,420 @@ export default function NewOrder() {
     });
   }
 
-  // Actions - Show Comodity List
-  let showCommodityItem = commodityList.map((commodity) => {
-    return (
-      <tr key={commodity.orderCommodityId}>
-        <td>{commodity.orderCommodityType}</td>
-        <td>{commodity.orderCommodityName}</td>
-        <td>
-          <Image
-            src={redTrashIcon}
-            alt="Usuń dany towar z listy"
-            onClick={() => deleteCommodityFromList(commodity.orderCommodityId)}
-          />
-        </td>
-      </tr>
-    );
-  });
-
   return (
-    <div className="CrmPage">
+    <div className="flex h-screen bg-background">
       <InstructionsSideBar orderId={""} />
-      <div className="mainContent NewOrderPage">
-        <header className="CRMHeader">
-          <Link href="/dashboard" className="backToDashboard">
-            <Image src={redBackIcon} alt="Powrót do ekranu głównego" />
-            <p>Powrót do pulpitu</p>
-          </Link>
-          <h1>Nowe Zlecenie</h1>
-        </header>
-        <main className="NewOrder">
-          <form className="NewOrderForm" onSubmit={processOrder}>
-            <section className="leftCol">
-              <div className="formStage stage1">
-                <div className="formStageName">
-                  <p>Adres Realizacji Zlecenia</p>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderType">
-                    Rodzaj Zlecenia
-                    <select name="orderType" id="orderType">
-                      <option value="Dostawa">Dostawa</option>
-                      <option value="Odbior">Odbiór</option>
-                      <option value="Zwrot">Zwrot</option>
-                    </select>
-                  </label>
-                  <label htmlFor="orderCountry">
-                    Kraj
-                    <select
-                      name="orderCountry"
-                      id="orderCountry"
-                      value={countryState}
-                      onChange={(e) => setCountryState(e.target.value)}
-                    >
-                      <option value="Polska">Polska</option>
-                      <option value="Czechy">Czechy</option>
-                    </select>
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderStreet">
-                    Ulica *
-                    <input
-                      type="text"
-                      name="orderStreet"
-                      id="orderStreet"
-                      required
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderStreetNumber">
-                    Numer Budynku *
-                    <input
-                      type="text"
-                      name="orderStreetNumber"
-                      id="orderStreetNumber"
-                      pattern="[A-Za-z0-9]{1,}"
-                      required
-                    />
-                  </label>
-                  <label htmlFor="orderFlatNumber">
-                    Numer Lokalu
-                    <input
-                      type="text"
-                      name="orderFlatNumber"
-                      id="orderFlatNumber"
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderCity">
-                    Miejscowość *
-                    <input
-                      type="text"
-                      name="orderCity"
-                      id="orderCity"
-                      required
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderPostCode">
-                    {countryState === "Polska"
-                      ? "Kod Pocztowy (##-###) *"
-                      : "Kod Pocztowy (### ##) *"}
-                    <input
-                      type="text"
-                      name="orderPostCode"
-                      id="orderPostCode"
-                      pattern={
-                        countryState === "Polska"
-                          ? "[0-9]{2}-[0-9]{3}"
-                          : "[0-9]{3} [0-9]{2}"
-                      }
-                      required
-                    />
-                  </label>
-                  <label htmlFor="orderState">
-                    Województwo *
-                    <select name="orderState" id="orderState" required>
-                      <option value="Dolnośląskie">Dolnośląskie</option>
-                      <option value="Kujawsko-Pomorskie">
-                        Kujawsko-Pomorskie
-                      </option>
-                      <option value="Lubelskie">Lubelskie</option>
-                      <option value="Lubuskie">Lubuskie</option>
-                      <option value="Łódzkie">Łódzkie</option>
-                      <option value="Małopolskie">Małopolskie</option>
-                      <option value="Mazowieckie">Mazowieckie</option>
-                      <option value="Opolskie">Opolskie</option>
-                      <option value="Podkarpackie">Podkarpackie</option>
-                      <option value="Podlaskie">Podlaskie</option>
-                      <option value="Pomorskie">Pomorskie</option>
-                      <option value="Śląskie">Śląskie</option>
-                      <option value="Świętokrzyskie">Świętokrzyskie</option>
-                      <option value="Warmińsko-Mazurskie">
-                        Warmińsko-Mazurskie
-                      </option>
-                      <option value="Wielkopolskie">Wielkopolskie</option>
-                      <option value="Zachodniopomorskie">
-                        Zachodniopomorskie
-                      </option>
-                    </select>
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderSupplierId">
-                    Identyfikator Zlecenia Dostawcy (np. ID z systemu dostawcy)
-                    <input
-                      type="text"
-                      name="orderSupplierId"
-                      id="orderSupplierId"
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderNote">
-                    Notatka do zamówienia
-                    <textarea
-                      name="orderNote"
-                      id="orderNote"
-                      cols={30}
-                      rows={10}
-                    ></textarea>
-                  </label>
-                </div>
-              </div>
-            </section>
-            <section className="rightCol">
-              <div className="formStage stage2">
-                <div className="formStageName">
-                  <p>Adresat Zlecenia</p>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderClientName">
-                    Odbiorca *
-                    <input
-                      type="text"
-                      name="orderClientName"
-                      id="orderClientName"
-                      required
-                    />
-                  </label>
-                  <label htmlFor="orderClientPhone">
-                    {countryState === "Polska"
-                      ? "Telefon (Bez spacji) *"
-                      : "Telefon (Bez spacji) *"}
-                    <input
-                      type="text"
-                      name="orderClientPhone"
-                      id="orderClientPhone"
-                      required
-                      pattern={
-                        countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"
-                      }
-                    />
-                  </label>
-                  <label htmlFor="orderClientEmail">
-                    Email Klienta
-                    <input
-                      type="text"
-                      name="orderClientEmail"
-                      id="orderClientEmail"
-                    />
-                  </label>
-                </div>
-              </div>
-              <div className="formStage stage3">
-                <div className="formStageName">
-                  <p>Informacje o Przesyłce</p>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderCommodityType">
-                    Rodzaj Towaru *
-                    <select
-                      name="orderCommodityType"
-                      id="orderCommodityType"
-                      value={commodityItem.orderCommodityType}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return {
-                            ...prevState,
-                            orderCommodityType: e.target.value as CommodityType,
-                          };
-                        });
-                      }}
-                    >
-                      <option value="Paczka">Paczka/Karton</option>
-                      <option value="Gabaryt">Gabaryt</option>
-                      <option value="Paleta">Paleta</option>
-                    </select>
-                  </label>
-                  <label htmlFor="orderCommodityName">
-                    Nazwa Towaru *
-                    <input
-                      type="text"
-                      name="orderCommodityName"
-                      id="orderCommodityName"
-                      value={commodityItem.orderCommodityName}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return {
-                            ...prevState,
-                            orderCommodityName: e.target.value,
-                          };
-                        });
-                      }}
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderCommodityNote">
-                    Notatka do przesyłki
-                    <textarea
-                      name="orderCommodityNote"
-                      id="orderCommodityNote"
-                      cols={30}
-                      rows={10}
-                      value={commodityItem.orderCommodityNote}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return {
-                            ...prevState,
-                            orderCommodityNote: e.target.value,
-                          };
-                        });
-                      }}
-                    />
-                  </label>
-                  <button type="button" className="addCommodity">
-                    <Image
-                      src={greenPlusIcon}
-                      alt="Dodaj Towar"
-                      onClick={addCommodity}
-                    />
-                  </button>
-                </div>
-                {commodityError ? (
-                  <p className="error">{commodityError}</p>
-                ) : (
-                  ""
-                )}
-              </div>
-              <div className="row">
-                <div className="formStage stage4">
-                  <div className="formStageName">
-                    <p>Sposób Płatności</p>
-                  </div>
-                  <label htmlFor="orderPaymentType">
-                    Sposób Płatności
-                    <select
-                      name="orderPaymentType"
-                      id="orderPaymentType"
-                      value={paymentType}
-                      onChange={(e) => setPaymentType(e.target.value)}
-                    >
-                      <option value="Przelew">Przelew</option>
-                      <option value="Pobranie">Pobranie</option>
-                    </select>
-                  </label>
-                  {paymentType === "Pobranie" && (
-                    <>
-                      <label htmlFor="orderPaymentAmount">
-                        Kwota Płatności{" "}
-                        {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                        <input
-                          type="number"
-                          name="orderPaymentAmount"
-                          id="orderPaymentAmount"
-                          step="0.01"
+      <div className="flex-1 overflow-y-scroll">
+        <div className="container mx-auto p-6 space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Powrót do pulpitu
+              </Link>
+            </Button>
+            <Separator orientation="vertical" className="h-6" />
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <h1 className="text-2xl font-semibold">Nowe Zlecenie</h1>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={processOrder} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+              {/* Left Column - Address */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600">
+                      <MapPin className="h-5 w-5" />
+                      Adres Realizacji Zlecenia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderType">Rodzaj Zlecenia</Label>
+                        <Select name="orderType" defaultValue="Dostawa">
+                          <SelectTrigger className="w-full cursor-pointer">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Dostawa">Dostawa</SelectItem>
+                            <SelectItem value="Odbior">Odbiór</SelectItem>
+                            <SelectItem value="Zwrot">Zwrot</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="orderCountry">Kraj</Label>
+                        <Select
+                          name="orderCountry"
+                          value={countryState}
+                          onValueChange={setCountryState}
+                        >
+                          <SelectTrigger className="w-full cursor-pointer">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Polska">Polska</SelectItem>
+                            <SelectItem value="Czechy">Czechy</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderStreet">Ulica *</Label>
+                      <Input name="orderStreet" required />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderStreetNumber">
+                          Numer Budynku *
+                        </Label>
+                        <Input
+                          name="orderStreetNumber"
+                          pattern="[A-Za-z0-9]{1,}"
                           required
                         />
-                      </label>
-                    </>
-                  )}
-                </div>
-                <div className="formStage stage5">
-                  <div className="formStageName">
-                    <p>Wykaz Paczek</p>
-                  </div>
-
-                  {showCommodityItem.length > 0 ? (
-                    <div className="tableOverflow">
-                      <table>
-                        <tbody>{showCommodityItem}</tbody>
-                      </table>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="orderFlatNumber">Numer Lokalu</Label>
+                        <Input name="orderFlatNumber" />
+                      </div>
                     </div>
-                  ) : (
-                    <p>Brak Towarów</p>
-                  )}
-                </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderCity">Miejscowość *</Label>
+                      <Input name="orderCity" required />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderPostCode">
+                          {countryState === "Polska"
+                            ? "Kod Pocztowy (##-###) *"
+                            : "Kod Pocztowy (### ##) *"}
+                        </Label>
+                        <Input
+                          name="orderPostCode"
+                          pattern={
+                            countryState === "Polska"
+                              ? "[0-9]{2}-[0-9]{3}"
+                              : "[0-9]{3} [0-9]{2}"
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="orderState">Województwo *</Label>
+                        <Select name="orderState" required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Wybierz województwo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Dolnośląskie">
+                              Dolnośląskie
+                            </SelectItem>
+                            <SelectItem value="Kujawsko-Pomorskie">
+                              Kujawsko-Pomorskie
+                            </SelectItem>
+                            <SelectItem value="Lubelskie">Lubelskie</SelectItem>
+                            <SelectItem value="Lubuskie">Lubuskie</SelectItem>
+                            <SelectItem value="Łódzkie">Łódzkie</SelectItem>
+                            <SelectItem value="Małopolskie">
+                              Małopolskie
+                            </SelectItem>
+                            <SelectItem value="Mazowieckie">
+                              Mazowieckie
+                            </SelectItem>
+                            <SelectItem value="Opolskie">Opolskie</SelectItem>
+                            <SelectItem value="Podkarpackie">
+                              Podkarpackie
+                            </SelectItem>
+                            <SelectItem value="Podlaskie">Podlaskie</SelectItem>
+                            <SelectItem value="Pomorskie">Pomorskie</SelectItem>
+                            <SelectItem value="Śląskie">Śląskie</SelectItem>
+                            <SelectItem value="Świętokrzyskie">
+                              Świętokrzyskie
+                            </SelectItem>
+                            <SelectItem value="Warmińsko-Mazurskie">
+                              Warmińsko-Mazurskie
+                            </SelectItem>
+                            <SelectItem value="Wielkopolskie">
+                              Wielkopolskie
+                            </SelectItem>
+                            <SelectItem value="Zachodniopomorskie">
+                              Zachodniopomorskie
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderSupplierId">
+                        Identyfikator Zlecenia Dostawcy (np. ID z systemu
+                        dostawcy)
+                      </Label>
+                      <Input name="orderSupplierId" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderNote">Notatka do zamówienia</Label>
+                      <Textarea name="orderNote" rows={6} />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </section>
-            <div>
-              {formError ? <p className="formError">Uwaga: {formError}</p> : ""}
-              <input
-                type="submit"
-                value="Zamawiam Zlecenie"
-                className="confirmOrder"
-              />
+
+              {/* Right Column - Client & Items */}
+              <div className="space-y-6">
+                {/* Client Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600">
+                      <User className="h-5 w-5" />
+                      Adresat Zlecenia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex gap-4">
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="orderClientName">Odbiorca *</Label>
+                      <Input name="orderClientName" required />
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="orderClientPhone">
+                        {countryState === "Polska"
+                          ? "Telefon (Bez spacji) *"
+                          : "Telefon (Bez spacji) *"}
+                      </Label>
+                      <Input
+                        name="orderClientPhone"
+                        pattern={
+                          countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="orderClientEmail">Email Klienta</Label>
+                      <Input name="orderClientEmail" type="email" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Payment and Package List Row */}
+                <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-6">
+                  {/* Commodity Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-blue-600">
+                        <Package className="h-5 w-5" />
+                        Informacje o Przesyłce
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="orderCommodityType">
+                            Rodzaj Towaru *
+                          </Label>
+                          <Select
+                            value={commodityItem.orderCommodityType}
+                            onValueChange={(value) => {
+                              setCommodityItem((prevState) => ({
+                                ...prevState,
+                                orderCommodityType: value as CommodityType,
+                              }));
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Paczka">
+                                Paczka/Karton
+                              </SelectItem>
+                              <SelectItem value="Gabaryt">Gabaryt</SelectItem>
+                              <SelectItem value="Paleta">Paleta</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <Label htmlFor="orderCommodityName">
+                            Nazwa Towaru *
+                          </Label>
+                          <Input
+                            name="orderCommodityName"
+                            value={commodityItem.orderCommodityName}
+                            onChange={(e) => {
+                              setCommodityItem((prevState) => ({
+                                ...prevState,
+                                orderCommodityName: e.target.value,
+                              }));
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="md:col-span-3 space-y-2">
+                          <Label htmlFor="orderCommodityNote">
+                            Notatka do przesyłki
+                          </Label>
+                          <Textarea
+                            name="orderCommodityNote"
+                            value={commodityItem.orderCommodityNote}
+                            onChange={(e) => {
+                              setCommodityItem((prevState) => ({
+                                ...prevState,
+                                orderCommodityNote: e.target.value,
+                              }));
+                            }}
+                            rows={4}
+                          />
+                        </div>
+                        <div className="flex items-end">
+                          <Button
+                            type="button"
+                            onClick={addCommodity}
+                            className="w-full bg-green-600 hover:bg-green-700"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Dodaj
+                          </Button>
+                        </div>
+                      </div>
+
+                      {commodityError && (
+                        <Alert variant="destructive">
+                          <AlertDescription>{commodityError}</AlertDescription>
+                        </Alert>
+                      )}
+                    </CardContent>
+                  </Card>
+                  {/* Payment Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-blue-600">
+                        <CreditCard className="h-5 w-5" />
+                        Sposób Płatności
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderPaymentType">
+                          Sposób Płatności
+                        </Label>
+                        <Select
+                          name="orderPaymentType"
+                          value={paymentType}
+                          onValueChange={setPaymentType}
+                        >
+                          <SelectTrigger className="w-full cursor-pointer">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Przelew">Przelew</SelectItem>
+                            <SelectItem value="Pobranie">Pobranie</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {paymentType === "Pobranie" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="orderPaymentAmount">
+                            Kwota Płatności{" "}
+                            {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                          </Label>
+                          <Input
+                            name="orderPaymentAmount"
+                            type="number"
+                            step="0.01"
+                            required
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+                {/* Commodity List */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600">
+                      <ShoppingCart className="h-5 w-5" />
+                      Wykaz Paczek
+                      <Badge variant="outline" className="rounded-sm">
+                        {commodityList.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {commodityList.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Rodzaj</TableHead>
+                              <TableHead>Nazwa</TableHead>
+                              <TableHead className="w-[60px]">Akcje</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {commodityList.map((commodity) => (
+                              <TableRow key={commodity.orderCommodityId}>
+                                <TableCell className="text-sm">
+                                  {commodity.orderCommodityType}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {commodity.orderCommodityName}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      deleteCommodityFromList(
+                                        commodity.orderCommodityId
+                                      )
+                                    }
+                                  >
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Brak Towarów
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Submit Section */}
+            <div className="flex flex-col gap-4 absolute bottom-6">
+              {formError && (
+                <Alert variant="destructive">
+                  <AlertDescription>Uwaga: {formError}</AlertDescription>
+                </Alert>
+              )}
+              <Button type="submit" size="lg" className="w-fit">
+                <FileText className="h-4 w-4 mr-2" />
+                Zamawiam Zlecenie
+              </Button>
             </div>
           </form>
-        </main>
+        </div>
       </div>
     </div>
   );

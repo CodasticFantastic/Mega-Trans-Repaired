@@ -52,19 +52,31 @@ export default function ControlHeader({
   return (
     <header className="py-3 flex justify-between items-center gap-4 flex-wrap">
       <div className="flex items-center gap-1">
-        <Badge variant="default" className="rounded-sm">
+        <Badge
+          variant="outline"
+          className="rounded-sm border-primary text-primary"
+        >
           {orders} Zleceń
         </Badge>
-        <Badge className="rounded-sm bg-orange">
+        <Badge
+          variant="outline"
+          className="rounded-sm border-orange text-orange"
+        >
           {newOrders} Nowych Zleceń
         </Badge>
-        <Badge className="rounded-sm bg-purple">
+        <Badge
+          variant="outline"
+          className="rounded-sm border-purple text-purple"
+        >
           {currentOrders} Bieżących Zleceń
         </Badge>
-        <Badge className="rounded-sm bg-yellow">
+        <Badge
+          variant="outline"
+          className="rounded-sm border-yellow text-yellow"
+        >
           {inWarehouse} Na Magazynie
         </Badge>
-        <Badge className="rounded-sm bg-green">
+        <Badge variant="outline" className="rounded-sm border-green text-green">
           {completedOrders} Zrealizowanych
         </Badge>
       </div>

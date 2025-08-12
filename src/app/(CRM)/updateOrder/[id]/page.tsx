@@ -1,19 +1,65 @@
 "use client";
 import Link from "next/link";
 import InstructionsSideBar from "../../components/sidebars/InstructionsSideBar";
-import Image from "next/image";
-import redBackIcon from "@/images/icons/redBackIcon.png";
-
 import { useEffect, useState, use } from "react";
 import { v4 as uuid4 } from "uuid";
 import { useSession } from "next-auth/react";
-
 import { useRouter } from "next/navigation";
-
 import { Parser } from "html-to-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { OrderItem } from "types/order.types";
 import { CommodityType, Package } from "@prisma/client";
+import { 
+  ArrowLeft, 
+  Trash2, 
+  Package as PackageIcon, 
+  User, 
+  CreditCard, 
+  MapPin,
+  FileText,
+  ShoppingCart,
+  Save,
+  X,
+  AlertTriangle
+} from "lucide-react";
+
+// shadcn/ui components
+import { Button } from "@/components/shadcn/ui/button";
+import { Input } from "@/components/shadcn/ui/input";
+import { Label } from "@/components/shadcn/ui/label";
+import { Textarea } from "@/components/shadcn/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/ui/select";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/shadcn/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/ui/table";
+import { Alert, AlertDescription } from "@/components/shadcn/ui/alert";
+import { Separator } from "@/components/shadcn/ui/separator";
+import { Badge } from "@/components/shadcn/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/shadcn/ui/dialog";
 
 export default function UpdateOrder({
   params,
@@ -55,6 +101,7 @@ export default function UpdateOrder({
   const [commodityList, setCommodityList] = useState<OrderItem[]>([]);
   const [formError, setFormError] = useState<string>();
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
 
   useEffect(() => {
     if (session) getOrderData();
@@ -62,53 +109,58 @@ export default function UpdateOrder({
 
   // Actions - Get Order Data from Backend
   async function getOrderData() {
-    const request = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: session?.accessToken || "",
-        },
-      }
-    );
-
-    const response = await request.json();
-
-    if (response.error) {
-      setFormError(response.error);
-    } else if (response.order) {
-      setCommodityList(
-        response.order.packages.map((item: Package) => {
-          return {
-            orderCommodityType: item.commodityType,
-            orderCommodityId: item.packageId,
-            orderCommodityName: Parser().parse(item.commodityName),
-            orderCommodityNote: Parser().parse(item.commodityNote),
-          };
-        })
+    try {
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: session?.accessToken || "",
+          },
+        }
       );
 
-      setOrderForm({
-        orderStatus: response.order.status,
-        orderId: response.order.orderId,
-        orderType: response.order.orderType,
-        orderCountry: response.order.orderCountry,
-        orderStreet: Parser().parse(response.order.orderStreet),
-        orderStreetNumber: response.order.orderStreetNumber,
-        orderFlatNumber: response.order.orderFlatNumber,
-        orderCity: response.order.orderCity,
-        orderPostCode: response.order.orderPostCode,
-        orderState: response.order.orderState,
-        orderNote: Parser().parse(response.order.orderNote),
-        orderClientName: Parser().parse(response.order.recipientName),
-        orderClientPhone: response.order.recipientPhone,
-        orderClientEmail: response.order.recipientEmail,
-        orderPaymentType: response.order.orderPaymentType,
-        orderPrice: response.order.orderPrice,
-        orderSupplierId: response.order.orderSupplierId,
-      });
+      const response = await request.json();
 
-      setCountryState(response.order.orderCountry);
+      if (response.error) {
+        setFormError(response.error);
+      } else if (response.order) {
+        setCommodityList(
+          response.order.packages.map((item: Package) => {
+            return {
+              orderCommodityType: item.commodityType,
+              orderCommodityId: item.packageId,
+              orderCommodityName: Parser().parse(item.commodityName),
+              orderCommodityNote: Parser().parse(item.commodityNote),
+            };
+          })
+        );
+
+        setOrderForm({
+          orderStatus: response.order.status,
+          orderId: response.order.orderId,
+          orderType: response.order.orderType,
+          orderCountry: response.order.orderCountry,
+          orderStreet: Parser().parse(response.order.orderStreet),
+          orderStreetNumber: response.order.orderStreetNumber,
+          orderFlatNumber: response.order.orderFlatNumber,
+          orderCity: response.order.orderCity,
+          orderPostCode: response.order.orderPostCode,
+          orderState: response.order.orderState,
+          orderNote: Parser().parse(response.order.orderNote),
+          orderClientName: Parser().parse(response.order.recipientName),
+          orderClientPhone: response.order.recipientPhone,
+          orderClientEmail: response.order.recipientEmail,
+          orderPaymentType: response.order.orderPaymentType,
+          orderPrice: response.order.orderPrice,
+          orderSupplierId: response.order.orderSupplierId,
+        });
+
+        setCountryState(response.order.orderCountry);
+      }
+    } catch (error) {
+      console.error("Error fetching order data:", error);
+      setFormError("Błąd podczas pobierania danych zlecenia");
     }
   }
 
@@ -122,511 +174,603 @@ export default function UpdateOrder({
       return;
     }
 
-    const data = new FormData(event.currentTarget);
-    const orderDataUpdate = {
-      orderId: orderForm.orderId,
-      userId: session?.user.id,
-      orderType: data.get("orderType"),
-      orderStreet: data.get("orderStreet"),
-      orderStreetNumber: data.get("orderStreetNumber"),
-      orderFlatNumber: data.get("orderFlatNumber"),
-      orderCity: data.get("orderCity"),
-      orderPostCode: data.get("orderPostCode"),
-      orderState: data.get("orderState"),
-      orderNote: data.get("orderNote"),
-      orderClientName: data.get("orderClientName"),
-      orderClientPhone: data.get("orderClientPhone"),
-      orderClientEmail: data.get("orderClientEmail"),
-      orderSupplierId: data.get("orderSupplierId"),
-      orderItems: commodityList,
-    };
+    try {
+      const data = new FormData(event.currentTarget);
+      const orderDataUpdate = {
+        orderId: orderForm.orderId,
+        userId: session?.user.id,
+        orderType: data.get("orderType"),
+        orderStreet: data.get("orderStreet"),
+        orderStreetNumber: data.get("orderStreetNumber"),
+        orderFlatNumber: data.get("orderFlatNumber"),
+        orderCity: data.get("orderCity"),
+        orderPostCode: data.get("orderPostCode"),
+        orderState: data.get("orderState"),
+        orderNote: data.get("orderNote"),
+        orderClientName: data.get("orderClientName"),
+        orderClientPhone: data.get("orderClientPhone"),
+        orderClientEmail: data.get("orderClientEmail"),
+        orderSupplierId: data.get("orderSupplierId"),
+        orderItems: commodityList,
+      };
 
-    const request = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`,
-      {
-        method: "POST",
-        body: JSON.stringify(orderDataUpdate),
-        headers: {
-          Authorization: session?.accessToken || "",
-          "Content-Type": "application/json",
-        },
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`,
+        {
+          method: "POST",
+          body: JSON.stringify(orderDataUpdate),
+          headers: {
+            Authorization: session?.accessToken || "",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const response = await request.json();
+
+      if (response.error) {
+        setFormError(response.error);
+      } else if (response.Success) {
+        setUpdateSuccess(true);
       }
-    );
-
-    const response = await request.json();
-
-    if (response.error) {
-      setFormError(response.error);
-    } else if (response.Success) {
-      setUpdateSuccess(true);
+    } catch (error) {
+      console.error("Error updating order:", error);
+      setFormError("Błąd podczas aktualizacji zlecenia");
     }
   }
-
-  // Actions - Show Commodity List
-  let showCommodityItem = commodityList.map((commodity) => {
-    return (
-      <tr key={commodity.orderCommodityId}>
-        <td>{commodity.orderCommodityType}</td>
-        <td>{commodity.orderCommodityName}</td>
-      </tr>
-    );
-  });
 
   // Actions - Cancel Order
   async function cancelOrder() {
-    const request = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${id}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: session?.accessToken || "",
-        },
+    try {
+      const request = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: session?.accessToken || "",
+          },
+        }
+      );
+
+      const response = await request.json();
+
+      if (response.error) {
+        setFormError(response.error);
+      } else if (response.Success) {
+        queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
+        router.push("/dashboard");
       }
-    );
-
-    const response = await request.json();
-
-    if (response.error) {
-      setFormError(response.error);
-    } else if (response.Success) {
-      queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
-      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      setFormError("Błąd podczas anulowania zlecenia");
     }
   }
 
+  // Modal handlers
+  const openCancelDialog = () => setCancelDialogOpen(true);
+  const closeCancelDialog = () => setCancelDialogOpen(false);
+  const confirmCancelOrder = () => {
+    closeCancelDialog();
+    cancelOrder();
+  };
+
   return (
-    <div id="test" className="CrmPage">
+    <div className="flex h-screen bg-background">
       <InstructionsSideBar orderId={orderForm.orderId} />
-      <div className="mainContent NewOrderPage">
-        <header className="CRMHeader">
-          <Link href="/dashboard" className="backToDashboard">
-            <Image src={redBackIcon} alt="Powrót do ekranu głównego" />
-            <p>Powrót do pulpitu</p>
-          </Link>
-          <h1>Aktualizuj Zlecenie</h1>
-        </header>
-        <main className="NewOrder">
-          <form className="NewOrderForm" onSubmit={updateOrder}>
-            <section className="leftCol">
-              <div className="formStage stage1">
-                <div className="formStageName">
-                  <p>Adres Realizacji Zlecenia</p>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderType">
-                    Rodzaj Zlecenia
-                    <select
-                      name="orderType"
-                      id="orderType"
-                      value={orderForm.orderType}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderType: e.target.value };
-                        });
-                      }}
-                    >
-                      <option value="Dostawa">Dostawa</option>
-                      <option value="Odbior">Odbiór</option>
-                      <option value="Zwrot">Zwrot</option>
-                    </select>
-                  </label>
-                  <label htmlFor="orderCountry">
-                    Kraj Zlecenia
-                    <select
-                      name="orderCountry"
-                      id="orderCountry"
-                      value={orderForm.orderCountry}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderCountry: e.target.value };
-                        });
-                      }}
-                      disabled
-                    >
-                      <option value="Polska">Polska</option>
-                      <option value="Czechy">Czechy</option>
-                    </select>
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderStreet">
-                    Ulica *
-                    <input
-                      type="text"
-                      name="orderStreet"
-                      id="orderStreet"
-                      value={orderForm.orderStreet}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderStreet: e.target.value };
-                        });
-                      }}
-                      required
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderStreetNumber">
-                    Numer Budynku *
-                    <input
-                      type="text"
-                      name="orderStreetNumber"
-                      id="orderStreetNumber"
-                      pattern="[A-Za-z0-9]{1,}"
-                      value={orderForm.orderStreetNumber}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return {
+      <div className="flex-1 overflow-y-scroll">
+        <div className="container mx-auto p-6 space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/dashboard">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Powrót do pulpitu
+              </Link>
+            </Button>
+            <Separator orientation="vertical" className="h-6" />
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <h1 className="text-2xl font-semibold">Aktualizuj Zlecenie</h1>
+            </div>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={updateOrder} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+              {/* Left Column - Address */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600">
+                      <MapPin className="h-5 w-5" />
+                      Adres Realizacji Zlecenia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderType">Rodzaj Zlecenia</Label>
+                        <Select 
+                          name="orderType" 
+                          value={orderForm.orderType}
+                          onValueChange={(value) => {
+                            setOrderForm((prevState) => ({
+                              ...prevState,
+                              orderType: value,
+                            }));
+                          }}
+                        >
+                          <SelectTrigger className="w-full cursor-pointer">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Dostawa">Dostawa</SelectItem>
+                            <SelectItem value="Odbior">Odbiór</SelectItem>
+                            <SelectItem value="Zwrot">Zwrot</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="orderCountry">Kraj Zlecenia</Label>
+                        <Select
+                          name="orderCountry"
+                          value={orderForm.orderCountry}
+                          onValueChange={(value) => {
+                            setOrderForm((prevState) => ({
+                              ...prevState,
+                              orderCountry: value,
+                            }));
+                          }}
+                          disabled
+                        >
+                          <SelectTrigger className="w-full cursor-pointer">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Polska">Polska</SelectItem>
+                            <SelectItem value="Czechy">Czechy</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderStreet">Ulica *</Label>
+                      <Input 
+                        name="orderStreet"
+                        value={orderForm.orderStreet}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
                             ...prevState,
-                            orderStreetNumber: e.target.value,
-                          };
-                        });
-                      }}
-                      required
-                    />
-                  </label>
-                  <label htmlFor="orderFlatNumber">
-                    Numer Lokalu
-                    <input
-                      type="text"
-                      name="orderFlatNumber"
-                      id="orderFlatNumber"
-                      value={orderForm.orderFlatNumber}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return {
+                            orderStreet: e.target.value,
+                          }));
+                        }}
+                        required 
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderStreetNumber">Numer Budynku *</Label>
+                        <Input
+                          name="orderStreetNumber"
+                          pattern="[A-Za-z0-9]{1,}"
+                          value={orderForm.orderStreetNumber}
+                          onChange={(e) => {
+                            setOrderForm((prevState) => ({
+                              ...prevState,
+                              orderStreetNumber: e.target.value,
+                            }));
+                          }}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="orderFlatNumber">Numer Lokalu</Label>
+                        <Input
+                          name="orderFlatNumber"
+                          value={orderForm.orderFlatNumber}
+                          onChange={(e) => {
+                            setOrderForm((prevState) => ({
+                              ...prevState,
+                              orderFlatNumber: e.target.value,
+                            }));
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderCity">Miejscowość *</Label>
+                      <Input
+                        name="orderCity"
+                        value={orderForm.orderCity}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
                             ...prevState,
-                            orderFlatNumber: e.target.value,
-                          };
-                        });
-                      }}
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderCity">
-                    Miejscowość *
-                    <input
-                      type="text"
-                      name="orderCity"
-                      id="orderCity"
-                      value={orderForm.orderCity}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderCity: e.target.value };
-                        });
-                      }}
-                      required
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderPostCode">
-                    {orderForm.orderCountry === "Polska"
-                      ? "Kod Pocztowy (##-###) *"
-                      : "Kod Pocztowy (### ##) *"}
-                    <input
-                      type="text"
-                      name="orderPostCode"
-                      id="orderPostCode"
-                      value={orderForm.orderPostCode}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return {
+                            orderCity: e.target.value,
+                          }));
+                        }}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderPostCode">
+                          {orderForm.orderCountry === "Polska"
+                            ? "Kod Pocztowy (##-###) *"
+                            : "Kod Pocztowy (### ##) *"}
+                        </Label>
+                        <Input
+                          name="orderPostCode"
+                          value={orderForm.orderPostCode}
+                          onChange={(e) => {
+                            setOrderForm((prevState) => ({
+                              ...prevState,
+                              orderPostCode: e.target.value,
+                            }));
+                          }}
+                          pattern={
+                            orderForm.orderCountry === "Polska"
+                              ? "[0-9]{2}-[0-9]{3}"
+                              : "[0-9]{3} [0-9]{2}"
+                          }
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="orderState">Województwo *</Label>
+                        <Select
+                          name="orderState"
+                          value={orderForm.orderState}
+                          onValueChange={(value) => {
+                            setOrderForm((prevState) => ({
+                              ...prevState,
+                              orderState: value,
+                            }));
+                          }}
+                          required
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Wybierz województwo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Dolnośląskie">Dolnośląskie</SelectItem>
+                            <SelectItem value="Kujawsko-Pomorskie">Kujawsko-Pomorskie</SelectItem>
+                            <SelectItem value="Lubelskie">Lubelskie</SelectItem>
+                            <SelectItem value="Lubuskie">Lubuskie</SelectItem>
+                            <SelectItem value="Łódzkie">Łódzkie</SelectItem>
+                            <SelectItem value="Małopolskie">Małopolskie</SelectItem>
+                            <SelectItem value="Mazowieckie">Mazowieckie</SelectItem>
+                            <SelectItem value="Opolskie">Opolskie</SelectItem>
+                            <SelectItem value="Podkarpackie">Podkarpackie</SelectItem>
+                            <SelectItem value="Podlaskie">Podlaskie</SelectItem>
+                            <SelectItem value="Pomorskie">Pomorskie</SelectItem>
+                            <SelectItem value="Śląskie">Śląskie</SelectItem>
+                            <SelectItem value="Świętokrzyskie">Świętokrzyskie</SelectItem>
+                            <SelectItem value="Warmińsko-Mazurskie">Warmińsko-Mazurskie</SelectItem>
+                            <SelectItem value="Wielkopolskie">Wielkopolskie</SelectItem>
+                            <SelectItem value="Zachodniopomorskie">Zachodniopomorskie</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderSupplierId">
+                        Identyfikator Zlecenia Dostawcy (np. ID z systemu dostawcy)
+                      </Label>
+                      <Input
+                        name="orderSupplierId"
+                        value={orderForm.orderSupplierId}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
                             ...prevState,
-                            orderPostCode: e.target.value,
-                          };
-                        });
-                      }}
-                      pattern={
-                        orderForm.orderCountry === "Polska"
-                          ? "[0-9]{2}-[0-9]{3}"
-                          : "[0-9]{3} [0-9]{2}"
-                      }
-                      required
-                    />
-                  </label>
-                  <label htmlFor="orderState">
-                    Województwo *
-                    <select
-                      name="orderState"
-                      id="orderState"
-                      value={orderForm.orderState}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderState: e.target.value };
-                        });
-                      }}
-                      required
-                    >
-                      <option value="Dolnośląskie">Dolnośląskie</option>
-                      <option value="Kujawsko-Pomorskie">
-                        Kujawsko-Pomorskie
-                      </option>
-                      <option value="Lubelskie">Lubelskie</option>
-                      <option value="Lubuskie">Lubuskie</option>
-                      <option value="Łódzkie">Łódzkie</option>
-                      <option value="Małopolskie">Małopolskie</option>
-                      <option value="Mazowieckie">Mazowieckie</option>
-                      <option value="Opolskie">Opolskie</option>
-                      <option value="Podkarpackie">Podkarpackie</option>
-                      <option value="Podlaskie">Podlaskie</option>
-                      <option value="Pomorskie">Pomorskie</option>
-                      <option value="Śląskie">Śląskie</option>
-                      <option value="Świętokrzyskie">Świętokrzyskie</option>
-                      <option value="Warmińsko-Mazurskie">
-                        Warmińsko-Mazurskie
-                      </option>
-                      <option value="Wielkopolskie">Wielkopolskie</option>
-                      <option value="Zachodniopomorskie">
-                        Zachodniopomorskie
-                      </option>
-                    </select>
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderSupplierId">
-                    Identyfikator Zlecenia Dostawcy (np. ID z systemu dostawcy)
-                    <input
-                      type="text"
-                      name="orderSupplierId"
-                      id="orderSupplierId"
-                      value={orderForm.orderSupplierId}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderSupplierId: e.target.value };
-                        });
-                      }}
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderNote">
-                    Notatka do zamówienia
-                    <textarea
-                      name="orderNote"
-                      id="orderNote"
-                      cols={30}
-                      rows={10}
-                      value={orderForm.orderNote}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return { ...prevState, orderNote: e.target.value };
-                        });
-                      }}
-                    ></textarea>
-                  </label>
-                </div>
+                            orderSupplierId: e.target.value,
+                          }));
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="orderNote">Notatka do zamówienia</Label>
+                      <Textarea
+                        name="orderNote"
+                        value={orderForm.orderNote}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
+                            ...prevState,
+                            orderNote: e.target.value,
+                          }));
+                        }}
+                        rows={6}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </section>
-            <section className="rightCol">
-              <div className="formStage stage2">
-                <div className="formStageName">
-                  <p>Adresat Zlecenia</p>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderClientName">
-                    Odbiorca *
-                    <input
-                      type="text"
-                      name="orderClientName"
-                      id="orderClientName"
-                      value={orderForm.orderClientName}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return {
+
+              {/* Right Column - Client & Items */}
+              <div className="space-y-6">
+                {/* Client Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600">
+                      <User className="h-5 w-5" />
+                      Adresat Zlecenia
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex gap-4">
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="orderClientName">Odbiorca *</Label>
+                      <Input
+                        name="orderClientName"
+                        value={orderForm.orderClientName}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
                             ...prevState,
                             orderClientName: e.target.value,
-                          };
-                        });
-                      }}
-                      required
-                    />
-                  </label>
-                  <label htmlFor="orderClientPhone">
-                    {orderForm.orderCountry === "Polska"
-                      ? "Telefon (Bez spacji) *"
-                      : "Telefon (Bez spacji) *"}
-                    <input
-                      type="text"
-                      name="orderClientPhone"
-                      id="orderClientPhone"
-                      required
-                      value={orderForm.orderClientPhone}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return {
+                          }));
+                        }}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="orderClientPhone">
+                        {orderForm.orderCountry === "Polska"
+                          ? "Telefon (Bez spacji) *"
+                          : "Telefon (Bez spacji) *"}
+                      </Label>
+                      <Input
+                        name="orderClientPhone"
+                        value={orderForm.orderClientPhone}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
                             ...prevState,
                             orderClientPhone: e.target.value,
-                          };
-                        });
-                      }}
-                      pattern={
-                        orderForm.orderCountry === "Polska"
-                          ? "[0-9]{9}"
-                          : "[0-9]{9}"
-                      }
-                    />
-                  </label>
-                  <label htmlFor="orderClientEmail">
-                    Email Klienta
-                    <input
-                      type="text"
-                      name="orderClientEmail"
-                      id="orderClientEmail"
-                      value={orderForm.orderClientEmail}
-                      onChange={(e) => {
-                        setOrderForm((prevState) => {
-                          return {
+                          }));
+                        }}
+                        pattern={
+                          orderForm.orderCountry === "Polska"
+                            ? "[0-9]{9}"
+                            : "[0-9]{9}"
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2 flex-1">
+                      <Label htmlFor="orderClientEmail">Email Klienta</Label>
+                      <Input
+                        name="orderClientEmail"
+                        value={orderForm.orderClientEmail}
+                        onChange={(e) => {
+                          setOrderForm((prevState) => ({
                             ...prevState,
                             orderClientEmail: e.target.value,
-                          };
-                        });
-                      }}
-                    />
-                  </label>
-                </div>
-              </div>
-              <div className="formStage stage3">
-                <div className="formStageName">
-                  <p>Informacje o Przesyłce</p>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderCommodityType">
-                    Rodzaj Towaru *
-                    <select
-                      name="orderCommodityType"
-                      id="orderCommodityType"
-                      value={commodityItem.orderCommodityType}
-                      disabled
-                    >
-                      <option value="Paczka">Paczka/Karton</option>
-                      <option value="Gabaryt">Gabaryt</option>
-                      <option value="Paleta">Paleta</option>
-                    </select>
-                  </label>
-                  <label htmlFor="orderCommodityName">
-                    Nazwa Towaru *
-                    <input
-                      type="text"
-                      name="orderCommodityName"
-                      id="orderCommodityName"
-                      value={commodityItem.orderCommodityName}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return {
-                            ...prevState,
-                            orderCommodityName: e.target.value,
-                          };
-                        });
-                      }}
-                      disabled
-                    />
-                  </label>
-                </div>
-                <div className="row">
-                  <label htmlFor="orderCommodityNote">
-                    Notatka do przesyłki
-                    <textarea
-                      name="orderCommodityNote"
-                      id="orderCommodityNote"
-                      cols={30}
-                      rows={10}
-                      value={commodityItem.orderCommodityNote}
-                      onChange={(e) => {
-                        setCommodityItem((prevState) => {
-                          return {
-                            ...prevState,
-                            orderCommodityNote: e.target.value,
-                          };
-                        });
-                      }}
-                      disabled
-                    />
-                  </label>
-                </div>
-              </div>
-              <div className="row">
-                <div className="formStage stage4">
-                  <div className="formStageName">
-                    <p>Sposób Płatności</p>
-                  </div>
-                  <label htmlFor="orderPaymentType">
-                    Sposób Płatności
-                    <select
-                      name="orderPaymentType"
-                      id="orderPaymentType"
-                      value={orderForm.orderPaymentType}
-                      disabled
-                    >
-                      <option value="Przelew">Przelew</option>
-                      <option value="Pobranie">Pobranie</option>
-                    </select>
-                  </label>
-                  {orderForm.orderPrice !== 0 && (
-                    <>
-                      <label htmlFor="orderPaymentAmount">
-                        Kwota Płatności{" "}
-                        {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                        <input
-                          type="number"
-                          name="orderPaymentAmount"
-                          id="orderPaymentAmount"
-                          required
-                          value={orderForm.orderPrice}
+                          }));
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Payment and Package List Row */}
+                <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-6">
+                  {/* Commodity Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-blue-600">
+                        <PackageIcon className="h-5 w-5" />
+                        Informacje o Przesyłce
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="orderCommodityType">Rodzaj Towaru *</Label>
+                          <Select
+                            value={commodityItem.orderCommodityType}
+                            disabled
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Paczka">Paczka/Karton</SelectItem>
+                              <SelectItem value="Gabaryt">Gabaryt</SelectItem>
+                              <SelectItem value="Paleta">Paleta</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2 flex-1">
+                          <Label htmlFor="orderCommodityName">Nazwa Towaru *</Label>
+                          <Input
+                            name="orderCommodityName"
+                            value={commodityItem.orderCommodityName}
+                            onChange={(e) => {
+                              setCommodityItem((prevState) => ({
+                                ...prevState,
+                                orderCommodityName: e.target.value,
+                              }));
+                            }}
+                            disabled
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="orderCommodityNote">Notatka do przesyłki</Label>
+                        <Textarea
+                          name="orderCommodityNote"
+                          value={commodityItem.orderCommodityNote}
+                          onChange={(e) => {
+                            setCommodityItem((prevState) => ({
+                              ...prevState,
+                              orderCommodityNote: e.target.value,
+                            }));
+                          }}
+                          rows={4}
                           disabled
                         />
-                      </label>
-                    </>
-                  )}
-                </div>
-                <div className="formStage stage5">
-                  <div className="formStageName">
-                    <p>Wykaz Paczek</p>
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                  {showCommodityItem.length > 0 ? (
-                    <div className="tableOverflow">
-                      <table>
-                        <tbody>{showCommodityItem}</tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p>Brak Towarów</p>
-                  )}
+                  {/* Payment Information */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-blue-600">
+                        <CreditCard className="h-5 w-5" />
+                        Sposób Płatności
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="orderPaymentType">Sposób Płatności</Label>
+                        <Select
+                          name="orderPaymentType"
+                          value={orderForm.orderPaymentType}
+                          disabled
+                        >
+                          <SelectTrigger className="w-full cursor-pointer">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Przelew">Przelew</SelectItem>
+                            <SelectItem value="Pobranie">Pobranie</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {orderForm.orderPrice !== 0 && (
+                        <div className="space-y-2">
+                          <Label htmlFor="orderPaymentAmount">
+                            Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                          </Label>
+                          <Input
+                            name="orderPaymentAmount"
+                            type="number"
+                            value={orderForm.orderPrice}
+                            disabled
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
+
+                {/* Commodity List */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600">
+                      <ShoppingCart className="h-5 w-5" />
+                      Wykaz Paczek
+                      <Badge variant="outline" className="rounded-sm">
+                        {commodityList.length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {commodityList.length > 0 ? (
+                      <div className="max-h-48 overflow-y-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Rodzaj</TableHead>
+                              <TableHead>Nazwa</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {commodityList.map((commodity) => (
+                              <TableRow key={commodity.orderCommodityId}>
+                                <TableCell className="text-sm">
+                                  {commodity.orderCommodityType}
+                                </TableCell>
+                                <TableCell className="text-sm">
+                                  {commodity.orderCommodityName}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground text-center py-8">
+                        Brak Towarów
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
-            </section>
-            <div>
-              {formError ? <p className="formError">Uwaga: {formError}</p> : ""}
-              {updateSuccess ? (
-                <p className="formSuccess">
-                  Aktualizacja danych przesyłki przebiegła prawidłowo
-                </p>
-              ) : (
-                ""
+            </div>
+
+            {/* Submit Section */}
+            <div className="flex flex-col gap-4 absolute bottom-6">
+              {formError && (
+                <Alert variant="destructive">
+                  <AlertDescription>Uwaga: {formError}</AlertDescription>
+                </Alert>
               )}
-              <input
-                type="submit"
-                value={
-                  orderForm.orderStatus === "Anulowane"
-                    ? "Zlecenie zostało anulowane"
+              {updateSuccess && (
+                <Alert>
+                  <AlertDescription>
+                    Aktualizacja danych przesyłki przebiegła prawidłowo
+                  </AlertDescription>
+                </Alert>
+              )}
+              <div className="flex gap-4">
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="w-fit"
+                  disabled={orderForm.orderStatus === "Anulowane"}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {orderForm.orderStatus === "Anulowane" 
+                    ? "Zlecenie zostało anulowane" 
                     : "Aktualizuj Zlecenie"
-                }
-                className={`confirmOrder ${
-                  orderForm.orderStatus === "Anulowane" ? "orderCanceled" : ""
-                }`}
-                disabled={orderForm.orderStatus === "Anulowane" ? true : false}
-              />
-              {orderForm.orderStatus !== "Anulowane" && (
-                <button className="cancelOrder" onClick={cancelOrder}>
-                  Anuluj Zlecenie
-                </button>
-              )}
+                  }
+                </Button>
+                {orderForm.orderStatus !== "Anulowane" && (
+                  <Button 
+                    type="button"
+                    variant="destructive" 
+                    size="lg" 
+                    onClick={openCancelDialog}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Anuluj Zlecenie
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
-        </main>
+        </div>
       </div>
+
+      {/* Cancel Order Confirmation Dialog */}
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Potwierdź anulowanie zlecenia
+            </DialogTitle>
+            <DialogDescription>
+              Czy na pewno chcesz anulować to zlecenie? Ta operacja jest nieodwracalna.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeCancelDialog}>
+              Anuluj
+            </Button>
+            <Button variant="destructive" onClick={confirmCancelOrder}>
+              <X className="h-4 w-4 mr-2" />
+              Tak, anuluj zlecenie
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
