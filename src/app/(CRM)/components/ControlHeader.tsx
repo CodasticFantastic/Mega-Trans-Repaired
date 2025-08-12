@@ -123,7 +123,7 @@ export default function ControlHeader({
           href="/newOrder"
           className="icon-text text-foreground hover:text-primary"
         >
-          <Button variant="link" size="sm" className="!p-0">
+          <Button variant="outline" size="sm">
             <PlusCircleIcon />
             <p>Nowe Zlecenie</p>
           </Button>
