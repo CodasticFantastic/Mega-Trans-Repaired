@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { Parser } from "html-to-react";
-import { User } from "@prisma/client";
+import { Role, User } from "@prisma/client";
 
 // shadcn/ui components
 import { Button } from "@/components/shadcn/ui/button";
@@ -35,8 +35,10 @@ import {
 import { Skeleton } from "@/components/shadcn/ui/skeleton";
 import { Separator } from "@/components/shadcn/ui/separator";
 import { ScrollArea } from "@/components/shadcn/ui/scroll-area";
+import { useRouter } from "next/navigation";
 
 export default function ClientsPage() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [clients, setClients] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,6 +98,10 @@ export default function ClientsPage() {
         return "secondary";
     }
   };
+
+  if (!session || session.user.role !== Role.ADMIN) {
+    router.push("/");
+  }
 
   // Skeleton
   if (loading) {
@@ -194,7 +200,7 @@ export default function ClientsPage() {
               Powrót do pulpitu
             </Link>
           </Button>
-          <Separator orientation="vertical" className="h-6" />
+          <Separator orientation="vertical" />
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-muted-foreground" />
             <h1 className="text-2xl font-semibold">Klienci</h1>
