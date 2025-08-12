@@ -9,18 +9,18 @@ import { Parser } from "html-to-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { OrderItem } from "types/order.types";
 import { CommodityType, Package } from "@prisma/client";
-import { 
-  ArrowLeft, 
-  Trash2, 
-  Package as PackageIcon, 
-  User, 
-  CreditCard, 
+import {
+  ArrowLeft,
+  Trash2,
+  Package as PackageIcon,
+  User,
+  CreditCard,
   MapPin,
   FileText,
   ShoppingCart,
   Save,
   X,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 
 // shadcn/ui components
@@ -290,8 +290,8 @@ export default function UpdateOrder({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="orderType">Rodzaj Zlecenia</Label>
-                        <Select 
-                          name="orderType" 
+                        <Select
+                          name="orderType"
                           value={orderForm.orderType}
                           onValueChange={(value) => {
                             setOrderForm((prevState) => ({
@@ -336,7 +336,7 @@ export default function UpdateOrder({
 
                     <div className="space-y-2">
                       <Label htmlFor="orderStreet">Ulica *</Label>
-                      <Input 
+                      <Input
                         name="orderStreet"
                         value={orderForm.orderStreet}
                         onChange={(e) => {
@@ -345,13 +345,15 @@ export default function UpdateOrder({
                             orderStreet: e.target.value,
                           }));
                         }}
-                        required 
+                        required
                       />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="orderStreetNumber">Numer Budynku *</Label>
+                        <Label htmlFor="orderStreetNumber">
+                          Numer Budynku *
+                        </Label>
                         <Input
                           name="orderStreetNumber"
                           pattern="[A-Za-z0-9]{1,}"
@@ -436,22 +438,40 @@ export default function UpdateOrder({
                             <SelectValue placeholder="Wybierz województwo" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Dolnośląskie">Dolnośląskie</SelectItem>
-                            <SelectItem value="Kujawsko-Pomorskie">Kujawsko-Pomorskie</SelectItem>
+                            <SelectItem value="Dolnośląskie">
+                              Dolnośląskie
+                            </SelectItem>
+                            <SelectItem value="Kujawsko-Pomorskie">
+                              Kujawsko-Pomorskie
+                            </SelectItem>
                             <SelectItem value="Lubelskie">Lubelskie</SelectItem>
                             <SelectItem value="Lubuskie">Lubuskie</SelectItem>
                             <SelectItem value="Łódzkie">Łódzkie</SelectItem>
-                            <SelectItem value="Małopolskie">Małopolskie</SelectItem>
-                            <SelectItem value="Mazowieckie">Mazowieckie</SelectItem>
+                            <SelectItem value="Małopolskie">
+                              Małopolskie
+                            </SelectItem>
+                            <SelectItem value="Mazowieckie">
+                              Mazowieckie
+                            </SelectItem>
                             <SelectItem value="Opolskie">Opolskie</SelectItem>
-                            <SelectItem value="Podkarpackie">Podkarpackie</SelectItem>
+                            <SelectItem value="Podkarpackie">
+                              Podkarpackie
+                            </SelectItem>
                             <SelectItem value="Podlaskie">Podlaskie</SelectItem>
                             <SelectItem value="Pomorskie">Pomorskie</SelectItem>
                             <SelectItem value="Śląskie">Śląskie</SelectItem>
-                            <SelectItem value="Świętokrzyskie">Świętokrzyskie</SelectItem>
-                            <SelectItem value="Warmińsko-Mazurskie">Warmińsko-Mazurskie</SelectItem>
-                            <SelectItem value="Wielkopolskie">Wielkopolskie</SelectItem>
-                            <SelectItem value="Zachodniopomorskie">Zachodniopomorskie</SelectItem>
+                            <SelectItem value="Świętokrzyskie">
+                              Świętokrzyskie
+                            </SelectItem>
+                            <SelectItem value="Warmińsko-Mazurskie">
+                              Warmińsko-Mazurskie
+                            </SelectItem>
+                            <SelectItem value="Wielkopolskie">
+                              Wielkopolskie
+                            </SelectItem>
+                            <SelectItem value="Zachodniopomorskie">
+                              Zachodniopomorskie
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -459,7 +479,8 @@ export default function UpdateOrder({
 
                     <div className="space-y-2">
                       <Label htmlFor="orderSupplierId">
-                        Identyfikator Zlecenia Dostawcy (np. ID z systemu dostawcy)
+                        Identyfikator Zlecenia Dostawcy (np. ID z systemu
+                        dostawcy)
                       </Label>
                       <Input
                         name="orderSupplierId"
@@ -568,7 +589,9 @@ export default function UpdateOrder({
                     <CardContent className="space-y-4">
                       <div className="flex gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="orderCommodityType">Rodzaj Towaru *</Label>
+                          <Label htmlFor="orderCommodityType">
+                            Rodzaj Towaru *
+                          </Label>
                           <Select
                             value={commodityItem.orderCommodityType}
                             disabled
@@ -577,14 +600,18 @@ export default function UpdateOrder({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Paczka">Paczka/Karton</SelectItem>
+                              <SelectItem value="Paczka">
+                                Paczka/Karton
+                              </SelectItem>
                               <SelectItem value="Gabaryt">Gabaryt</SelectItem>
                               <SelectItem value="Paleta">Paleta</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2 flex-1">
-                          <Label htmlFor="orderCommodityName">Nazwa Towaru *</Label>
+                          <Label htmlFor="orderCommodityName">
+                            Nazwa Towaru *
+                          </Label>
                           <Input
                             name="orderCommodityName"
                             value={commodityItem.orderCommodityName}
@@ -600,7 +627,9 @@ export default function UpdateOrder({
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="orderCommodityNote">Notatka do przesyłki</Label>
+                        <Label htmlFor="orderCommodityNote">
+                          Notatka do przesyłki
+                        </Label>
                         <Textarea
                           name="orderCommodityNote"
                           value={commodityItem.orderCommodityNote}
@@ -627,7 +656,9 @@ export default function UpdateOrder({
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="orderPaymentType">Sposób Płatności</Label>
+                        <Label htmlFor="orderPaymentType">
+                          Sposób Płatności
+                        </Label>
                         <Select
                           name="orderPaymentType"
                           value={orderForm.orderPaymentType}
@@ -645,7 +676,8 @@ export default function UpdateOrder({
                       {orderForm.orderPrice !== 0 && (
                         <div className="space-y-2">
                           <Label htmlFor="orderPaymentAmount">
-                            Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}
+                            Kwota Płatności{" "}
+                            {countryState === "Polska" ? "(PLN)" : "(EUR)"}
                           </Label>
                           <Input
                             name="orderPaymentAmount"
@@ -678,6 +710,7 @@ export default function UpdateOrder({
                             <TableRow>
                               <TableHead>Rodzaj</TableHead>
                               <TableHead>Nazwa</TableHead>
+                              <TableHead>Notatka</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -688,6 +721,9 @@ export default function UpdateOrder({
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   {commodity.orderCommodityName}
+                                </TableCell>
+                                <TableCell className="text-sm flex-1 text-wrap break-words whitespace-normal">
+                                  {commodity.orderCommodityNote}
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -719,23 +755,22 @@ export default function UpdateOrder({
                 </Alert>
               )}
               <div className="flex gap-4">
-                <Button 
-                  type="submit" 
-                  size="lg" 
+                <Button
+                  type="submit"
+                  size="lg"
                   className="w-fit"
                   disabled={orderForm.orderStatus === "Anulowane"}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {orderForm.orderStatus === "Anulowane" 
-                    ? "Zlecenie zostało anulowane" 
-                    : "Aktualizuj Zlecenie"
-                  }
+                  {orderForm.orderStatus === "Anulowane"
+                    ? "Zlecenie zostało anulowane"
+                    : "Aktualizuj Zlecenie"}
                 </Button>
                 {orderForm.orderStatus !== "Anulowane" && (
-                  <Button 
+                  <Button
                     type="button"
-                    variant="destructive" 
-                    size="lg" 
+                    variant="destructive"
+                    size="lg"
                     onClick={openCancelDialog}
                   >
                     <X className="h-4 w-4 mr-2" />
@@ -757,7 +792,8 @@ export default function UpdateOrder({
               Potwierdź anulowanie zlecenia
             </DialogTitle>
             <DialogDescription>
-              Czy na pewno chcesz anulować to zlecenie? Ta operacja jest nieodwracalna.
+              Czy na pewno chcesz anulować to zlecenie? Ta operacja jest
+              nieodwracalna.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

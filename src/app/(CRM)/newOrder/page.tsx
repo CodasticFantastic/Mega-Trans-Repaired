@@ -519,6 +519,7 @@ export default function NewOrder() {
                             <TableRow>
                               <TableHead>Rodzaj</TableHead>
                               <TableHead>Nazwa</TableHead>
+                              <TableHead>Notatka</TableHead>
                               <TableHead className="w-[60px]">Akcje</TableHead>
                             </TableRow>
                           </TableHeader>
@@ -530,6 +531,9 @@ export default function NewOrder() {
                                 </TableCell>
                                 <TableCell className="text-sm">
                                   {commodity.orderCommodityName}
+                                </TableCell>
+                                <TableCell className="text-sm flex-1 text-wrap break-words whitespace-normal">
+                                  {commodity.orderCommodityNote}
                                 </TableCell>
                                 <TableCell>
                                   <Button
