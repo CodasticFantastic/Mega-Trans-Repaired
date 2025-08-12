@@ -205,7 +205,7 @@ export const IntegrationsModal = () => {
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger className="icon-text cursor-pointer text-xs" asChild>
+      <DialogTrigger className="icon-text cursor-pointer" asChild>
         <Button variant="link" size="sm" className="!p-0">
           <BlocksIcon />
           <p>Moje Integracje</p>
