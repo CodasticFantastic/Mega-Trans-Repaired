@@ -226,7 +226,7 @@ export default function Dashboard() {
       <div className="flex w-full flex-col md:flex-row">
         <DashboardSidebar />
 
-        <div className="w-full pr-2">
+        <div className="w-full px-2 md:px-4">
           <ControlHeader
             orders={stats.allOrders}
             currentOrders={stats.currentOrders}
@@ -235,7 +235,7 @@ export default function Dashboard() {
             inWarehouse={stats.warehouseOrders}
             exportOrdersData={exportOrdersData}
           />
-          <main className="w-full pl-8">
+          <main className="w-full">
             <div
               className="relative w-full rounded-md border h-[calc(100vh-80px)] overflow-y-auto"
               ref={scrollRef}

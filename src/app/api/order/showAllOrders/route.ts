@@ -1,8 +1,11 @@
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { Role } from "@prisma/client";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 
 export async function GET(req: Request) {
+  dayjs.extend(utc);
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
@@ -62,8 +65,10 @@ export async function GET(req: Request) {
         ],
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {
-          gte: dateFrom ? new Date(dateFrom) : undefined,
-          lte: dateTo ? new Date(dateTo) : undefined,
+          gte: dateFrom
+            ? dayjs.utc(dateFrom).startOf("day").toDate()
+            : undefined,
+          lte: dateTo ? dayjs.utc(dateTo).endOf("day").toDate() : undefined,
         },
         orderPostCode: {
           startsWith: postalCode === "all" ? undefined : postalCode,

@@ -7,7 +7,10 @@ export async function POST(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  const authResult = authGuard("Update User", accessToken, [Role.USER]);
+  const authResult = authGuard("Update User", accessToken, [
+    Role.USER,
+    Role.ADMIN,
+  ]);
 
   if (!authResult.success) {
     return new Response(JSON.stringify({ error: authResult.error }), {

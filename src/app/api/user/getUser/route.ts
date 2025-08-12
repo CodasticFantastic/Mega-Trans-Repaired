@@ -6,7 +6,10 @@ export async function GET(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  const authResult = authGuard("Get User", accessToken, [Role.USER]);
+  const authResult = authGuard("Get User", accessToken, [
+    Role.USER,
+    Role.ADMIN,
+  ]);
 
   if (!authResult.success) {
     return new Response(JSON.stringify({ error: authResult.error }), {

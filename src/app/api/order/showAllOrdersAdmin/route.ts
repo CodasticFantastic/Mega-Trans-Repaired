@@ -36,10 +36,6 @@ export async function GET(req: Request) {
   const dateTo = searchParams.get("dateTo");
   const postalCode = searchParams.get("postalCode");
 
-  console.log("TEST:", dateFrom);
-  console.log("TEST:", new Date(dateFrom!));
-  console.log("TEST:", dayjs.utc(dateFrom).toDate());
-
   try {
     // Show all orders for this user
     const allUserOrder = await prisma.order.findMany({
@@ -64,8 +60,10 @@ export async function GET(req: Request) {
         ],
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {
-          gte: dateFrom ? dayjs.utc(dateFrom).toDate() : undefined,
-          lte: dateTo ? dayjs.utc(dateTo).toDate() : undefined,
+          gte: dateFrom
+            ? dayjs.utc(dateFrom).startOf("day").toDate()
+            : undefined,
+          lte: dateTo ? dayjs.utc(dateTo).endOf("day").toDate() : undefined,
         },
         orderPostCode: {
           startsWith: postalCode === "all" ? undefined : postalCode,

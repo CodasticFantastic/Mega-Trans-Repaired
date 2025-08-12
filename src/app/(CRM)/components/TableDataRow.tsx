@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import {
   AtSignIcon,
   Building2Icon,
+  CalendarPlusIcon,
   CircleChevronDownIcon,
   EditIcon,
   PhoneIcon,
@@ -13,6 +14,13 @@ import { TableRow, TableCell } from "@/components/shadcn/ui/table";
 import { Status } from "@prisma/client";
 import { OrderWithUserAndPackages } from "types/order.types";
 import { Parser } from "html-to-react";
+import dayjs from "dayjs";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/shadcn/ui/tooltip";
 
 interface TableDataRowProps {
   order: OrderWithUserAndPackages;
@@ -135,8 +143,8 @@ export default function TableDataRow({
         <TableCell className="hidden lg:table-cell text-center">
           {formattedDate}
         </TableCell>
-        <TableCell className="hidden md:table-cell text-center">
-          {order.recipientName}
+        <TableCell className="hidden md:table-cell text-center max-w-64 whitespace-normal break-words">
+          {Parser().parse(order.recipientName)}
         </TableCell>
         <TableCell className="hidden md:table-cell text-center">
           {order.orderPostCode} {order.orderCity}
@@ -175,20 +183,51 @@ export default function TableDataRow({
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <p className="text-sm font-medium">Dodatkowe Informacje</p>
                   <div className="flex flex-wrap items-center gap-6">
-                    <div className="icon-text">
-                      <PhoneIcon size={16} />
-                      <p className="text-sm">{order.recipientPhone}</p>
-                    </div>
-                    <div className="icon-text">
-                      <AtSignIcon size={16} />
-                      <p className="text-sm">{order.recipientEmail}</p>
-                    </div>
-                    <div className="icon-text">
-                      <Building2Icon size={16} />
-                      <p className="text-sm">
-                        {Parser().parse(order.user.company || "")}
-                      </p>
-                    </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="icon-text">
+                            <CalendarPlusIcon size={16} />
+                            <p className="text-sm">
+                              {dayjs(order.createdAt).format(
+                                "DD.MM.YYYY HH:mm"
+                              )}
+                            </p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Data utworzenia zamówienia</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="icon-text">
+                            <PhoneIcon size={16} />
+                            <p className="text-sm">{order.recipientPhone}</p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Telefon do odbiorcy</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="icon-text">
+                            <AtSignIcon size={16} />
+                            <p className="text-sm">{order.recipientEmail}</p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Email do odbiorcy</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <div className="icon-text">
+                        <Building2Icon size={16} />
+                        <p className="text-sm">
+                          {Parser().parse(order.user.company || "")}
+                        </p>
+                      </div>
+                    </TooltipProvider>
                   </div>
                 </div>
 
@@ -217,15 +256,41 @@ export default function TableDataRow({
                           key={packageItem.packageId}
                           className="flex flex-col gap-1 py-2 md:flex-row md:items-center md:gap-4"
                         >
-                          <p className="min-w-64 font-mono text-sm">
-                            {packageItem.packageId}
-                          </p>
-                          <p className="w-52 text-sm">
-                            {Parser().parse(packageItem.commodityName)}
-                          </p>
-                          <p className="flex-1 text-sm">
-                            {Parser().parse(packageItem.commodityNote || "")}
-                          </p>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p className="min-w-64 font-mono text-sm">
+                                  {packageItem.packageId}
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>ID paczki</p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p className="flex-1 text-sm text-wrap">
+                                  {Parser().parse(packageItem.commodityName)}
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Nazwa towaru</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p className="flex-1 text-sm text-wrap">
+                                  {Parser().parse(
+                                    packageItem.commodityNote || ""
+                                  )}
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Notatka</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
                       ))}
                     </div>

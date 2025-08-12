@@ -229,7 +229,6 @@ export default function DeliveryPage() {
             Powrót do pulpitu
           </Link>
         </Button>
-        <Separator orientation="vertical" className="h-6" />
         <div className="flex items-center gap-2">
           <Truck className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-2xl font-semibold">
