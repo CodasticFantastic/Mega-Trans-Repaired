@@ -237,10 +237,10 @@ export default function Dashboard() {
           />
           <main className="w-full pl-8">
             <div
-              className="relative w-full rounded-md border h-[calc(100vh-100px)] overflow-y-auto"
+              className="relative w-full rounded-md border h-[calc(100vh-80px)] overflow-y-auto"
               ref={scrollRef}
             >
-              <Table>
+              <Table className="table-auto">
                 <TableHeader>
                   <TableRow className="bg-muted/30">
                     <TableHead className="min-w-10 text-center"></TableHead>

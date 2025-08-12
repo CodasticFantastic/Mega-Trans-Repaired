@@ -1,20 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import PhoneIcon from "@/images/icons/phoneIcon.png";
-import EmailIcon from "@/images/icons/emailIcon.png";
-import CompanyIcon from "@/images/icons/companyIcon.png";
 
 import { useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { CircleChevronDownIcon, EditIcon } from "lucide-react";
+import {
+  AtSignIcon,
+  Building2Icon,
+  CircleChevronDownIcon,
+  EditIcon,
+  PhoneIcon,
+} from "lucide-react";
 import { Button } from "@/components/shadcn/ui/button";
 import { TableRow, TableCell } from "@/components/shadcn/ui/table";
 import { Prisma, Status } from "@prisma/client";
 import { OrderWithUserAndPackages } from "types/order.types";
-
-interface StatusColor {
-  [key: string]: string;
-}
 
 interface TableDataRowProps {
   order: OrderWithUserAndPackages;
@@ -89,12 +88,12 @@ export default function TableDataRow({
 
   const statusColor =
     {
-      Producent: "text-orange-400 border-orange-400",
-      Magazyn: "text-yellow-400 border-yellow-400",
-      Dostawa: "text-violet-400 border-violet-400",
-      Zrealizowane: "text-green-500 border-green-500",
-      Anulowane: "text-red-500 border-red-500",
-      Pobranie: "text-teal-400 border-teal-400",
+      Producent: "text-orange border-orange",
+      Magazyn: "text-yellow border-yellow",
+      Dostawa: "text-purple border-purple",
+      Zrealizowane: "text-green border-green",
+      Anulowane: "text-destructive border-destructive",
+      Pobranie: "text-primary border-primary",
     }[status] || "";
 
   return (
@@ -123,7 +122,7 @@ export default function TableDataRow({
               <option value="Anulowane">Anulowane</option>
             </select>
           ) : (
-            <span className={`rounded border px-2 py-2 ${statusColor}`}>
+            <span className={`rounded border px-1 py-0 ${statusColor}`}>
               {status}
             </span>
           )}
@@ -171,28 +170,16 @@ export default function TableDataRow({
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <p className="text-sm font-medium">Dodatkowe Informacje</p>
                   <div className="flex flex-wrap items-center gap-6">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={PhoneIcon}
-                        alt={`Numer telefonu`}
-                        className="size-5"
-                      />
+                    <div className="icon-text">
+                      <PhoneIcon size={16} />
                       <p className="text-sm">{order.recipientPhone}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={EmailIcon}
-                        alt={`Adres Email: `}
-                        className="size-5"
-                      />
+                    <div className="icon-text">
+                      <AtSignIcon size={16} />
                       <p className="text-sm">{order.recipientEmail}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={CompanyIcon}
-                        alt={`Dostawa od firmy: `}
-                        className="size-5"
-                      />
+                    <div className="icon-text">
+                      <Building2Icon size={16} />
                       <p className="text-sm">{order.user.company}</p>
                     </div>
                   </div>
