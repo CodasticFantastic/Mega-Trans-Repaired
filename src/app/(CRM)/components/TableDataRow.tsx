@@ -1,6 +1,4 @@
-import Image from "next/image";
 import Link from "next/link";
-
 import { useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import {
@@ -12,11 +10,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/shadcn/ui/button";
 import { TableRow, TableCell } from "@/components/shadcn/ui/table";
-import { Prisma, Status } from "@prisma/client";
+import { Status } from "@prisma/client";
 import { OrderWithUserAndPackages } from "types/order.types";
+import { Parser } from "html-to-react";
 
 interface TableDataRowProps {
   order: OrderWithUserAndPackages;
+  shouldAddBackground: boolean;
   setExportOrders: React.Dispatch<
     React.SetStateAction<OrderWithUserAndPackages[]>
   >;
@@ -25,6 +25,7 @@ interface TableDataRowProps {
 export default function TableDataRow({
   order,
   setExportOrders,
+  shouldAddBackground,
 }: TableDataRowProps) {
   const [status, setStatus] = useState<Status>(order.status);
   const [ifExported, setIfExported] = useState(false);
@@ -98,7 +99,11 @@ export default function TableDataRow({
 
   return (
     <>
-      <TableRow className="!hover:bg-transparent [&_td]:!py-3">
+      <TableRow
+        className={`!hover:bg-transparent [&_td]:!py-3 ${
+          shouldAddBackground ? "bg-muted" : ""
+        }`}
+      >
         <TableCell className="text-center">
           <input type="checkbox" checked={ifExported} onChange={exportOrder} />
         </TableCell>
@@ -163,7 +168,7 @@ export default function TableDataRow({
       </TableRow>
 
       {expanded && (
-        <TableRow className="bg-muted/30">
+        <TableRow className={`${shouldAddBackground ? "bg-muted" : ""}`}>
           <TableCell colSpan={8} className="p-0">
             <div className="border-t">
               <div className="flex flex-col gap-4 p-4">
@@ -180,7 +185,9 @@ export default function TableDataRow({
                     </div>
                     <div className="icon-text">
                       <Building2Icon size={16} />
-                      <p className="text-sm">{order.user.company}</p>
+                      <p className="text-sm">
+                        {Parser().parse(order.user.company || "")}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -214,10 +221,10 @@ export default function TableDataRow({
                             {packageItem.packageId}
                           </p>
                           <p className="w-52 text-sm">
-                            {packageItem.commodityName}
+                            {Parser().parse(packageItem.commodityName)}
                           </p>
                           <p className="flex-1 text-sm">
-                            {packageItem.commodityNote}
+                            {Parser().parse(packageItem.commodityNote || "")}
                           </p>
                         </div>
                       ))}

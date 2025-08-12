@@ -266,11 +266,12 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order) => (
+                  {orders.map((order, index) => (
                     <TableDataRow
                       key={order.orderId}
                       order={order}
                       setExportOrders={setExportOrders}
+                      shouldAddBackground={index % 2 !== 0}
                     />
                   ))}
                 </TableBody>

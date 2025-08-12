@@ -200,7 +200,6 @@ export default function ClientsPage() {
               Powrót do pulpitu
             </Link>
           </Button>
-          <Separator orientation="vertical" />
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-muted-foreground" />
             <h1 className="text-2xl font-semibold">Klienci</h1>
@@ -210,7 +209,7 @@ export default function ClientsPage() {
         {/* Clients Table */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap">
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
                 Zarejestrowani Klienci
@@ -218,7 +217,7 @@ export default function ClientsPage() {
                   {filteredClients.length}
                 </Badge>
               </CardTitle>
-              <div className="relative w-80">
+              <div className="relative w-full md:w-80 mt-4 md:mt-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Szukaj klientów..."
@@ -230,7 +229,7 @@ export default function ClientsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[600px]">
+            <ScrollArea className="h-[calc(100vh-220px)]">
               <Table>
                 <TableHeader>
                   <TableRow>

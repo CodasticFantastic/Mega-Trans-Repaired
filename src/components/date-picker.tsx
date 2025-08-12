@@ -54,8 +54,8 @@ export function DatePicker({
             )}
             disabled={disabled}
           >
-            <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-            <span className="flex-1 truncate">
+            <CalendarIcon className="h-4 w-4 flex-shrink-0" />
+            <span className="flex-1 truncate text-xs">
               {date
                 ? dayjs(date).locale("pl").format("D MMMM YYYY")
                 : placeholder}

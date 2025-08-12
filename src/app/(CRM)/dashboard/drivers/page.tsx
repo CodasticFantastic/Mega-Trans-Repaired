@@ -295,7 +295,6 @@ export default function DriversPage() {
               Powrót do pulpitu
             </Link>
           </Button>
-          <Separator orientation="vertical" className="h-6" />
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-muted-foreground" />
             <h1 className="text-2xl font-semibold">Kierowcy</h1>
@@ -509,10 +508,8 @@ export default function DriversPage() {
               <DialogTitle>Potwierdź usunięcie kierowcy</DialogTitle>
               <DialogDescription>
                 Czy na pewno chcesz usunąć kierowcę{" "}
-                <span className="font-semibold">
-                  {driverToDelete?.name}
-                </span>
-                ? Ta operacja jest nieodwracalna.
+                <span className="font-semibold">{driverToDelete?.name}</span>?
+                Ta operacja jest nieodwracalna.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

@@ -9,6 +9,8 @@ import { Input } from "@/components/shadcn/ui/input";
 import dayjs from "dayjs";
 import {
   Calendar1Icon,
+  CalendarArrowDown,
+  CalendarArrowUp,
   CalendarClockIcon,
   FunnelIcon,
   MailsIcon,
@@ -93,7 +95,11 @@ export default function DashboardSidebar() {
           <AccordionItem value="sort-by-date">
             <AccordionTrigger>
               <span className="icon-text">
-                <CalendarClockIcon size={18} />
+                {sidebarState.sortDate === "descending" ? (
+                  <CalendarArrowDown size={18} />
+                ) : (
+                  <CalendarArrowUp size={18} />
+                )}
                 <p className="font-normal text-foreground">Sortuj po dacie</p>
               </span>
             </AccordionTrigger>
@@ -134,7 +140,15 @@ export default function DashboardSidebar() {
           <AccordionItem value="sort-by-status">
             <AccordionTrigger>
               <span className="icon-text">
-                <FunnelIcon size={18} />{" "}
+                <FunnelIcon
+                  size={18}
+                  className={
+                    sidebarState.filterStatus &&
+                    sidebarState.filterStatus !== "Wszystkie"
+                      ? "text-primary"
+                      : "text-foreground"
+                  }
+                />
                 <p className="font-normal text-foreground">
                   Sortuj po statusie
                 </p>
@@ -259,7 +273,14 @@ export default function DashboardSidebar() {
           <AccordionItem value="filter-by-date">
             <AccordionTrigger>
               <span className="icon-text">
-                <Calendar1Icon size={18} />{" "}
+                <Calendar1Icon
+                  size={18}
+                  className={
+                    sidebarState.filterDate.from || sidebarState.filterDate.to
+                      ? "text-primary"
+                      : "text-foreground"
+                  }
+                />{" "}
                 <p className="font-normal text-foreground">Filtruj po dacie</p>
               </span>
             </AccordionTrigger>
@@ -297,7 +318,15 @@ export default function DashboardSidebar() {
           <AccordionItem value="filter-by-postal-code">
             <AccordionTrigger>
               <span className="icon-text">
-                <MailsIcon size={18} />
+                <MailsIcon
+                  size={18}
+                  className={
+                    sidebarState.filterPostalCode &&
+                    sidebarState.filterPostalCode !== "all"
+                      ? "text-primary"
+                      : "text-foreground"
+                  }
+                />
                 <p className="font-normal text-foreground">
                   Filtruj kody pocztowe
                 </p>
@@ -307,13 +336,14 @@ export default function DashboardSidebar() {
               <Label className="flex flex-col gap-1 items-start w-full">
                 <p className="text-xs font-normal">Zaczynające się od:</p>
                 <Select
+                  value={sidebarState.filterPostalCode}
                   onValueChange={(value) => {
                     filterFunctions.filterByPostalCode(value);
                     updateSidebarState({ filterPostalCode: value });
                   }}
                   defaultValue="all"
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full text-xs">
                     <SelectValue placeholder="Wybierz kod pocztowy" />
                   </SelectTrigger>
                   <SelectContent>
