@@ -1,27 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// BaseLinker integration configuration
-const BASELINKER_PASS =
-  process.env.BASELINKER_PASS || "l2il7serw6q4iksgamo4fwzvylsma6sp";
-
-// Database configuration - you'll need to set these environment variables
-const DB_CONFIG = {
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "",
-  pass: process.env.DB_PASS || "",
-  name: process.env.DB_NAME || "",
-  prefix: process.env.DB_PREFIX || "",
-  charset: "UTF-8",
-};
-
-// Error response helper
-function sendErrorResponse(errorCode: string, errorText: string = "") {
-  return NextResponse.json({
-    error: true,
-    error_code: errorCode,
-    error_text: errorText,
-  });
-}
+import { apiKeyAuth } from "@/helpers/apiKey.handler";
+import { ApiKeyType } from "@prisma/client";
 
 // FileVersion method - required for BaseLinker integration
 function handleFileVersion() {
@@ -41,6 +20,15 @@ function handleSupportedMethods() {
   ];
 }
 
+// Error response helper
+function sendErrorResponse(errorCode: string, errorText: string = "") {
+  return NextResponse.json({
+    error: true,
+    error_code: errorCode,
+    error_text: errorText,
+  });
+}
+
 // Main handler function
 export async function POST(request: NextRequest) {
   try {
@@ -56,8 +44,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if password is correct
-    if (!BASELINKER_PASS || BASELINKER_PASS !== blPass) {
+    // Authenticate API key
+    const authResult = await apiKeyAuth(blPass);
+
+    if (!authResult.success) {
+      return sendErrorResponse(
+        "incorrect_password",
+        "Nieprawidłowe hasło do komunikacji."
+      );
+    }
+
+    // Check if the API key is of BaseLinker type
+    if (authResult.apiKeyType !== ApiKeyType.BaseLinker) {
       return sendErrorResponse(
         "incorrect_password",
         "Nieprawidłowe hasło do komunikacji."
@@ -88,12 +86,4 @@ export async function POST(request: NextRequest) {
     console.error("BaseLinker integration error:", error);
     return sendErrorResponse("internal_error", "Wystąpił błąd wewnętrzny.");
   }
-}
-
-// Handle GET requests (for testing in browser)
-export async function GET() {
-  return sendErrorResponse(
-    "no_password",
-    "Odwołanie do pliku bez podania hasła. Jest to poprawny komunikat jeśli plik integracyjny został otworzony w przeglądarce internetowej."
-  );
 }
