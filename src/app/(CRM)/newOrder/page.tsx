@@ -316,10 +316,12 @@ export default function NewOrder() {
 
                     <div className="space-y-2">
                       <Label htmlFor="orderSupplierId">
-                        Identyfikator Zlecenia Dostawcy (np. ID z systemu
-                        dostawcy)
+                        ID z systemu Zleceniodawcy
                       </Label>
-                      <Input name="orderSupplierId" />
+                      <Input
+                        name="orderSupplierId"
+                        placeholder="np. Shop-123-456-789"
+                      />
                     </div>
 
                     <div className="space-y-2">

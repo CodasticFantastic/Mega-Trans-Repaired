@@ -6,11 +6,13 @@ import QRCode from "react-qr-code";
 import Image from "next/image";
 import Logo from "@/images/LogoBlack.png";
 
-import { generateWaybill } from "@/helpers/generatePdf";
+import { generateWaybillPdf } from "@/helpers/generatePdf";
 
 import { useSession } from "next-auth/react";
 
 import { Parser } from "html-to-react";
+import { Button } from "@/components/shadcn/ui/button";
+import { DownloadIcon } from "lucide-react";
 
 interface Package {
   packageId: string;
@@ -21,6 +23,7 @@ export default function Waybill() {
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const id = pathname.split("/")[2];
+  const [isLoading, setIsLoading] = useState(true);
 
   const { data: session } = useSession();
   const [orderData, setOrderData] = useState({
@@ -39,22 +42,23 @@ export default function Waybill() {
   });
 
   const [packages, setPackages] = useState<ReactElement[]>([]);
-  const [pageRender, setPageRender] = useState(0);
 
   useEffect(() => {
-    if (session && pageRender === 0) {
+    if (session) {
       getOrder();
-      setPageRender(1);
     }
   }, [session]);
 
-  if (orderData.id !== "" && pageRender === 1) {
-    generateWaybill(ref);
-    setPageRender(2);
-  }
+  // Funkcja do generowania PDF
+  const handleGeneratePdf = async () => {
+    if (ref.current) {
+      await generateWaybillPdf(ref);
+    }
+  };
 
   // Get order from API
   async function getOrder() {
+    setIsLoading(true);
     const req = await fetch(
       `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
       {
@@ -108,126 +112,141 @@ export default function Waybill() {
         })
       );
     }
+    setIsLoading(false);
   }
 
   return (
-    <div
-      className="bg-white w-[21cm] h-[29.7cm] text-black p-[0.5cm] flex flex-col"
-      ref={ref}
-    >
-      <header>
-        <Image
-          src={Logo}
-          alt="Logo"
-          priority
-          className="mx-auto w-[100px] h-[100px] object-contain"
-        />
-        <div className="border-t border-b border-black pb-[0.5cm] pt-[0.5cm] flex justify-between items-center">
-          <div>
-            <h1 className="text-[1.9rem] font-semibold mb-[0.2cm]">
-              Podstawowe Informacje
-            </h1>
-            <p className="text-[1.2rem] font-medium m-0">
-              Nadawca: <span className="font-normal">{orderData.sender}</span>
-            </p>
-            <p className="text-[1.2rem] font-medium m-0">
-              Telefon Nadawcy:{" "}
-              <span className="font-normal">
-                {orderData.senderPhone.replace(
-                  /^(.{3})(.{3})(.*)$/,
-                  "$1 $2 $3"
-                )}
-              </span>
-            </p>
-            <p className="text-[1.2rem] font-medium m-0">
-              Zlecenie: <span className="font-normal">{orderData.id}</span>
-            </p>
-            <p className="text-[1.2rem] font-medium m-0">
-              Ilość Paczek:{" "}
-              <span className="font-normal">{orderData.packagesNumber}</span>
-            </p>
+    <>
+      <Button
+        variant="default"
+        className="m-4"
+        onClick={handleGeneratePdf}
+        disabled={isLoading}
+      >
+        <DownloadIcon /> Pobierz dokument
+      </Button>
+      <div
+        className="bg-white w-[21cm] h-[29.7cm] text-black p-[0.5cm] flex flex-col"
+        ref={ref}
+      >
+        <header>
+          <Image
+            src={Logo}
+            alt="Logo"
+            priority
+            className="mx-auto w-[100px] h-[100px] object-contain"
+          />
+          <div className="border-t border-b border-black pb-[0.5cm] pt-[0.5cm] flex justify-between items-center">
+            <div>
+              <h1 className="text-[1.9rem] font-semibold mb-[0.2cm]">
+                Podstawowe Informacje
+              </h1>
+              <p className="text-[1.2rem] font-medium m-0">
+                Nadawca: <span className="font-normal">{orderData.sender}</span>
+              </p>
+              <p className="text-[1.2rem] font-medium m-0">
+                Telefon Nadawcy:{" "}
+                <span className="font-normal">
+                  {orderData.senderPhone.replace(
+                    /^(.{3})(.{3})(.*)$/,
+                    "$1 $2 $3"
+                  )}
+                </span>
+              </p>
+              <p className="text-[1.2rem] font-medium m-0">
+                Zlecenie: <span className="font-normal">{orderData.id}</span>
+              </p>
+              <p className="text-[1.2rem] font-medium m-0">
+                Ilość Paczek:{" "}
+                <span className="font-normal">{orderData.packagesNumber}</span>
+              </p>
+            </div>
+            <div>
+              <QRCode value={id} size={140} />
+            </div>
           </div>
-          <div>
-            <QRCode value={id} size={140} />
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="mt-[0.2cm] min-h-0">
-        <h2 className="mt-0 text-[1.8rem] font-semibold mb-0 text-left text-black">
-          Informacje o Przesyłce
-        </h2>
-        <div className="flex mb-[0.3cm] justify-between">
-          <p className="flex flex-col w-[25%] text-sm font-medium m-0">
-            Rodzaj transportu:{" "}
-            <span className="text-[1.2rem] font-normal">
-              {orderData.orderType}
-            </span>
-          </p>
-          <p className="flex flex-col w-[45%] text-sm font-medium m-0">
-            Nazwa Odbiorcy:{" "}
-            <span className="text-[1.2rem] font-normal">
-              {orderData.recipient}
-            </span>
-          </p>
-          <p className="flex flex-col w-[30%] text-sm font-medium m-0">
-            Numer Telefonu:{" "}
-            <span className="text-[1.2rem] font-normal">
-              {orderData.recipientPhone}
-            </span>
-          </p>
-        </div>
-        <div className="flex mb-[0.3cm] justify-between">
-          <p className="flex flex-col w-[25%] text-sm font-medium m-0">
-            Płatność:{" "}
-            <span className="text-[1.2rem] font-normal">{orderData.price}</span>
-          </p>
-          <p className="flex flex-col w-[45%] text-sm font-medium m-0">
-            Adres:{" "}
-            <span className="text-[1.2rem] font-normal">
-              {orderData.address}
-            </span>
-          </p>
-          <p className="flex flex-col w-[30%] text-sm font-medium m-0">
-            Miejscowość:{" "}
-            <span className="text-[1.2rem] font-normal">{orderData.city}</span>
-          </p>
-        </div>
-        {orderData.orderNote && (
+        <main className="mt-[0.2cm] min-h-0">
+          <h2 className="mt-0 text-[1.8rem] font-semibold mb-0 text-left text-black">
+            Informacje o Przesyłce
+          </h2>
           <div className="flex mb-[0.3cm] justify-between">
-            <p className="text-sm font-medium m-0">
-              Dodatkowe Informacje:{" "}
+            <p className="flex flex-col w-[25%] text-sm font-medium m-0">
+              Rodzaj transportu:{" "}
               <span className="text-[1.2rem] font-normal">
-                {orderData.orderNote}
+                {orderData.orderType}
+              </span>
+            </p>
+            <p className="flex flex-col w-[45%] text-sm font-medium m-0">
+              Nazwa Odbiorcy:{" "}
+              <span className="text-[1.2rem] font-normal">
+                {orderData.recipient}
+              </span>
+            </p>
+            <p className="flex flex-col w-[30%] text-sm font-medium m-0">
+              Numer Telefonu:{" "}
+              <span className="text-[1.2rem] font-normal">
+                {orderData.recipientPhone}
               </span>
             </p>
           </div>
-        )}
+          <div className="flex mb-[0.3cm] justify-between">
+            <p className="flex flex-col w-[25%] text-sm font-medium m-0">
+              Płatność:{" "}
+              <span className="text-[1.2rem] font-normal">
+                {orderData.price}
+              </span>
+            </p>
+            <p className="flex flex-col w-[45%] text-sm font-medium m-0">
+              Adres:{" "}
+              <span className="text-[1.2rem] font-normal">
+                {orderData.address}
+              </span>
+            </p>
+            <p className="flex flex-col w-[30%] text-sm font-medium m-0">
+              Miejscowość:{" "}
+              <span className="text-[1.2rem] font-normal">
+                {orderData.city}
+              </span>
+            </p>
+          </div>
+          {orderData.orderNote && (
+            <div className="flex mb-[0.3cm] justify-between">
+              <p className="text-sm font-medium m-0">
+                Dodatkowe Informacje:{" "}
+                <span className="text-[1.2rem] font-normal">
+                  {orderData.orderNote}
+                </span>
+              </p>
+            </div>
+          )}
 
-        <h2 className="border-t border-black pt-[0.2cm] mt-0 text-[1.8rem] font-semibold mb-0 text-left text-black">
-          Wykaz Paczek
-        </h2>
+          <h2 className="border-t border-black pt-[0.2cm] mt-0 text-[1.8rem] font-semibold mb-0 text-left text-black">
+            Wykaz Paczek
+          </h2>
 
-        <div className="mt-[0.2cm]">{packages}</div>
-      </main>
-      <footer className="mt-auto mb-0">
-        <p className="text-sm">
-          Ze względu na umówione godziny dostaw, a także wydajność kierowców,
-          zakupiony przez Państwa towar należy wnieść we własnym zakresie.
-          Kierwoca nie ma obowiązku wnoszenia mebli do domu/mieszkania.
-          <br />
-          <br />
-          Sprawdź towar w obecności kierowcy. <br />
-          <br />
-          Potwierdzam odbiór dostarczonego, nieuszkodzonego produktu. Towar jest
-          kompletny, zgodny z zamówieniem, pozbawiony zniszczeń i wad.
-        </p>
-        <div className="flex justify-between mt-[1cm]">
-          <p className="border-t border-black w-[30%]">Data odbioru</p>
-          <p className="border-t border-black w-[20%]">Godzina odbioru</p>
-          <p className="border-t border-black w-[30%]">Podpis odbiorcy</p>
-        </div>
-      </footer>
-    </div>
+          <div className="mt-[0.2cm]">{packages}</div>
+        </main>
+        <footer className="mt-auto mb-0">
+          <p className="text-sm">
+            Ze względu na umówione godziny dostaw, a także wydajność kierowców,
+            zakupiony przez Państwa towar należy wnieść we własnym zakresie.
+            Kierowca nie ma obowiązku wnoszenia mebli do domu/mieszkania.
+            <br />
+            <br />
+            Sprawdź towar w obecności kierowcy. <br />
+            <br />
+            Potwierdzam odbiór dostarczonego, nieuszkodzonego produktu. Towar
+            jest kompletny, zgodny z zamówieniem, pozbawiony zniszczeń i wad.
+          </p>
+          <div className="flex justify-between mt-[1cm]">
+            <p className="border-t border-black w-[30%]">Data odbioru</p>
+            <p className="border-t border-black w-[20%]">Godzina odbioru</p>
+            <p className="border-t border-black w-[30%]">Podpis odbiorcy</p>
+          </div>
+        </footer>
+      </div>
+    </>
   );
 }

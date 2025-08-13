@@ -8,10 +8,11 @@ import Logo from "@/images/LogoBlack.png";
 
 import { useSession } from "next-auth/react";
 
-import { jsPDF } from "jspdf";
-import { toPng } from "html-to-image";
+import { generateDocumentationPdf } from "@/helpers/generatePdf";
 
 import { Parser } from "html-to-react";
+import { Button } from "@/components/shadcn/ui/button";
+import { DownloadIcon } from "lucide-react";
 
 interface Package {
   packageId: string;
@@ -21,9 +22,10 @@ interface Package {
 
 export default function ShortDocumentation() {
   const listRef = useRef<(HTMLDivElement | null)[]>([]);
-  const waybilRef = useRef<HTMLDivElement>(null);
+  const waybillRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const id = pathname.split("/")[2];
+  const [isLoading, setIsLoading] = useState(true);
 
   const { data: session } = useSession();
   const [packages, setPackages] = useState<ReactElement | null>(null);
@@ -51,6 +53,7 @@ export default function ShortDocumentation() {
 
   // Get order from API
   async function getOrder() {
+    setIsLoading(true);
     const req = await fetch(
       `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
       {
@@ -198,59 +201,29 @@ export default function ShortDocumentation() {
         })
       );
     }
+    setIsLoading(false);
   }
 
   // Generate PDF with Labels
   async function generatePdf() {
-    const doc = new jsPDF({ format: [210, 297] });
-    let labelsCounter = 0;
-
-    if (waybilRef.current) {
-      const waybill = await toPng(waybilRef.current, { quality: 0.95 });
-      doc.addImage(waybill, "JPGG", 0, 0, 210, 297);
-      doc.addPage();
-    }
-
-    for (let i = 0; i < listRef.current.length; i++) {
-      const element = listRef.current[i];
-      if (element) {
-        const image = await toPng(element, { quality: 0.95 });
-        switch (labelsCounter) {
-          case 0:
-            doc.addImage(image, "JPGG", 5, 10, 100, 140);
-            labelsCounter++;
-            break;
-          case 1:
-            doc.addImage(image, "JPGG", 105, 10, 100, 140);
-            labelsCounter++;
-            break;
-          case 2:
-            doc.addImage(image, "JPGG", 5, 150, 100, 140);
-            labelsCounter++;
-            break;
-          case 3:
-            doc.addImage(image, "JPGG", 105, 150, 100, 140);
-            labelsCounter = 0;
-            doc.addPage();
-            break;
-        }
-      }
-    }
-
-    doc.save("Dokumentacja Transportowa.pdf");
+    await generateDocumentationPdf(waybillRef, listRef.current);
   }
 
   return (
     <>
-      <button
-        onClick={() => generatePdf()}
-        className="w-[150px] h-[50px] mb-5 rounded outline-none cursor-pointer hover:bg-gray-600"
+      <Button
+        variant="default"
+        className="m-4"
+        onClick={() => {
+          generatePdf();
+        }}
+        disabled={isLoading}
       >
-        Pobierz Etykiety
-      </button>
+        <DownloadIcon /> Pobierz Pełną Dokumentację
+      </Button>
       <div
         className="bg-white w-[21cm] h-[29.7cm] text-black p-[0.5cm] flex flex-col"
-        ref={waybilRef}
+        ref={waybillRef}
       >
         <header>
           <Image

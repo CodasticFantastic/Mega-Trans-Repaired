@@ -5,13 +5,11 @@ import { useEffect, useRef, useState, ReactElement } from "react";
 import QRCode from "react-qr-code";
 import Image from "next/image";
 import Logo from "@/images/LogoBlack.png";
-
 import { useSession } from "next-auth/react";
-
-import { jsPDF } from "jspdf";
-import { toPng } from "html-to-image";
-
+import { generateLabelsPdf } from "@/helpers/generatePdf";
 import { Parser } from "html-to-react";
+import { Button } from "@/components/shadcn/ui/button";
+import { DownloadIcon } from "lucide-react";
 
 interface Package {
   packageId: string;
@@ -23,7 +21,7 @@ export default function Label() {
   const listRef = useRef<(HTMLDivElement | null)[]>([]);
   const pathname = usePathname();
   const id = pathname.split("/")[2];
-
+  const [isLoading, setIsLoading] = useState(true);
   const { data: session } = useSession();
 
   const [packages, setPackages] = useState<ReactElement | null>(null);
@@ -36,22 +34,12 @@ export default function Label() {
 
   // Generate PDF with Labels
   async function generatePdf() {
-    const doc = new jsPDF({ format: [100, 150] });
-
-    for (let i = 0; i < listRef.current.length; i++) {
-      const element = listRef.current[i];
-      if (element) {
-        const image = await toPng(element, { quality: 0.95 });
-        doc.addImage(image, "JPGG", 0, 5, 100, 140);
-        if (i !== listRef.current.length - 1) doc.addPage();
-      }
-    }
-
-    doc.save("Etykiety.pdf");
+    await generateLabelsPdf(listRef.current);
   }
 
   // Get order from API
   async function getOrder() {
+    setIsLoading(true);
     const req = await fetch(
       `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
       {
@@ -164,17 +152,26 @@ export default function Label() {
         })
       );
     }
+    setIsLoading(false);
   }
 
   return (
-    <div className="bg-white p-[0.3cm] flex flex-col" id="Labels">
-      <button
-        onClick={() => generatePdf()}
-        className="w-[150px] h-[50px] mb-5 rounded outline-none cursor-pointer hover:bg-gray-600"
-      >
-        Pobierz Etykiety
-      </button>
-      {packages}
-    </div>
+    <>
+      <div className="bg-white">
+        <Button
+          variant="secondary"
+          className="m-4"
+          onClick={() => {
+            generatePdf();
+          }}
+          disabled={isLoading}
+        >
+          <DownloadIcon /> Pobierz Etykiety
+        </Button>
+      </div>
+      <div className="bg-white p-[0.3cm] flex flex-col" id="Labels">
+        {packages}
+      </div>
+    </>
   );
 }

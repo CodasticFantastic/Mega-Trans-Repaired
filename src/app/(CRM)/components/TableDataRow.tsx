@@ -8,6 +8,7 @@ import {
   CircleChevronDownIcon,
   EditIcon,
   PhoneIcon,
+  ShoppingBagIcon,
 } from "lucide-react";
 import { Button } from "@/components/shadcn/ui/button";
 import { TableRow, TableCell } from "@/components/shadcn/ui/table";
@@ -199,6 +200,21 @@ export default function TableDataRow({
                           <p>Data utworzenia zamówienia</p>
                         </TooltipContent>
                       </Tooltip>
+                      {order.orderSupplierId && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="icon-text">
+                              <ShoppingBagIcon size={16} />
+                              <p className="text-sm">
+                                {Parser().parse(order.orderSupplierId)}
+                              </p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Identyfikator Zlecenia Dostawcy</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="icon-text">
@@ -221,12 +237,19 @@ export default function TableDataRow({
                           <p>Email do odbiorcy</p>
                         </TooltipContent>
                       </Tooltip>
-                      <div className="icon-text">
-                        <Building2Icon size={16} />
-                        <p className="text-sm">
-                          {Parser().parse(order.user.company || "")}
-                        </p>
-                      </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="icon-text">
+                            <Building2Icon size={16} />
+                            <p className="text-sm">
+                              {Parser().parse(order.user.company || "")}
+                            </p>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Zleceniodawca</p>
+                        </TooltipContent>
+                      </Tooltip>
                     </TooltipProvider>
                   </div>
                 </div>

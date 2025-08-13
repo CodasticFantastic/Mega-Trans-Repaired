@@ -57,6 +57,7 @@ export async function GET(req: Request) {
           { orderCity: { contains: searchId ? searchId : "" } },
           { recipientName: { contains: searchId ? searchId : "" } },
           { user: { company: { contains: searchId ? searchId : "" } } },
+          { orderSupplierId: { contains: searchId ? searchId : "" } },
         ],
         status: status === "Wszystkie" ? undefined : status,
         createdAt: {

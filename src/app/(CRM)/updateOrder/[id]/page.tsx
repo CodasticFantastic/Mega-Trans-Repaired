@@ -479,10 +479,10 @@ export default function UpdateOrder({
 
                     <div className="space-y-2">
                       <Label htmlFor="orderSupplierId">
-                        Identyfikator Zlecenia Dostawcy (np. ID z systemu
-                        dostawcy)
+                        ID z systemu Zleceniodawcy
                       </Label>
                       <Input
+                        placeholder="np. Shop-123-456-789"
                         name="orderSupplierId"
                         value={orderForm.orderSupplierId}
                         onChange={(e) => {
