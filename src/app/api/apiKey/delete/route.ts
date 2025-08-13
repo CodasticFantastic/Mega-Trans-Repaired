@@ -1,4 +1,5 @@
 import { generateApiKey } from "@/helpers/apiKey.handler";
+import { encryptApiKey } from "@/helpers/encryption";
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
@@ -9,7 +10,7 @@ import z from "zod";
 export async function POST(req: Request) {
   const accessToken = req.headers.get("Authorization");
 
-  const authResult = authGuard("Generate Api Key", accessToken, [Role.USER]);
+  const authResult = authGuard("Delete Api Key", accessToken, [Role.USER]);
 
   if (!authResult.success) {
     return new Response(JSON.stringify({ message: "UNAUTHORIZED" }), {
@@ -26,10 +27,11 @@ export async function POST(req: Request) {
     }
 
     const { apiKey } = parsedBody.data;
+    const encryptedApiKey = encryptApiKey(apiKey);
 
     const deletedApiKey = await prisma.apiKey.delete({
       where: {
-        apiKey: apiKey,
+        apiKey: encryptedApiKey,
         userId: authResult.userId,
       },
     });

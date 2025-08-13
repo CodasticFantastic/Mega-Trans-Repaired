@@ -5,6 +5,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/shadcn/ui/alert";
+import { Badge } from "@/components/shadcn/ui/badge";
 import { Button } from "@/components/shadcn/ui/button";
 import {
   Dialog,
@@ -16,9 +17,18 @@ import {
   DialogTrigger,
 } from "@/components/shadcn/ui/dialog";
 import { Input } from "@/components/shadcn/ui/input";
-import { ApiKey } from "@prisma/client";
+import { Label } from "@/components/shadcn/ui/label";
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+} from "@/components/shadcn/ui/select";
+import { ApiKey, ApiKeyType } from "@prisma/client";
 import {
   BlocksIcon,
+  EyeIcon,
   InfoIcon,
   Loader2Icon,
   Trash2Icon,
@@ -40,12 +50,7 @@ export const IntegrationsModal = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [createNewApiKey, setCreateNewApiKey] = useState(false);
-  const [apiKeyName, setApiKeyName] = useState("");
   const [isDataSending, setIsDataSending] = useState(false);
-  const [generateApiKeyError, setGenerateApiKeyError] = useState<string | null>(
-    null
-  );
   const [myIntegrationsKeys, setMyIntegrationsKeys] = useState<
     CustomApiKeyList[]
   >([]);
@@ -80,8 +85,9 @@ export const IntegrationsModal = () => {
         duration: 1500,
         richColors: true,
         style: {
-          backgroundColor: "var(--color-dark-primary)",
-          color: "var(--color-text-primary)",
+          backgroundColor: "var(--color-background)",
+          color: "var(--color-green)",
+          border: "1px solid var(--color-green)",
         },
       });
     } catch {
@@ -115,8 +121,9 @@ export const IntegrationsModal = () => {
           duration: 2500,
           richColors: true,
           style: {
-            backgroundColor: "var(--color-dark-primary)",
-            color: "var(--color-text-primary)",
+            backgroundColor: "var(--color-background)",
+            color: "var(--color-green)",
+            border: "1px solid var(--color-green)",
           },
         });
 
@@ -126,8 +133,9 @@ export const IntegrationsModal = () => {
           duration: 2500,
           richColors: true,
           style: {
-            backgroundColor: "var(--color-red)",
-            color: "var(--color-text-primary)",
+            backgroundColor: "var(--color-background)",
+            color: "var(--color-destructive)",
+            border: "1px solid var(--color-destructive)",
           },
         });
       }
@@ -136,55 +144,9 @@ export const IntegrationsModal = () => {
         duration: 2500,
         richColors: true,
         style: {
-          backgroundColor: "var(--color-red)",
-          color: "var(--color-text-primary)",
-        },
-      });
-    } finally {
-      setIsDataSending(false);
-    }
-  };
-
-  const handleCreateNewApiKey = async () => {
-    try {
-      setGenerateApiKeyError(null);
-      setIsDataSending(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/generate`,
-        {
-          method: "POST",
-          headers: { Authorization: session?.accessToken ?? "" },
-          body: JSON.stringify({ apiKeyName: apiKeyName }),
-        }
-      );
-
-      const responseData = await response.json();
-
-      if (responseData.error === "API_KEY_ALREADY_EXISTS") {
-        setGenerateApiKeyError("Klucz o podanej nazwie już istnieje");
-      }
-
-      if (responseData.apiKey) {
-        toast("Klucz został utworzony", {
-          duration: 2500,
-          richColors: true,
-          style: {
-            backgroundColor: "var(--color-dark-primary)",
-            color: "var(--color-text-primary)",
-          },
-        });
-
-        fetchMyIntegrationsKeys();
-        setCreateNewApiKey(false);
-        setApiKeyName("");
-      }
-    } catch (error) {
-      toast("Nie udało się utworzyć klucza", {
-        duration: 2500,
-        richColors: true,
-        style: {
-          backgroundColor: "var(--color-red)",
-          color: "var(--color-text-primary)",
+          backgroundColor: "var(--color-background)",
+          color: "var(--color-destructive)",
+          border: "1px solid var(--color-destructive)",
         },
       });
     } finally {
@@ -196,9 +158,6 @@ export const IntegrationsModal = () => {
     if (dialogOpen) {
       fetchMyIntegrationsKeys();
       setConfirmDelete(null);
-      setCreateNewApiKey(false);
-      setApiKeyName("");
-      setGenerateApiKeyError(null);
       setIsDataSending(false);
     }
   }, [dialogOpen]);
@@ -255,18 +214,19 @@ export const IntegrationsModal = () => {
           </Alert>
         )}
         {!isLoading && myIntegrationsKeys.length > 0 && (
-          <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto">
+          <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto divide-y divide-border">
             {myIntegrationsKeys.map((key) => (
               <div
                 key={key.apiKey}
-                className="grid grid-cols-[1fr_auto_auto] border-b !border-[var(--color-gray)] gap-3 !pb-2 items-center"
+                className="grid grid-cols-[1fr_auto_auto] gap-3 !pb-2 items-center"
               >
                 <p className="text-sm">{key.apiKeyName}</p>
                 <p
-                  className="text-sm cursor-pointer text-[var(--color-blue)] hover:underline"
+                  className="icon-text text-primary text-xs cursor-pointer hover:underline"
                   onClick={() => handleCopy(key.apiKey)}
                 >
-                  Skopiuj wartość klucza
+                  <EyeIcon size={16} />
+                  Kopiuj klucz
                 </p>
                 <div className="text-sm flex justify-end">
                   {confirmDelete === key.apiKey ? (
@@ -306,47 +266,213 @@ export const IntegrationsModal = () => {
           </div>
         )}
         <DialogFooter>
-          {createNewApiKey && (
-            <form
-              className="flex gap-2 w-full"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleCreateNewApiKey();
-              }}
+          <CreateNewApiKeyModal onApiKeyCreated={fetchMyIntegrationsKeys} />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+interface CreateNewApiKeyModalProps {
+  onApiKeyCreated: () => void;
+}
+
+const CreateNewApiKeyModal = ({
+  onApiKeyCreated,
+}: CreateNewApiKeyModalProps) => {
+  const { data: session } = useSession();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [apiKeyName, setApiKeyName] = useState("");
+  const [apiKeyType, setApiKeyType] = useState<ApiKeyType>();
+  const [apiKeyValue, setApiKeyValue] = useState<string>();
+  const [isDataSending, setIsDataSending] = useState(false);
+  const [generateApiKeyError, setGenerateApiKeyError] = useState<string | null>(
+    null
+  );
+
+  const handleCreateNewApiKey = async () => {
+    try {
+      setGenerateApiKeyError(null);
+      setIsDataSending(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/generate`,
+        {
+          method: "POST",
+          headers: { Authorization: session?.accessToken ?? "" },
+          body: JSON.stringify({
+            apiKeyName: apiKeyName,
+            apiKeyType: apiKeyType,
+            apiKeyValue: apiKeyValue ?? "",
+          }),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (responseData.error === "API_KEY_ALREADY_EXISTS") {
+        setGenerateApiKeyError("Klucz o podanej nazwie już istnieje");
+        return;
+      }
+
+      if (responseData.apiKey) {
+        toast("Klucz został utworzony", {
+          duration: 2500,
+          richColors: true,
+          style: {
+            backgroundColor: "var(--color-background)",
+            color: "var(--color-green)",
+            border: "1px solid var(--color-green)",
+          },
+        });
+
+        onApiKeyCreated();
+        setDialogOpen(false);
+        setApiKeyName("");
+        setApiKeyType(undefined);
+      } else {
+        toast("Nie udało się utworzyć klucza", {
+          duration: 2500,
+          richColors: true,
+          style: {
+            backgroundColor: "var(--color-background)",
+            color: "var(--color-destructive)",
+            border: "1px solid var(--color-destructive)",
+          },
+        });
+      }
+    } catch (error) {
+      toast("Nie udało się utworzyć klucza", {
+        duration: 2500,
+        richColors: true,
+        style: {
+          backgroundColor: "var(--color-background)",
+          color: "var(--color-destructive)",
+          border: "1px solid var(--color-destructive)",
+        },
+      });
+    } finally {
+      setIsDataSending(false);
+    }
+  };
+
+  const handleToggleModal = () => {
+    if (dialogOpen) {
+      setDialogOpen(false);
+    } else {
+      setDialogOpen(true);
+      setApiKeyName("");
+      setApiKeyType(undefined);
+      setGenerateApiKeyError(null);
+      setIsDataSending(false);
+      setApiKeyValue(undefined);
+    }
+  };
+
+  return (
+    <Dialog open={dialogOpen} onOpenChange={handleToggleModal}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="!px-2 cursor-pointer">
+          Utwórz klucz
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Tworzenie nowego klucza API</DialogTitle>
+          <DialogDescription>
+            Utwórz nowy klucz API do integracji z systemami zewnętrznymi.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          className="flex flex-col gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCreateNewApiKey();
+          }}
+        >
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="apiKeyType">Typ klucza</Label>
+            <Select
+              required
+              value={apiKeyType}
+              onValueChange={(value) => setApiKeyType(value as ApiKeyType)}
             >
-              <div className="w-full">
+              <SelectTrigger>
+                <SelectValue placeholder="Wybierz typ klucza" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ApiKeyType.BaseLinker}>
+                  BaseLinker
+                </SelectItem>
+                <SelectItem value={ApiKeyType.CustomIntegration}>
+                  Własna Integracja
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {apiKeyType === ApiKeyType.CustomIntegration && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="apiKeyName">Nazwa klucza</Label>
+              <Input
+                id="apiKeyName"
+                placeholder="np. Sklep internetowy"
+                value={apiKeyName}
+                onChange={(e) => setApiKeyName(e.target.value)}
+                required
+              />
+            </div>
+          )}
+
+          {apiKeyType === ApiKeyType.BaseLinker && (
+            <>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="apiKeyName">Nazwa klucza API</Label>
                 <Input
-                  placeholder="Nazwa klucza (np. Sklep Internetowy)"
-                  className="!px-2"
+                  id="apiKeyName"
+                  placeholder="np. BaseLinker"
                   value={apiKeyName}
                   onChange={(e) => setApiKeyName(e.target.value)}
                   required
                 />
-                {generateApiKeyError && (
-                  <p className="text-sm text-destructive">
-                    {generateApiKeyError}
-                  </p>
-                )}
               </div>
-              <Button
-                variant="outline"
-                className="!px-2 cursor-pointer"
-                disabled={isDataSending}
-              >
-                Utwórz klucz
-              </Button>
-            </form>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="apiKeyName">Wartość klucza API</Label>
+                <Input
+                  id="apiKeyName"
+                  placeholder="Hasło komunikacji z panelu BaseLinker"
+                  value={apiKeyValue}
+                  onChange={(e) => setApiKeyValue(e.target.value)}
+                  // required
+                />
+              </div>
+            </>
           )}
-          {!createNewApiKey && (
+
+          {generateApiKeyError && (
+            <p className="text-sm text-destructive">{generateApiKeyError}</p>
+          )}
+
+          <DialogFooter>
             <Button
+              type="button"
               variant="outline"
-              className="!px-2 cursor-pointer"
-              onClick={() => setCreateNewApiKey(true)}
+              onClick={() => setDialogOpen(false)}
+              disabled={isDataSending}
             >
-              Utwórz klucz
+              Anuluj
             </Button>
-          )}
-        </DialogFooter>
+            <Button type="submit" disabled={isDataSending}>
+              {isDataSending ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Tworzenie...
+                </>
+              ) : (
+                "Utwórz klucz"
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

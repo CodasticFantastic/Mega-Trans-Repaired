@@ -1,8 +1,9 @@
 import { generateApiKey } from "@/helpers/apiKey.handler";
+import { encryptApiKey } from "@/helpers/encryption";
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
-import { Prisma, Role } from "@prisma/client";
+import { ApiKeyType, Prisma, Role } from "@prisma/client";
 import { CreateApiKeySchema } from "types/apiKey.types";
 import z from "zod";
 
@@ -38,12 +39,22 @@ export async function POST(req: Request) {
       });
     }
 
-    const { apiKeyName } = parsedBody.data;
-    const apiKey = generateApiKey();
+    const { apiKeyName, apiKeyType } = parsedBody.data;
+    let apiKey: string;
+
+    // Type guard dla BaseLinker
+    if (parsedBody.data.apiKeyType === ApiKeyType.BaseLinker && 'apiKeyValue' in parsedBody.data) {
+      apiKey = parsedBody.data.apiKeyValue;
+    } else {
+      apiKey = generateApiKey();
+    }
+
+    const encryptedApiKey = encryptApiKey(apiKey);
 
     const apiKeyData: Prisma.ApiKeyCreateInput = {
       apiKeyName: apiKeyName,
-      apiKey: apiKey,
+      apiKey: encryptedApiKey,
+      type: apiKeyType as ApiKeyType,
       user: {
         connect: {
           id: authResult.userId,
@@ -57,8 +68,9 @@ export async function POST(req: Request) {
 
     return new Response(
       JSON.stringify({
-        apiKeyName: apiKeyData.apiKeyName,
-        apiKey: apiKeyData.apiKey,
+        apiKeyName: newApiKey.apiKeyName,
+        apiKey: newApiKey.apiKey,
+        apiKeyType: newApiKey.type,
       }),
       { status: 200 }
     );

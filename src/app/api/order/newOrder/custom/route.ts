@@ -5,6 +5,7 @@ import z from "zod";
 import validator from "validator";
 import { v4 as uuidv4 } from "uuid";
 import {
+  ApiKeyType,
   CommodityPaymentType,
   CommodityType,
   OrderType,
@@ -21,6 +22,16 @@ export async function POST(request: Request) {
   if (!externalAuthResult.success) {
     console.warn("[CUSTOM API] NEW ORDER - UNAUTHORIZED REQUEST");
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  if (externalAuthResult.apiKeyType !== ApiKeyType.CustomIntegration) {
+    console.warn("[CUSTOM API] NEW ORDER - UNAUTHORIZED REQUEST");
+    return new Response(JSON.stringify({ error: "Invalid API Key Type" }), {
       status: 401,
       headers: {
         "Content-Type": "application/json",

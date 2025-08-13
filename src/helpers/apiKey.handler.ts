@@ -1,9 +1,12 @@
 import prisma from "@/helpers/prismaClient";
 import crypto from "crypto";
+import { encryptApiKey } from "./encryption";
+import { ApiKeyType } from "@prisma/client";
 
 interface ApiKeyAuthResult {
   success: boolean;
   userId?: number;
+  apiKeyType?: ApiKeyType;
   error?: string;
 }
 
@@ -23,9 +26,11 @@ export async function apiKeyAuth(
   }
 
   try {
+    const encryptedApiKey = encryptApiKey(apiKey);
+
     const keyRecord = await prisma.apiKey.findFirst({
       where: {
-        apiKey: apiKey,
+        apiKey: encryptedApiKey,
         isActive: true,
         deletedAt: null,
       },
@@ -50,6 +55,7 @@ export async function apiKeyAuth(
     return {
       success: true,
       userId: keyRecord.userId,
+      apiKeyType: keyRecord.type,
     };
   } catch (error) {
     return {

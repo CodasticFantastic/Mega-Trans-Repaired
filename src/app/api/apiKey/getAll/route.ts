@@ -1,4 +1,5 @@
 import { generateApiKey } from "@/helpers/apiKey.handler";
+import { decryptApiKey } from "@/helpers/encryption";
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
@@ -32,7 +33,8 @@ export async function GET(req: Request) {
 
     const apiKeyData = userApiKeys.map((apiKey: ApiKey) => ({
       apiKeyName: apiKey.apiKeyName,
-      apiKey: apiKey.apiKey,
+      apiKey: decryptApiKey(apiKey.apiKey),
+      type: apiKey.type,
       lastUsed: apiKey.lastUsed,
     }));
 

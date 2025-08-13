@@ -118,15 +118,21 @@ model Package {
   deletedAt     DateTime?
 }
 
+enum ApiKeyType {
+  BaseLinker
+  CustomIntegration
+}
+
 model ApiKey {
-  id         Int       @id @default(autoincrement())
-  apiKey     String    @unique @map("api_key")
-  apiKeyName String    @map("api_key_name")
-  userId     Int       @map("user_id")
-  user       User      @relation(fields: [userId], references: [id])
-  isActive   Boolean   @default(true) @map("is_active")
-  lastUsed   DateTime? @map("last_used")
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @updatedAt @map("updated_at")
-  deletedAt  DateTime? @map("deleted_at")
+  id         Int        @id @default(autoincrement())
+  apiKey     String     @unique @map("api_key")
+  apiKeyName String     @map("api_key_name")
+  userId     Int        @map("user_id")
+  user       User       @relation(fields: [userId], references: [id])
+  type       ApiKeyType @default(CustomIntegration)
+  isActive   Boolean    @default(true) @map("is_active")
+  lastUsed   DateTime?  @map("last_used")
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+  deletedAt  DateTime?  @map("deleted_at")
 }
