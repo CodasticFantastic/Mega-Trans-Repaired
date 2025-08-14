@@ -19,6 +19,19 @@ import {
 import { Input } from "@/components/shadcn/ui/input";
 import { Label } from "@/components/shadcn/ui/label";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "@/components/shadcn/ui/dropdown-menu";
+import { DatePicker } from "@/components/date-picker";
+import {
   Select,
   SelectItem,
   SelectTrigger,
@@ -26,13 +39,16 @@ import {
   SelectContent,
 } from "@/components/shadcn/ui/select";
 import { ApiKey, ApiKeyType } from "@prisma/client";
+import dayjs from "dayjs";
 import {
   BlocksIcon,
   EyeIcon,
   InfoIcon,
   Loader2Icon,
+  RefreshCwIcon,
   Trash2Icon,
   TriangleAlertIcon,
+  MoreHorizontalIcon,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -43,6 +59,7 @@ interface CustomApiKeyList {
   apiKey: ApiKey["apiKey"];
   apiKeyName: ApiKey["apiKeyName"];
   lastUsed: ApiKey["lastUsed"];
+  type: ApiKey["type"];
 }
 
 export const IntegrationsModal = () => {
@@ -51,6 +68,13 @@ export const IntegrationsModal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [isDataSending, setIsDataSending] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [searchFromByKey, setSearchFromByKey] = useState<
+    Record<string, Date | undefined>
+  >({});
+  const [statusIdByKey, setStatusIdByKey] = useState<
+    Record<string, number | undefined>
+  >({});
   const [myIntegrationsKeys, setMyIntegrationsKeys] = useState<
     CustomApiKeyList[]
   >([]);
@@ -154,6 +178,95 @@ export const IntegrationsModal = () => {
     }
   };
 
+  enum SyncErrorCodes {
+    INVALID_BASELINKER_API_KEY = "INVALID_BASELINKER_API_KEY",
+    BASE_LINKER_API_KEY_NOT_FOUND = "BASE_LINKER_API_KEY_NOT_FOUND",
+    UNAUTHORIZED = "UNAUTHORIZED",
+    INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR",
+  }
+
+  const errorToMessage: Record<string, string> = {
+    [SyncErrorCodes.INVALID_BASELINKER_API_KEY]:
+      "Nieprawidłowy klucz BaseLinker",
+    [SyncErrorCodes.BASE_LINKER_API_KEY_NOT_FOUND]:
+      "Brak skonfigurowanego klucza BaseLinker",
+    [SyncErrorCodes.UNAUTHORIZED]: "Brak uprawnień do synchronizacji",
+    [SyncErrorCodes.INTERNAL_SERVER_ERROR]: "Błąd serwera",
+  };
+
+  const handleSyncBaselinker = async (options?: {
+    searchFrom?: Date;
+    statusId?: number;
+  }) => {
+    try {
+      setIsSyncing(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/baselinker/orders/import`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: session?.accessToken ?? "",
+          },
+          body: JSON.stringify({
+            searchFrom: (
+              options?.searchFrom ?? dayjs().subtract(8, "day").toDate()
+            ).toISOString(),
+            statusId: options?.statusId ?? 0,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const total = Array.isArray(data?.data) ? data.data.length : 0;
+        const errors = Array.isArray(data?.orderErrors)
+          ? data.orderErrors.length
+          : 0;
+        toast(
+          `Synchronizacja zakończona. Zamówienia: ${total}${
+            errors ? `, błędy: ${errors}` : ""
+          }`,
+          {
+            duration: 3000,
+            richColors: true,
+            style: {
+              backgroundColor: "var(--color-background)",
+              color: "var(--color-green)",
+              border: "1px solid var(--color-green)",
+            },
+          }
+        );
+      } else {
+        const msg =
+          errorToMessage[data?.error as string] ??
+          "Nie udało się zsynchronizować zamówień";
+        toast(msg, {
+          duration: 3000,
+          richColors: true,
+          style: {
+            backgroundColor: "var(--color-background)",
+            color: "var(--color-destructive)",
+            border: "1px solid var(--color-destructive)",
+          },
+        });
+      }
+    } catch (error) {
+      toast("Wystąpił błąd podczas synchronizacji", {
+        duration: 3000,
+        richColors: true,
+        style: {
+          backgroundColor: "var(--color-background)",
+          color: "var(--color-destructive)",
+          border: "1px solid var(--color-destructive)",
+        },
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   useEffect(() => {
     if (dialogOpen) {
       fetchMyIntegrationsKeys();
@@ -218,49 +331,130 @@ export const IntegrationsModal = () => {
             {myIntegrationsKeys.map((key) => (
               <div
                 key={key.apiKey}
-                className="grid grid-cols-[1fr_auto_auto] gap-3 !pb-2 items-center"
+                className="grid grid-cols-[1fr_auto] gap-3 !pb-2 items-center"
               >
                 <p className="text-sm">{key.apiKeyName}</p>
-                <p
-                  className="icon-text text-primary text-xs cursor-pointer hover:underline"
-                  onClick={() => handleCopy(key.apiKey)}
-                >
-                  <EyeIcon size={16} />
-                  Kopiuj klucz
-                </p>
-                <div className="text-sm flex justify-end">
-                  {confirmDelete === key.apiKey ? (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="!px-2 cursor-pointer"
-                        onClick={() => handleDeleteApiKey(key.apiKey)}
-                        disabled={isDataSending}
-                      >
-                        Usuń
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="!px-2 cursor-pointer"
-                        onClick={() => setConfirmDelete(null)}
-                        disabled={isDataSending}
-                      >
-                        Anuluj
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setConfirmDelete(key.apiKey)}
-                      disabled={isDataSending}
-                    >
-                      <Trash2Icon className="text-destructive cursor-pointer" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="xs" className="icon-text">
+                      <MoreHorizontalIcon className="h-4 w-4" />
+                      Zobacz więcej
                     </Button>
-                  )}
-                </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[260px]">
+                    {key.type === ApiKeyType.BaseLinker && (
+                      <>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <span className="icon-text">
+                              <RefreshCwIcon className="h-4 w-4" />
+                              Synchronizacja zamówień
+                            </span>
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent className="w-[320px]">
+                            <DropdownMenuLabel>
+                              Parametry synchronizacji
+                            </DropdownMenuLabel>
+                            <div className="px-2 py-1.5 flex flex-col gap-2">
+                              <DatePicker
+                                label={<span className="text-xs">Data od</span>}
+                                date={
+                                  searchFromByKey[key.apiKey] ??
+                                  dayjs().subtract(8, "day").toDate()
+                                }
+                                onDateChange={(d) =>
+                                  setSearchFromByKey((prev) => ({
+                                    ...prev,
+                                    [key.apiKey]: d,
+                                  }))
+                                }
+                              />
+                              <div className="flex flex-col gap-1">
+                                <span className="text-xs px-1">Status ID</span>
+                                <Input
+                                  type="number"
+                                  inputMode="numeric"
+                                  placeholder="np. 0"
+                                  value={statusIdByKey[key.apiKey] ?? 0}
+                                  onChange={(e) => {
+                                    const v = parseInt(e.target.value, 10);
+                                    setStatusIdByKey((prev) => ({
+                                      ...prev,
+                                      [key.apiKey]: isNaN(v) ? 0 : v,
+                                    }));
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() =>
+                                  handleSyncBaselinker({
+                                    searchFrom: searchFromByKey[key.apiKey],
+                                    statusId: statusIdByKey[key.apiKey] ?? 0,
+                                  })
+                                }
+                                disabled={isDataSending || isSyncing}
+                              >
+                                {isSyncing ? (
+                                  <>
+                                    <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                                    Synchronizowanie...
+                                  </>
+                                ) : (
+                                  <>
+                                    <RefreshCwIcon className="mr-2 h-4 w-4" />
+                                    Synchronizuj
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuGroup>
+                      {key.type === ApiKeyType.CustomIntegration && (
+                        <DropdownMenuItem
+                          onSelect={() => handleCopy(key.apiKey)}
+                        >
+                          <EyeIcon /> Kopiuj klucz
+                        </DropdownMenuItem>
+                      )}
+                      {confirmDelete === key.apiKey ? (
+                        <div className="px-2 py-1.5 flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="!px-2"
+                            onClick={() => handleDeleteApiKey(key.apiKey)}
+                            disabled={isDataSending}
+                          >
+                            Usuń
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="!px-2"
+                            onClick={() => setConfirmDelete(null)}
+                            disabled={isDataSending}
+                          >
+                            Anuluj
+                          </Button>
+                        </div>
+                      ) : (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onSelect={() => setConfirmDelete(key.apiKey)}
+                          disabled={isDataSending}
+                        >
+                          <Trash2Icon className="text-destructive" /> Usuń...
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ))}
           </div>
@@ -311,6 +505,13 @@ const CreateNewApiKeyModal = ({
 
       if (responseData.error === "API_KEY_ALREADY_EXISTS") {
         setGenerateApiKeyError("Klucz o podanej nazwie już istnieje");
+        return;
+      }
+
+      if (responseData.error === "BASE_LINKER_API_KEY_ALREADY_EXISTS") {
+        setGenerateApiKeyError(
+          "Możesz posiadać tylko jeden klucz BaseLinker przypisany do swojego konta."
+        );
         return;
       }
 
@@ -449,7 +650,11 @@ const CreateNewApiKeyModal = ({
           )}
 
           {generateApiKeyError && (
-            <p className="text-sm text-destructive">{generateApiKeyError}</p>
+            <Alert variant="destructive" className="!p-2">
+              <AlertTitle className="flex items-center gap-2">
+                <TriangleAlertIcon size={20} /> {generateApiKeyError}
+              </AlertTitle>
+            </Alert>
           )}
 
           <DialogFooter>

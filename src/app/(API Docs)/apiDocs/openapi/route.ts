@@ -1,14 +1,26 @@
 import { OpenAPIV3 } from "openapi-types";
 
 export async function GET() {
-  // const spec: OpenAPIV3.Document = {
+  // const spec: OpenAPIV3.Document & Record<string, any> = {
   const spec = {
     openapi: "3.1.0",
     info: {
       title: "MegaTrans API Dokumentacja",
       version: "1.0.0",
-      description:
-        "API wymaga przesyłania danych w standardzie JSON.\n\n W celu komunikacji z API wymagane jest wygenerowanie klucza API w panelu klienta. \n\n Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność z formatami.",
+      description: `
+Witaj w dokumentacji API MegaTrans!
+
+W naszym systemie obsługujemy aktualnie dwa typy automatyzacji generowania zleceń:
+- Integracja z BaseLinker
+- Integracja z własnym API
+
+W zależności od wybranego typu automatyzacji zastosuj odpowiednią sekcję dokumentacji.
+
+Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność z formatami.
+
+Przed podpięciem API do systemu produkcyjnego zalecamy dokonanie testów na koncie sandbox.
+Skontaktuj się z nami w celu uzyskania dostępu do konta sandbox.
+`,
     },
     components: {
       securitySchemes: {
@@ -21,9 +33,56 @@ export async function GET() {
       },
     },
     security: [{ ApiKeyAuth: [] }],
+    // Grupowanie sekcji w nawigacji Scalar
+    "x-tagGroups": [
+      { name: "Integracja z własnym API", tags: ["Integracja z własnym API"] },
+      { name: "Integracja z BaseLinker", tags: ["Integracja z BaseLinker"] },
+    ],
+
+    // Opisy sekcji (widoczne w Scalar, jeśli tag jest użyty przez operację)
+    tags: [
+      {
+        name: "Integracja z własnym API",
+        description: `
+Posiadasz swój własny system e-commerce?
+
+Dowiedz się, jak zintegrować nasz system z Twoim e-commerce i rozpocznij automatyzację procesów zamówień.
+
+Aktualnie obsługujemy tylko możliwość tworzenia zamówień.
+Jeżeli brakuje Ci jakiejś funkcjonalności, skontaktuj się z nami abyśmy mogli ją dla Ciebie dodać.
+        `,
+      },
+      {
+        name: "Integracja z BaseLinker",
+        description: `
+Prowadzisz e-commerce w systemie BaseLinker?
+
+Dowiedz się, jak zintegrować nasz system z BaseLinker i rozpocznij automatyzację procesów zamówień.
+
+Aktualnie obsługujemy tylko możliwość tworzenia i aktualizacji zamówień.
+Jeżeli brakuje Ci jakiejś funkcjonalności, skontaktuj się z nami abyśmy mogli ją dla Ciebie dodać.
+`,
+      },
+    ],
+
     paths: {
+      // --- Sekcja 1: Własne API
+      "Wprowadzenie - Integracja z własnym API": {
+        connect: {
+          tags: ["Integracja z własnym API"],
+          description: `
+API wymaga przesyłania danych w standardzie **JSON**.
+
+W celu komunikacji z API wymagane jest wygenerowanie klucza API w panelu klienta MegaTrans w zakładce **Moje Integracje**.
+Wygenerowany klucz API należy przekazać w nagłówku żądania jako **X-API-Key**.
+
+Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność z formatami.
+`,
+        },
+      },
       "/order/newOrder/custom": {
         post: {
+          tags: ["Integracja z własnym API"],
           summary: "Utwórz nowe zamówienie",
           description: "Endpoint do tworzenia nowych zamówień.",
           security: [{ ApiKeyAuth: [] }],
@@ -303,10 +362,69 @@ export async function GET() {
           },
         },
       },
+
+      // --- Sekcja 2: BaseLinker
+      "Jak zintegrować BaseLinker?": {
+        connect: {
+          tags: ["Integracja z BaseLinker"],
+          summary: "Tutorial BaseLinker",
+          description: `
+##### 1. Wygeneruj API Token w BaseLinker
+
+W tym celu w panelu BaseLinker przejdź do zakładki **Moje konto** → **API**.
+
+**Uwaga!**<br/>Pamiętaj, że wygenerowany token będzie posiadał uprawnienia konta użytkownika który go tworzy.
+Jeżeli nie chcesz dawać zbyt rozległych i niepotrzebnych dostępów do swojego konta, zalecamy stworzenie nowego konta w BaseLinker z **minimalnymi uprawnieniami** i wygenerowanie dla niego tokenu.
+
+Aktualnie minimalne uprawnienia do wygenerowania tokenu to:
+ - Odczyt zamówień
+ - Odczyt produktów
+
+ **Porada**<br/>
+ Jeżeli nie chcesz aby klucz API miał dostęp do wszystkich zamówień, możesz np. utworzyć konto pracownicze z dostępem tylko do statusu **Dostawa (Megatrans)**. W takim wypadku, dany klucz API będzie miał dostęp tylko do zamówień przypisanych do statusu **Dostawa (Megatrans)**.
+
+##### 2. Zapisz token BaseLinker API w panelu MegaTrans
+
+W tym celu przejdź do zakładki **Moje Integracje** →  **Utwórz klucz** → **Type klucza: Baselinker** <br/>
+Po poprawnym dodaniu klucza, powinien pojawić się on w Twojej liście kluczy.
+
+##### 3. Konfiguracja BaseLinker przed pierwszym importem zamówień
+Zanim rozpoczniesz pierwszy import zamówień, upewnij się, że Twój BaseLinker jest odpowiednio skonfigurowany, w innym przypadku importowanie zamówień z BaseLinker do MegaTrans nie zadziała poprawnie.
+
+**3.1. Przygotuj statusy**
+1. Utwórz nowy **status** dla zamówień, np. Dostawa (Megatrans)
+2. Po utworzeniu, w formularzu edycji statusu pojawi się w dolnym lewym rogu **ID**
+3. Zapisz **ID** danego statusu, bedzie Ci potrzebne przy importowaniu.
+
+**Dlaczego potrzebuję ID statusu?** <br/>
+W trakcie dokonywania importu zamówień, pobieramy tylko te zamówienia z Twojego BaseLinker, które są przypisane do danego statusu.
+
+Możesz posiadać wiele statusów, w zależności od tego, jakiego rodzaju zamówienia chcesz importować wystarczy że w naszym systemie podasz odpowiednie ID statusu.
+
+Z reguły jednak sugerujemy stworzenie tylko jednego statusu, który będzie domyślnym statusem dla zamówień realizowanych przez MegaTrans.
+
+**3.2. Poinformuj nas o ilości paczek w zamówieniu** <br/>
+W panelu **BaseLinker** w **formularzu edycji zamówienia** w polu **Pole dodatkowe 1** musi znaleźć się informacja o ilości paczek. Jeżeli ta informacja się tam, nie znajdzie to integracja się nie powiedzie. 
+
+Informacja ta powinna znajdować się w nawiasach, np.  (1 paczka). Jeżeli w polu znajduje się jakiś inny tekst poza nawiasami np. "Komoda (3 paczki)" to pole zostanie również poprawne zaczytane. 
+
+Przykładowe dozwolone wartości dla pola **Pole dodatkowe 1**:
+- (1 paczka) lub (1paczka)
+- (2 paczki) lub (2paczki)
+- (10 paczek) lub (10paczek)
+- 2 Fotele (2 paczki)
+- 1 Sofa Narożna (3 paczki)
+- (8 paczek) 1 sofa + 4 fotele
+`,
+        },
+      },
     },
   };
 
   return Response.json(spec, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store, must-revalidate",
+    },
   });
 }

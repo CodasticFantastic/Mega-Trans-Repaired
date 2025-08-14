@@ -68,3 +68,21 @@ export async function apiKeyAuth(
 export function generateApiKey(): string {
   return crypto.randomBytes(32).toString("hex");
 }
+
+/**
+ * Get the BaseLinker API key for a user
+ * @param userId - The ID of the user
+ * @returns The BaseLinker API key
+ */
+export async function getBaseLinkerApiKey(userId: number) {
+  const baseLinkerApiKey = await prisma.apiKey.findFirst({
+    where: {
+      userId,
+      type: ApiKeyType.BaseLinker,
+      isActive: true,
+      deletedAt: null,
+    },
+  });
+
+  return baseLinkerApiKey;
+}

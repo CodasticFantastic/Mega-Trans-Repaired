@@ -39,11 +39,33 @@ export async function POST(req: Request) {
       });
     }
 
+    const existingBaseLinkerApiKey = await prisma.apiKey.findFirst({
+      where: {
+        userId: authResult.userId,
+        type: ApiKeyType.BaseLinker,
+      },
+    });
+
+    if (
+      parsedBody.data.apiKeyType === ApiKeyType.BaseLinker &&
+      existingBaseLinkerApiKey
+    ) {
+      return new Response(
+        JSON.stringify({ error: "BASE_LINKER_API_KEY_ALREADY_EXISTS" }),
+        {
+          status: 400,
+        }
+      );
+    }
+
     const { apiKeyName, apiKeyType } = parsedBody.data;
     let apiKey: string;
 
     // Type guard dla BaseLinker
-    if (parsedBody.data.apiKeyType === ApiKeyType.BaseLinker && 'apiKeyValue' in parsedBody.data) {
+    if (
+      parsedBody.data.apiKeyType === ApiKeyType.BaseLinker &&
+      "apiKeyValue" in parsedBody.data
+    ) {
       apiKey = parsedBody.data.apiKeyValue;
     } else {
       apiKey = generateApiKey();

@@ -73,6 +73,12 @@ model Driver {
   role      Role      @default(DRIVER)
 }
 
+enum OrderSource {
+  BaseLinker
+  CustomIntegration
+  Manual
+}
+
 model Order {
   id                Int                  @id @default(autoincrement())
   orderId           String               @unique
@@ -99,6 +105,7 @@ model Order {
   packages          Package[]
   currency          String?
   orderSupplierId   String?              @map("order_supplier_id")
+  orderSource       OrderSource          @default(Manual) @map("order_source")
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
   deletedAt         DateTime?
@@ -110,8 +117,6 @@ model Package {
   orderId       String
   commodityType CommodityType
   commodityName String
-  // commodityPaymentType CommodityPaymentType
-  // commodityPrice Float?
   commodityNote String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
