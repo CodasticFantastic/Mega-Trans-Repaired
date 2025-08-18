@@ -23,20 +23,39 @@ export async function GET(req: Request) {
 
   // Pagination
   const { searchParams } = new URL(req.url);
-  // const id = searchParams.get("id");
-  const take = 20;
-  const cursorQuery = searchParams.get("cursor") ?? undefined;
-  const skip = cursorQuery ? 1 : 0;
-  const cursor = cursorQuery ? { id: +cursorQuery } : undefined;
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "20");
+  const skip = (page - 1) * limit;
 
   const searchId = searchParams.get("searchId");
   const orderBy = searchParams.get("orderBy");
+  const sortBy = searchParams.get("sortByDate") || "updatedAt";
   const status = searchParams.get("status");
   const dateFrom = searchParams.get("dateFrom");
   const dateTo = searchParams.get("dateTo");
   const postalCode = searchParams.get("postalCode");
 
   try {
+    // Build where clause for filtering
+    const whereClause = {
+      OR: [
+        { orderId: { contains: searchId ? searchId : "" } },
+        { recipientPhone: { contains: searchId ? searchId : "" } },
+        { orderCity: { contains: searchId ? searchId : "" } },
+        { recipientName: { contains: searchId ? searchId : "" } },
+        { user: { company: { contains: searchId ? searchId : "" } } },
+        { orderSupplierId: { contains: searchId ? searchId : "" } },
+      ],
+      status: status === "Wszystkie" ? undefined : status,
+      createdAt: {
+        gte: dateFrom ? dayjs.utc(dateFrom).startOf("day").toDate() : undefined,
+        lte: dateTo ? dayjs.utc(dateTo).endOf("day").toDate() : undefined,
+      },
+      orderPostCode: {
+        startsWith: postalCode === "all" ? undefined : postalCode,
+      },
+    };
+
     // Show all orders for this user
     const allUserOrder = await prisma.order.findMany({
       include: {
@@ -48,31 +67,16 @@ export async function GET(req: Request) {
         packages: true,
       },
       orderBy: {
-        updatedAt: orderBy === "asc" ? "asc" : "desc",
+        [sortBy]: orderBy === "asc" ? "asc" : "desc",
       },
-      where: {
-        OR: [
-          { orderId: { contains: searchId ? searchId : "" } },
-          { recipientPhone: { contains: searchId ? searchId : "" } },
-          { orderCity: { contains: searchId ? searchId : "" } },
-          { recipientName: { contains: searchId ? searchId : "" } },
-          { user: { company: { contains: searchId ? searchId : "" } } },
-          { orderSupplierId: { contains: searchId ? searchId : "" } },
-        ],
-        status: status === "Wszystkie" ? undefined : status,
-        createdAt: {
-          gte: dateFrom
-            ? dayjs.utc(dateFrom).startOf("day").toDate()
-            : undefined,
-          lte: dateTo ? dayjs.utc(dateTo).endOf("day").toDate() : undefined,
-        },
-        orderPostCode: {
-          startsWith: postalCode === "all" ? undefined : postalCode,
-        },
-      },
+      where: whereClause,
       skip,
-      take,
-      cursor,
+      take: limit,
+    });
+
+    // Get total count for pagination
+    const totalCount = await prisma.order.count({
+      where: whereClause,
     });
 
     // Return Data Counters
@@ -98,13 +102,14 @@ export async function GET(req: Request) {
       },
     });
 
-    const nextId =
-      allUserOrder.length < take ? undefined : allUserOrder[take - 1].id;
-
     return new Response(
       JSON.stringify({
         allUserOrder,
-        nextId,
+        totalCount,
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNextPage: page * limit < totalCount,
+        hasPreviousPage: page > 1,
         allOrdersCounter,
         newOrdersCounter,
         currentOrdersCounter,

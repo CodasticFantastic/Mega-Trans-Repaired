@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ControlHeader from "../components/ControlHeader";
 import DashboardSidebar from "../components/sidebars/DashboardSidebar/DashboardSidebar";
 import {
@@ -17,8 +17,7 @@ import { signOut } from "next-auth/react";
 import FileSaver from "file-saver";
 import XLSX from "sheetjs-style";
 
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useInView } from "react-intersection-observer";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   TableBody,
@@ -28,6 +27,22 @@ import {
   TableRow,
 } from "@/components/shadcn/ui/table";
 import { ScrollArea } from "@/components/shadcn/ui/scroll-area";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/shadcn/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/ui/select";
 
 import {
   DropdownMenu,
@@ -68,7 +83,11 @@ interface Stats {
 // Typy dla odpowiedzi API
 interface ApiResponse {
   allUserOrder: OrderWithUserAndPackages[];
-  nextId?: string;
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
   allOrdersCounter: number;
   newOrdersCounter: number;
   currentOrdersCounter: number;
@@ -80,19 +99,13 @@ interface ApiResponse {
 export default function Dashboard() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [observerRoot, setObserverRoot] = useState<Element | null>(null);
-
-  const { inView, ref: sentinelRef } = useInView({
-    root: observerRoot,
-    rootMargin: "300px 0px 300px 0px",
-    threshold: 0,
-  });
-  const [exportOrders, setExportOrders] = useState<OrderWithUserAndPackages[]>(
-    []
-  );
+  const [selectedOrders, setSelectedOrders] = useState<
+    OrderWithUserAndPackages[]
+  >([]);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
 
   const [stats, setStats] = useState<Stats>({
     allOrders: 0,
@@ -106,6 +119,7 @@ export default function Dashboard() {
   const [filters, setFilters] = useState<DashboardSidebarFilters>({
     searchId: "",
     orderBy: "desc",
+    sortByDate: "updatedAt",
     status: "Wszystkie",
     dateFrom: "",
     dateTo: "",
@@ -114,24 +128,24 @@ export default function Dashboard() {
 
   // Przeniesienie logiki zapytania poza funkcję getOrders
   const getOrders = async ({
-    pageParam = "",
+    page,
     filters,
   }: {
-    pageParam?: string;
+    page: number;
     filters: DashboardSidebarFilters;
   }): Promise<ApiResponse> => {
     let request: Response;
 
     if (session?.user?.role === "USER") {
       request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?page=${page}&limit=${pageSize}&orderBy=${filters.orderBy}&sortByDate=${filters.sortByDate}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
         {
           headers: { Authorization: session?.accessToken ?? "" },
         }
       );
     } else if (session?.user?.role === "ADMIN") {
       request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?cursor=${pageParam}&orderBy=${filters.orderBy}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
+        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?page=${page}&limit=${pageSize}&orderBy=${filters.orderBy}&sortByDate=${filters.sortByDate}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
         {
           headers: { Authorization: session?.accessToken ?? "" },
         }
@@ -158,38 +172,23 @@ export default function Dashboard() {
   };
 
   const {
-    data: allUserOrder,
-    fetchNextPage,
-    hasNextPage,
+    data: ordersData,
+    isLoading,
     isFetching,
-    isFetchingNextPage,
-  } = useInfiniteQuery<ApiResponse>({
-    initialPageParam: "",
-    queryKey: ["allUserOrder", session, filters],
-    queryFn: ({ pageParam = "" }) =>
-      getOrders({ pageParam: pageParam as string, filters }),
-    getNextPageParam: (lastPage) => {
-      return lastPage.nextId || undefined;
-    },
+  } = useQuery<ApiResponse>({
+    queryKey: ["allUserOrder", session, filters, currentPage, pageSize],
+    queryFn: () => getOrders({ page: currentPage, filters }),
+    enabled: !!session,
   });
 
+  // Reset page when filters or page size change
   useEffect(() => {
-    if (
-      inView &&
-      hasNextPage &&
-      !isFetchingNextPage &&
-      !isFetching &&
-      allUserOrder?.pages.length &&
-      allUserOrder?.pages.length > 0
-    ) {
-      fetchNextPage();
-    }
-  }, [inView, hasNextPage, fetchNextPage]);
+    setCurrentPage(1);
+  }, [filters, pageSize]);
 
   ///////////////// Operations on selected orders
-
   function handleCancelOrdersClick() {
-    if (exportOrders.length === 0) {
+    if (selectedOrders.length === 0) {
       CustomToast("error", "Nie zaznaczono żadnych zamówień", {
         duration: 3000,
       });
@@ -202,12 +201,12 @@ export default function Dashboard() {
     setIsCanceling(true);
     try {
       // Pokaż toast o rozpoczęciu operacji
-      CustomToast("info", `Anulowanie ${exportOrders.length} zamówień...`, {
+      CustomToast("info", `Anulowanie ${selectedOrders.length} zamówień...`, {
         duration: 2000,
       });
 
       // Wykonaj wszystkie anulowania równolegle
-      const cancelPromises = exportOrders.map(async (order) => {
+      const cancelPromises = selectedOrders.map(async (order) => {
         const request = await fetch(
           `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${order.orderId}`,
           {
@@ -241,7 +240,7 @@ export default function Dashboard() {
       ).length;
 
       // Wyczyść zaznaczone zamówienia
-      setExportOrders([]);
+      setSelectedOrders([]);
 
       // Odśwież dane
       queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
@@ -276,12 +275,14 @@ export default function Dashboard() {
   }
 
   async function handleDeleteOrders() {
-    if (exportOrders.length === 0) {
+    if (selectedOrders.length === 0) {
       CustomToast("error", "Nie zaznaczono żadnych zamówień", {
         duration: 3000,
       });
       return;
     }
+
+    console.log(selectedOrders);
 
     // TODO: Zaimplementować endpoint do usuwania zamówień
     CustomToast("info", "Funkcja usuwania zamówień nie jest jeszcze dostępna", {
@@ -291,7 +292,7 @@ export default function Dashboard() {
 
   ///////////////// Export Data To Excel
   async function exportOrdersData() {
-    const ordersToExport = exportOrders.map((order) => {
+    const ordersToExport = selectedOrders.map((order) => {
       let number = order.orderStreetNumber;
       if (order.orderFlatNumber) {
         number += "/" + order.orderFlatNumber;
@@ -321,33 +322,76 @@ export default function Dashboard() {
     FileSaver.saveAs(data, "Zamówienia" + fileExtension);
   }
 
-  const orders = useMemo(
-    () => allUserOrder?.pages?.flatMap((p) => p.allUserOrder) ?? [],
-    [allUserOrder]
-  );
-
-  useEffect(() => {
-    // Set the root once the element is mounted so the observer uses the correct scroll container
-    setObserverRoot(scrollRef.current);
-  }, []);
+  const orders = useMemo(() => ordersData?.allUserOrder ?? [], [ordersData]);
 
   // [DashboardSidebarProvider] Handle Filters Change
   const handleFiltersChange = (newFilters: DashboardSidebarFilters) => {
-    setExportOrders([]);
+    setSelectedOrders([]);
     setFilters(newFilters);
   };
 
   // [DashboardSidebarProvider] Handle Clear Filters
   const handleClearFilters = () => {
-    setExportOrders([]);
+    setSelectedOrders([]);
     setFilters({
       searchId: "",
       orderBy: "desc",
+      sortByDate: "updatedAt",
       status: "Wszystkie",
       dateFrom: "",
       dateTo: "",
       postalCode: "all",
     });
+  };
+
+  // Pagination handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setSelectedOrders([]);
+  };
+
+  const handlePageSizeChange = (newPageSize: string) => {
+    setPageSize(parseInt(newPageSize));
+    setSelectedOrders([]);
+  };
+
+  // Generate pagination items
+  const generatePaginationItems = () => {
+    if (!ordersData) return [];
+
+    const items = [];
+    const totalPages = ordersData.totalPages;
+    const currentPage = ordersData.currentPage;
+
+    // Always show first page
+    items.push(1);
+
+    // Show ellipsis if there's a gap
+    if (currentPage > 4) {
+      items.push("ellipsis-start");
+    }
+
+    // Show pages around current page
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+      if (i > 1 && i < totalPages) {
+        items.push(i);
+      }
+    }
+
+    // Show ellipsis if there's a gap
+    if (currentPage < totalPages - 3) {
+      items.push("ellipsis-end");
+    }
+
+    // Always show last page if there's more than one page
+    if (totalPages > 1) {
+      items.push(totalPages);
+    }
+
+    return items;
   };
 
   return (
@@ -368,10 +412,7 @@ export default function Dashboard() {
             exportOrdersData={exportOrdersData}
           />
           <main className="w-full">
-            <ScrollArea
-              className="h-[calc(100vh-80px)] rounded-md border"
-              ref={scrollRef}
-            >
+            <ScrollArea className="h-[calc(100vh-134px)] rounded-md border">
               <Table className="table-auto">
                 <TableHeader stickyHeader={true}>
                   <TableRow className="bg-muted/30">
@@ -404,7 +445,7 @@ export default function Dashboard() {
                         <DropdownMenuContent align="end" className="w-56">
                           <div className="px-2 py-2">
                             <p className="text-xs text-muted-foreground">
-                              Zaznaczone zamówienia: {exportOrders.length}
+                              Zaznaczone zamówienia: {selectedOrders.length}
                             </p>
                           </div>
                           <DropdownMenuSeparator />
@@ -439,36 +480,137 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders.map((order, index) => (
-                    <TableDataRow
-                      key={order.orderId}
-                      order={order}
-                      setExportOrders={setExportOrders}
-                      shouldAddBackground={index % 2 !== 0}
-                    />
-                  ))}
+                  {isLoading && (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8">
+                        <div className="flex items-center justify-center">
+                          <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                          Ładowanie...
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+
+                  {!isLoading && orders.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={8} className="text-center py-8">
+                        Brak zamówień do wyświetlenia
+                      </TableCell>
+                    </TableRow>
+                  )}
+
+                  {!isLoading &&
+                    orders.length > 0 &&
+                    orders.map((order, index) => (
+                      <TableDataRow
+                        key={order.orderId}
+                        order={order}
+                        setExportOrders={setSelectedOrders}
+                        shouldAddBackground={index % 2 !== 0}
+                      />
+                    ))}
                 </TableBody>
               </Table>
-              {isFetchingNextPage && (
-                <div className="sticky bottom-0 z-10 flex h-8 items-center justify-center bg-background/80 text-sm text-muted-foreground">
-                  <>
-                    <Loader2Icon className="mr-2 inline size-4 animate-spin" />
-                    Ładowanie...
-                  </>
+            </ScrollArea>
+
+            {/* Pagination Controls */}
+            <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              {/* Page Size Selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Zamówienia na stronę:
+                </span>
+                <Select
+                  value={pageSize.toString()}
+                  onValueChange={handlePageSizeChange}
+                >
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="40">40</SelectItem>
+                    <SelectItem value="60">60</SelectItem>
+                    <SelectItem value="80">80</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Pagination */}
+              {ordersData && ordersData.totalPages > 1 && (
+                <div className="flex justify-center sm:justify-end">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (ordersData.hasPreviousPage) {
+                              handlePageChange(ordersData.currentPage - 1);
+                            }
+                          }}
+                          className={
+                            !ordersData.hasPreviousPage
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+
+                      {generatePaginationItems().map((item, index) => (
+                        <PaginationItem key={index}>
+                          {item === "ellipsis-start" ||
+                          item === "ellipsis-end" ? (
+                            <PaginationEllipsis />
+                          ) : (
+                            <PaginationLink
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handlePageChange(item as number);
+                              }}
+                              isActive={item === ordersData.currentPage}
+                              className="cursor-pointer"
+                            >
+                              {item}
+                            </PaginationLink>
+                          )}
+                        </PaginationItem>
+                      ))}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (ordersData.hasNextPage) {
+                              handlePageChange(ordersData.currentPage + 1);
+                            }
+                          }}
+                          className={
+                            !ordersData.hasNextPage
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               )}
-              <div ref={sentinelRef} className="h-6 w-full" />
-            </ScrollArea>
+            </div>
           </main>
           {session && session.user.role === "USER" && (
             <footer className="mt-0 flex flex-col items-end justify-center">
-              <p className="text-sm text-foreground">
+              <p className="text-xs text-muted-foreground">
                 Developed by:{" "}
                 <Link
                   href="https://jakubwojtysiak.online"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500"
+                  className="text-blue-500 hover:underline"
                 >
                   JW.online
                 </Link>
@@ -484,7 +626,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle>Potwierdź anulowanie zamówień</DialogTitle>
             <DialogDescription>
-              Czy na pewno chcesz anulować {exportOrders.length} zaznaczonych
+              Czy na pewno chcesz anulować {selectedOrders.length} zaznaczonych
               zamówień? Tej operacji nie można cofnąć.
             </DialogDescription>
           </DialogHeader>

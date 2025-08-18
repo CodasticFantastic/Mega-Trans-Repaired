@@ -135,6 +135,39 @@ export default function DashboardSidebar() {
                   Najstarszych
                 </Button>
               </div>
+              <div className="text-xs font-normal mb-2 mt-3">
+                Sortuj po dacie:
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  size="xs"
+                  variant={
+                    sidebarState.sortDateField === "updatedAt"
+                      ? "default"
+                      : "outline"
+                  }
+                  onClick={() => {
+                    filterFunctions.sortOrdersByDateField("updatedAt");
+                    updateSidebarState({ sortDateField: "updatedAt" });
+                  }}
+                >
+                  Aktualizacji
+                </Button>
+                <Button
+                  size="xs"
+                  variant={
+                    sidebarState.sortDateField === "createdAt"
+                      ? "default"
+                      : "outline"
+                  }
+                  onClick={() => {
+                    filterFunctions.sortOrdersByDateField("createdAt");
+                    updateSidebarState({ sortDateField: "createdAt" });
+                  }}
+                >
+                  Stworzenia
+                </Button>
+              </div>
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="sort-by-status">

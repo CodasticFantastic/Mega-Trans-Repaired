@@ -5,6 +5,7 @@ import { createContext, useContext, useState, ReactNode } from "react";
 export interface DashboardSidebarFilters {
   searchId: string;
   orderBy: "asc" | "desc";
+  sortByDate: "updatedAt" | "createdAt";
   status: string;
   dateFrom: string;
   dateTo: string;
@@ -14,6 +15,7 @@ export interface DashboardSidebarFilters {
 // Typy dla funkcji filtrów
 interface FilterFunctions {
   sortOrdersByDate: (sort: "ascending" | "descending") => void;
+  sortOrdersByDateField: (field: "updatedAt" | "createdAt") => void;
   filterOrdersByStatus: (status: string) => void;
   searchOrdersById: (id: string) => void;
   filterOrdersByDate: (from: string, to: string) => void;
@@ -24,6 +26,7 @@ interface FilterFunctions {
 // Typy dla stanu lokalnego sidebara
 interface SidebarState {
   sortDate: "ascending" | "descending";
+  sortDateField: "updatedAt" | "createdAt";
   filterStatus: string;
   filterDate: { from: string; to: string };
   filterPostalCode: string;
@@ -41,6 +44,7 @@ interface DashboardSidebarContextType {
 const defaultFilters: DashboardSidebarFilters = {
   searchId: "",
   orderBy: "desc",
+  sortByDate: "updatedAt",
   status: "Wszystkie",
   dateFrom: "",
   dateTo: "",
@@ -49,6 +53,7 @@ const defaultFilters: DashboardSidebarFilters = {
 
 const defaultSidebarState: SidebarState = {
   sortDate: "descending",
+  sortDateField: "updatedAt",
   filterStatus: "Wszystkie",
   filterDate: { from: "", to: "" },
   filterPostalCode: "all",
@@ -82,6 +87,12 @@ export function DashboardSidebarProvider({
     sortOrdersByDate: (sort: "ascending" | "descending") => {
       const orderBy: "asc" | "desc" = sort === "ascending" ? "asc" : "desc";
       const newFilters: DashboardSidebarFilters = { ...filters, orderBy };
+      setFilters(newFilters);
+      onFiltersChange(newFilters);
+    },
+
+    sortOrdersByDateField: (field: "updatedAt" | "createdAt") => {
+      const newFilters: DashboardSidebarFilters = { ...filters, sortByDate: field };
       setFilters(newFilters);
       onFiltersChange(newFilters);
     },
