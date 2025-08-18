@@ -53,7 +53,7 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { CustomToast } from "@/components/shadcn/custom/toast";
 
 interface CustomApiKeyList {
   apiKey: ApiKey["apiKey"];
@@ -78,6 +78,30 @@ export const IntegrationsModal = () => {
   const [myIntegrationsKeys, setMyIntegrationsKeys] = useState<
     CustomApiKeyList[]
   >([]);
+
+  // Load status IDs from localStorage on component mount
+  useEffect(() => {
+    const savedStatusIds = localStorage.getItem("baselinker_status_ids");
+    if (savedStatusIds) {
+      try {
+        const parsed = JSON.parse(savedStatusIds);
+        setStatusIdByKey(parsed);
+      } catch (error) {
+        console.error("Error parsing saved status IDs:", error);
+      }
+    }
+  }, []);
+
+  // Save status IDs to localStorage whenever they change
+  const updateStatusIdByKey = (
+    newStatusIdByKey: Record<string, number | undefined>
+  ) => {
+    setStatusIdByKey(newStatusIdByKey);
+    localStorage.setItem(
+      "baselinker_status_ids",
+      JSON.stringify(newStatusIdByKey)
+    );
+  };
 
   const fetchMyIntegrationsKeys = async () => {
     try {
@@ -105,23 +129,12 @@ export const IntegrationsModal = () => {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast("Skopiowano wartość do schowka", {
+      CustomToast("success", "Skopiowano wartość do schowka", {
         duration: 1500,
-        richColors: true,
-        style: {
-          backgroundColor: "var(--color-background)",
-          color: "var(--color-green)",
-          border: "1px solid var(--color-green)",
-        },
       });
     } catch {
-      toast("Nie udało się skopiować wartości", {
+      CustomToast("error", "Nie udało się skopiować wartości", {
         duration: 1500,
-        richColors: true,
-        style: {
-          backgroundColor: "var(--color-red)",
-          color: "var(--color-text-primary)",
-        },
       });
     }
   };
@@ -141,38 +154,13 @@ export const IntegrationsModal = () => {
       const { message } = await response.json();
 
       if (message === "Success") {
-        toast("Klucz został usunięty", {
-          duration: 2500,
-          richColors: true,
-          style: {
-            backgroundColor: "var(--color-background)",
-            color: "var(--color-green)",
-            border: "1px solid var(--color-green)",
-          },
-        });
-
+        CustomToast("success", "Klucz został usunięty", { duration: 2500 });
         fetchMyIntegrationsKeys();
       } else {
-        toast("Nie udało się usunąć klucza", {
-          duration: 2500,
-          richColors: true,
-          style: {
-            backgroundColor: "var(--color-background)",
-            color: "var(--color-destructive)",
-            border: "1px solid var(--color-destructive)",
-          },
-        });
+        CustomToast("error", "Nie udało się usunąć klucza", { duration: 2500 });
       }
     } catch (error) {
-      toast("Nie udało się usunąć klucza", {
-        duration: 2500,
-        richColors: true,
-        style: {
-          backgroundColor: "var(--color-background)",
-          color: "var(--color-destructive)",
-          border: "1px solid var(--color-destructive)",
-        },
-      });
+      CustomToast("error", "Nie udało się usunąć klucza", { duration: 2500 });
     } finally {
       setIsDataSending(false);
     }
@@ -220,47 +208,26 @@ export const IntegrationsModal = () => {
       const data = await response.json();
 
       if (response.ok) {
-        const total = Array.isArray(data?.data) ? data.data.length : 0;
-        const errors = Array.isArray(data?.orderErrors)
-          ? data.orderErrors.length
-          : 0;
-        toast(
-          `Synchronizacja zakończona. Zamówienia: ${total}${
-            errors ? `, błędy: ${errors}` : ""
-          }`,
-          {
-            duration: 3000,
-            richColors: true,
-            style: {
-              backgroundColor: "var(--color-background)",
-              color: "var(--color-green)",
-              border: "1px solid var(--color-green)",
-            },
-          }
+        CustomToast(
+          "info",
+          <div>
+            <p>Synchronizacja BaseLinker zakończona</p>
+            <p>Nowo dodane zamówienia: {data?.orderNew?.length ?? 0}</p>
+            <p>Zaktualizowane zamówienia: {data?.orderUpdated?.length ?? 0}</p>
+            <p>
+              Nie udało się zsynchronizować: {data?.orderErrors?.length ?? 0}
+            </p>
+          </div>,
+          { duration: 5000 }
         );
       } else {
-        const msg =
-          errorToMessage[data?.error as string] ??
-          "Nie udało się zsynchronizować zamówień";
-        toast(msg, {
+        CustomToast("error", "Nie udało się zsynchronizować zamówień", {
           duration: 3000,
-          richColors: true,
-          style: {
-            backgroundColor: "var(--color-background)",
-            color: "var(--color-destructive)",
-            border: "1px solid var(--color-destructive)",
-          },
         });
       }
     } catch (error) {
-      toast("Wystąpił błąd podczas synchronizacji", {
+      CustomToast("error", "Wystąpił błąd podczas synchronizacji", {
         duration: 3000,
-        richColors: true,
-        style: {
-          backgroundColor: "var(--color-background)",
-          color: "var(--color-destructive)",
-          border: "1px solid var(--color-destructive)",
-        },
       });
     } finally {
       setIsSyncing(false);
@@ -378,10 +345,11 @@ export const IntegrationsModal = () => {
                                   value={statusIdByKey[key.apiKey] ?? 0}
                                   onChange={(e) => {
                                     const v = parseInt(e.target.value, 10);
-                                    setStatusIdByKey((prev) => ({
-                                      ...prev,
-                                      [key.apiKey]: isNaN(v) ? 0 : v,
-                                    }));
+                                    const newValue = isNaN(v) ? 0 : v;
+                                    updateStatusIdByKey({
+                                      ...statusIdByKey,
+                                      [key.apiKey]: newValue,
+                                    });
                                   }}
                                 />
                               </div>
@@ -516,41 +484,18 @@ const CreateNewApiKeyModal = ({
       }
 
       if (responseData.apiKey) {
-        toast("Klucz został utworzony", {
-          duration: 2500,
-          richColors: true,
-          style: {
-            backgroundColor: "var(--color-background)",
-            color: "var(--color-green)",
-            border: "1px solid var(--color-green)",
-          },
-        });
-
+        CustomToast("success", "Klucz został utworzony", { duration: 2500 });
         onApiKeyCreated();
         setDialogOpen(false);
         setApiKeyName("");
         setApiKeyType(undefined);
       } else {
-        toast("Nie udało się utworzyć klucza", {
+        CustomToast("error", "Nie udało się utworzyć klucza", {
           duration: 2500,
-          richColors: true,
-          style: {
-            backgroundColor: "var(--color-background)",
-            color: "var(--color-destructive)",
-            border: "1px solid var(--color-destructive)",
-          },
         });
       }
     } catch (error) {
-      toast("Nie udało się utworzyć klucza", {
-        duration: 2500,
-        richColors: true,
-        style: {
-          backgroundColor: "var(--color-background)",
-          color: "var(--color-destructive)",
-          border: "1px solid var(--color-destructive)",
-        },
-      });
+      CustomToast("error", "Nie udało się utworzyć klucza", { duration: 2500 });
     } finally {
       setIsDataSending(false);
     }

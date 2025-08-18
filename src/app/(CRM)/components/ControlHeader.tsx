@@ -1,30 +1,9 @@
 "use client";
-
-import Image from "next/image";
-import GreenPlusIcon from "@/images/icons/greenPlusIcon.png";
-import GreenExportIcon from "@/images/icons/greenExportIcon.png";
-import DashboardIcon from "@/images/icons/dashboardIcon.png";
-import DeliveryIcon from "@/images/icons/deliveryIcon.png";
-import CourierIcon from "@/images/icons/courierIcon.png";
-import UsersIcon from "@/images/icons/usersIcon.png";
-import {
-  BlocksIcon,
-  PlusCircleIcon,
-  TruckIcon,
-  UserSearchIcon,
-} from "lucide-react";
+import { PlusCircleIcon, TruckIcon, UserSearchIcon } from "lucide-react";
 
 import Link from "next/link";
 
 import { useSession } from "next-auth/react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTrigger,
-  DialogTitle,
-} from "@/components/shadcn/ui/dialog";
 import { IntegrationsModal } from "./IntegrationsModal/IntegrationsModal";
 import { ToggleDarkMode } from "./toggleDarkMode";
 import { Button } from "@/components/shadcn/ui/button";
@@ -45,13 +24,12 @@ export default function ControlHeader({
   completedOrders,
   newOrders,
   inWarehouse,
-  exportOrdersData,
 }: ControlHeaderProps) {
   const { data: session } = useSession();
 
   return (
     <header className="py-3 flex justify-between items-center gap-4 flex-wrap">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 flex-wrap">
         <Badge
           variant="outline"
           className="rounded-sm border-primary text-primary"
@@ -80,7 +58,7 @@ export default function ControlHeader({
           {completedOrders} Zrealizowanych
         </Badge>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         {session?.user.role === "ADMIN" && (
           <>
             <Link
@@ -131,14 +109,6 @@ export default function ControlHeader({
 
         <ToggleDarkMode />
       </div>
-      {/* 
-        <div className="actions">
-          <div className="eksportOrders" onClick={exportOrdersData}>
-            <Image src={GreenExportIcon} alt="Ikona eksportu zamwień" />
-            <p>Eksportuj</p>
-          </div>
-        </div>
-      </div> */}
     </header>
   );
 }
