@@ -11,6 +11,7 @@ import TableDataRow from "../components/TableDataRow";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { signOut } from "next-auth/react";
 
@@ -96,9 +97,25 @@ interface ApiResponse {
   error?: string;
 }
 
+// Typy dla zapisanych ustawień
+interface SavedSettings {
+  filters: DashboardSidebarFilters;
+  currentPage: number;
+  pageSize: number;
+  timestamp: number;
+}
+
+// Klucze dla localStorage
+const STORAGE_KEYS = {
+  DASHBOARD_SETTINGS: "dashboard_settings",
+} as const;
+
 export default function Dashboard() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [selectedOrders, setSelectedOrders] = useState<
     OrderWithUserAndPackages[]
   >([]);
@@ -115,8 +132,8 @@ export default function Dashboard() {
     realizedOrders: 0,
   });
 
-  // [DashboardSidebarProvider] Filters
-  const [filters, setFilters] = useState<DashboardSidebarFilters>({
+  // Domyślne filtry
+  const defaultFilters: DashboardSidebarFilters = {
     searchId: "",
     orderBy: "desc",
     sortByDate: "updatedAt",
@@ -124,7 +141,112 @@ export default function Dashboard() {
     dateFrom: "",
     dateTo: "",
     postalCode: "all",
-  });
+  };
+
+  // [DashboardSidebarProvider] Filters
+  const [filters, setFilters] = useState<DashboardSidebarFilters>(defaultFilters);
+
+  // Funkcje do obsługi URL
+  const updateURL = (newFilters: DashboardSidebarFilters, newPage: number, newPageSize: number) => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams();
+    
+    // Dodaj tylko niepuste wartości do URL
+    if (newFilters.searchId) params.set("searchId", newFilters.searchId);
+    if (newFilters.orderBy !== "desc") params.set("orderBy", newFilters.orderBy);
+    if (newFilters.sortByDate !== "updatedAt") params.set("sortByDate", newFilters.sortByDate);
+    if (newFilters.status !== "Wszystkie") params.set("status", newFilters.status);
+    if (newFilters.dateFrom) params.set("dateFrom", newFilters.dateFrom);
+    if (newFilters.dateTo) params.set("dateTo", newFilters.dateTo);
+    if (newFilters.postalCode !== "all") params.set("postalCode", newFilters.postalCode);
+    if (newPage > 1) params.set("page", newPage.toString());
+    if (newPageSize !== 25) params.set("pageSize", newPageSize.toString());
+
+    const newURL = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    router.replace(newURL, { scroll: false });
+  };
+
+  const loadFromURL = () => {
+    if (typeof window === "undefined") return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const newFilters = { ...defaultFilters };
+    let newPage = 1;
+    let newPageSize = 25;
+
+    // Wczytaj filtry z URL
+    if (urlParams.has("searchId")) newFilters.searchId = urlParams.get("searchId")!;
+    if (urlParams.has("orderBy")) newFilters.orderBy = urlParams.get("orderBy") as "asc" | "desc";
+    if (urlParams.has("sortByDate")) newFilters.sortByDate = urlParams.get("sortByDate") as "updatedAt" | "createdAt";
+    if (urlParams.has("status")) newFilters.status = urlParams.get("status")!;
+    if (urlParams.has("dateFrom")) newFilters.dateFrom = urlParams.get("dateFrom")!;
+    if (urlParams.has("dateTo")) newFilters.dateTo = urlParams.get("dateTo")!;
+    if (urlParams.has("postalCode")) newFilters.postalCode = urlParams.get("postalCode")!;
+    if (urlParams.has("page")) newPage = parseInt(urlParams.get("page")!);
+    if (urlParams.has("pageSize")) newPageSize = parseInt(urlParams.get("pageSize")!);
+
+    updateFiltersFromStorage(newFilters);
+    setCurrentPage(newPage);
+    setPageSize(newPageSize);
+  };
+
+  // Funkcje do obsługi localStorage
+  const saveSettings = () => {
+    if (typeof window === "undefined") return;
+
+    const settings: SavedSettings = {
+      filters,
+      currentPage,
+      pageSize,
+      timestamp: Date.now(),
+    };
+
+    localStorage.setItem(STORAGE_KEYS.DASHBOARD_SETTINGS, JSON.stringify(settings));
+  };
+
+  const loadSettings = () => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const savedSettings = localStorage.getItem(STORAGE_KEYS.DASHBOARD_SETTINGS);
+
+      if (savedSettings) {
+        const settings: SavedSettings = JSON.parse(savedSettings);
+        
+        // Sprawdź czy ustawienia nie są starsze niż 24 godziny
+        const isExpired = Date.now() - settings.timestamp > 24 * 60 * 60 * 1000;
+        
+        if (!isExpired) {
+          updateFiltersFromStorage(settings.filters);
+          setCurrentPage(settings.currentPage);
+          setPageSize(settings.pageSize);
+          
+          // Zaktualizuj URL na podstawie zapisanych ustawień
+          updateURL(settings.filters, settings.currentPage, settings.pageSize);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error("Błąd podczas ładowania ustawień:", error);
+    }
+
+    // Jeśli nie ma zapisanych ustawień lub są przestarzałe, sprawdź URL
+    loadFromURL();
+  };
+
+  // Załaduj ustawienia przy pierwszym renderowaniu
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  // Zapisz ustawienia automatycznie przy każdej zmianie
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      saveSettings();
+      updateURL(filters, currentPage, pageSize);
+    }
+  }, [filters, currentPage, pageSize]);
 
   // Przeniesienie logiki zapytania poza funkcję getOrders
   const getOrders = async ({
@@ -181,10 +303,7 @@ export default function Dashboard() {
     enabled: !!session,
   });
 
-  // Reset page when filters or page size change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, pageSize]);
+
 
   ///////////////// Operations on selected orders
   function handleCancelOrdersClick() {
@@ -328,20 +447,21 @@ export default function Dashboard() {
   const handleFiltersChange = (newFilters: DashboardSidebarFilters) => {
     setSelectedOrders([]);
     setFilters(newFilters);
+    // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   // [DashboardSidebarProvider] Handle Clear Filters
   const handleClearFilters = () => {
     setSelectedOrders([]);
-    setFilters({
-      searchId: "",
-      orderBy: "desc",
-      sortByDate: "updatedAt",
-      status: "Wszystkie",
-      dateFrom: "",
-      dateTo: "",
-      postalCode: "all",
-    });
+    setFilters(defaultFilters);
+    setCurrentPage(1);
+  };
+
+  // Funkcja do aktualizacji filtrów z zewnątrz (np. z localStorage)
+  const updateFiltersFromStorage = (newFilters: DashboardSidebarFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
   };
 
   // Pagination handlers
@@ -353,6 +473,8 @@ export default function Dashboard() {
   const handlePageSizeChange = (newPageSize: string) => {
     setPageSize(parseInt(newPageSize));
     setSelectedOrders([]);
+    // Reset to first page when page size changes
+    setCurrentPage(1);
   };
 
   // Generate pagination items
@@ -398,6 +520,7 @@ export default function Dashboard() {
     <DashboardSidebarProvider
       onFiltersChange={handleFiltersChange}
       onClearFilters={handleClearFilters}
+      initialFilters={filters}
     >
       <div className="flex w-full flex-col md:flex-row">
         <DashboardSidebar />

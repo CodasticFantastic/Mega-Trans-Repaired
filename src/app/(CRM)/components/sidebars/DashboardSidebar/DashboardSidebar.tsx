@@ -83,10 +83,9 @@ export default function DashboardSidebar() {
             type="text"
             placeholder="Znajdź przesyłkę"
             className="pl-8"
-            onKeyUp={(e) => {
-              filterFunctions.searchOrdersById(
-                (e.target as HTMLInputElement).value
-              );
+            value={sidebarState.searchId}
+            onChange={(e) => {
+              filterFunctions.searchOrdersById(e.target.value);
             }}
           />
         </div>

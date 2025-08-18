@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 // Typy dla filtrów
 export interface DashboardSidebarFilters {
@@ -21,6 +21,7 @@ interface FilterFunctions {
   filterOrdersByDate: (from: string, to: string) => void;
   filterByPostalCode: (postalCode: string) => void;
   clearFilters: () => void;
+  updateFilters: (newFilters: DashboardSidebarFilters) => void;
 }
 
 // Typy dla stanu lokalnego sidebara
@@ -30,6 +31,7 @@ interface SidebarState {
   filterStatus: string;
   filterDate: { from: string; to: string };
   filterPostalCode: string;
+  searchId: string;
 }
 
 // Typy dla kontekstu
@@ -57,6 +59,7 @@ const defaultSidebarState: SidebarState = {
   filterStatus: "Wszystkie",
   filterDate: { from: "", to: "" },
   filterPostalCode: "all",
+  searchId: "",
 };
 
 // Tworzenie kontekstu
@@ -69,6 +72,7 @@ interface DashboardSidebarProviderProps {
   children: ReactNode;
   onFiltersChange: (filters: DashboardSidebarFilters) => void;
   onClearFilters: () => void;
+  initialFilters?: DashboardSidebarFilters;
 }
 
 // Provider komponent
@@ -76,11 +80,33 @@ export function DashboardSidebarProvider({
   children,
   onFiltersChange,
   onClearFilters,
+  initialFilters,
 }: DashboardSidebarProviderProps) {
-  const [filters, setFilters] =
-    useState<DashboardSidebarFilters>(defaultFilters);
-  const [sidebarState, setSidebarState] =
-    useState<SidebarState>(defaultSidebarState);
+  const [filters, setFilters] = useState<DashboardSidebarFilters>(
+    initialFilters || defaultFilters
+  );
+  
+  // Synchronizuj stan sidebara z filtrami
+  const getSidebarStateFromFilters = (filters: DashboardSidebarFilters): SidebarState => ({
+    sortDate: filters.orderBy === "asc" ? "ascending" : "descending",
+    sortDateField: filters.sortByDate,
+    filterStatus: filters.status,
+    filterDate: { from: filters.dateFrom, to: filters.dateTo },
+    filterPostalCode: filters.postalCode,
+    searchId: filters.searchId,
+  });
+
+  const [sidebarState, setSidebarState] = useState<SidebarState>(
+    getSidebarStateFromFilters(initialFilters || defaultFilters)
+  );
+
+  // Synchronizuj filtry gdy zmieniają się z zewnątrz
+  useEffect(() => {
+    if (initialFilters) {
+      setFilters(initialFilters);
+      setSidebarState(getSidebarStateFromFilters(initialFilters));
+    }
+  }, [initialFilters]);
 
   // Funkcje filtrów
   const filterFunctions: FilterFunctions = {
@@ -88,24 +114,28 @@ export function DashboardSidebarProvider({
       const orderBy: "asc" | "desc" = sort === "ascending" ? "asc" : "desc";
       const newFilters: DashboardSidebarFilters = { ...filters, orderBy };
       setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
       onFiltersChange(newFilters);
     },
 
     sortOrdersByDateField: (field: "updatedAt" | "createdAt") => {
       const newFilters: DashboardSidebarFilters = { ...filters, sortByDate: field };
       setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
       onFiltersChange(newFilters);
     },
 
     filterOrdersByStatus: (status: string) => {
       const newFilters: DashboardSidebarFilters = { ...filters, status };
       setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
       onFiltersChange(newFilters);
     },
 
     searchOrdersById: (id: string) => {
       const newFilters: DashboardSidebarFilters = { ...filters, searchId: id };
       setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
       onFiltersChange(newFilters);
     },
 
@@ -116,18 +146,26 @@ export function DashboardSidebarProvider({
         dateTo: to,
       };
       setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
       onFiltersChange(newFilters);
     },
 
     filterByPostalCode: (postalCode: string) => {
       const newFilters: DashboardSidebarFilters = { ...filters, postalCode };
       setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
+      onFiltersChange(newFilters);
+    },
+
+    updateFilters: (newFilters: DashboardSidebarFilters) => {
+      setFilters(newFilters);
+      setSidebarState(getSidebarStateFromFilters(newFilters));
       onFiltersChange(newFilters);
     },
 
     clearFilters: () => {
       setFilters(defaultFilters);
-      setSidebarState(defaultSidebarState);
+      setSidebarState(getSidebarStateFromFilters(defaultFilters));
       onClearFilters();
     },
   };

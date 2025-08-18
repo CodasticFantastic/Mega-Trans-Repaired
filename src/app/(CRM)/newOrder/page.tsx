@@ -181,7 +181,7 @@ export default function NewOrder() {
 
           {/* Form */}
           <form onSubmit={processOrder} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-[480px_1fr] gap-6 lg:gap-8">
               {/* Left Column - Address */}
               <div className="space-y-6">
                 <Card>
@@ -342,12 +342,12 @@ export default function NewOrder() {
                       Adresat Zlecenia
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex gap-4">
-                    <div className="space-y-2 flex-1">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
                       <Label htmlFor="orderClientName">Odbiorca *</Label>
                       <Input name="orderClientName" required />
                     </div>
-                    <div className="space-y-2 flex-1">
+                    <div className="space-y-2">
                       <Label htmlFor="orderClientPhone">
                         {countryState === "Polska"
                           ? "Telefon (Bez spacji) *"
@@ -361,7 +361,7 @@ export default function NewOrder() {
                         required
                       />
                     </div>
-                    <div className="space-y-2 flex-1">
+                    <div className="space-y-2">
                       <Label htmlFor="orderClientEmail">Email Klienta</Label>
                       <Input name="orderClientEmail" type="email" />
                     </div>
@@ -369,7 +369,7 @@ export default function NewOrder() {
                 </Card>
 
                 {/* Payment and Package List Row */}
-                <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6">
                   {/* Commodity Information */}
                   <Card>
                     <CardHeader>
@@ -379,7 +379,7 @@ export default function NewOrder() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="flex gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="orderCommodityType">
                             Rodzaj Towaru *
@@ -405,7 +405,7 @@ export default function NewOrder() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="space-y-2 flex-1">
+                        <div className="space-y-2">
                           <Label htmlFor="orderCommodityName">
                             Nazwa Towaru *
                           </Label>
@@ -422,8 +422,8 @@ export default function NewOrder() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div className="md:col-span-3 space-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4">
+                        <div className="space-y-2">
                           <Label htmlFor="orderCommodityNote">
                             Notatka do przesyłki
                           </Label>
@@ -516,44 +516,58 @@ export default function NewOrder() {
                   <CardContent>
                     {commodityList.length > 0 ? (
                       <div className="max-h-48 overflow-y-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Rodzaj</TableHead>
-                              <TableHead>Nazwa</TableHead>
-                              <TableHead>Notatka</TableHead>
-                              <TableHead className="w-[60px]">Akcje</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {commodityList.map((commodity) => (
-                              <TableRow key={commodity.orderCommodityId}>
-                                <TableCell className="text-sm">
-                                  {commodity.orderCommodityType}
-                                </TableCell>
-                                <TableCell className="text-sm">
-                                  {commodity.orderCommodityName}
-                                </TableCell>
-                                <TableCell className="text-sm flex-1 text-wrap break-words whitespace-normal">
-                                  {commodity.orderCommodityNote}
-                                </TableCell>
-                                <TableCell>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                      deleteCommodityFromList(
-                                        commodity.orderCommodityId
-                                      )
-                                    }
-                                  >
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </TableCell>
+                        <div className="min-w-full overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[80px] min-w-[80px]">
+                                  Rodzaj
+                                </TableHead>
+                                <TableHead className="w-[200px] min-w-[200px]">
+                                  Nazwa
+                                </TableHead>
+                                <TableHead className="min-w-[150px]">
+                                  Notatka
+                                </TableHead>
+                                <TableHead className="w-[60px] min-w-[60px]">
+                                  Akcje
+                                </TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {commodityList.map((commodity) => (
+                                <TableRow key={commodity.orderCommodityId}>
+                                  <TableCell className="text-sm font-medium">
+                                    {commodity.orderCommodityType}
+                                  </TableCell>
+                                  <TableCell className="text-sm max-w-[200px]">
+                                    <div className="break-words whitespace-normal">
+                                      {commodity.orderCommodityName}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-sm">
+                                    <div className="break-words whitespace-normal max-w-[300px]">
+                                      {commodity.orderCommodityNote}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() =>
+                                        deleteCommodityFromList(
+                                          commodity.orderCommodityId
+                                        )
+                                      }
+                                    >
+                                      <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
                     ) : (
                       <p className="text-muted-foreground text-center py-8">

@@ -290,29 +290,32 @@ export default function TableDataRow({
                                 <p>ID paczki</p>
                               </TooltipContent>
                             </Tooltip>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <p className="flex-1 text-sm text-wrap">
-                                  {Parser().parse(packageItem.commodityName)}
-                                </p>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Nazwa towaru</p>
-                              </TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <p className="flex-1 text-sm text-wrap">
-                                  {Parser().parse(
-                                    packageItem.commodityNote || ""
-                                  )}
-                                </p>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Notatka</p>
-                              </TooltipContent>
-                            </Tooltip>
+                            <div className="flex-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-sm text-wrap">
+                                    {Parser().parse(packageItem.commodityName)}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Nazwa towaru</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                            <div className="flex-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="flex-1 text-sm text-wrap">
+                                    {Parser().parse(
+                                      packageItem.commodityNote || ""
+                                    )}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Notatka</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
                           </TooltipProvider>
                         </div>
                       ))}
@@ -323,7 +326,9 @@ export default function TableDataRow({
                 {order.orderNote && (
                   <div className="border-t pt-4">
                     <p className="mb-2 text-sm font-medium">Notatka</p>
-                    <p className="text-sm">{order.orderNote}</p>
+                    <p className="text-sm whitespace-normal break-words">
+                      {Parser().parse(order.orderNote)}
+                    </p>
                   </div>
                 )}
               </div>

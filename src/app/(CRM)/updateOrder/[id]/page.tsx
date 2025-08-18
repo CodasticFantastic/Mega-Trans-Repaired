@@ -276,9 +276,9 @@ export default function UpdateOrder({
 
           {/* Form */}
           <form onSubmit={updateOrder} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-[480px_1fr] gap-6 lg:gap-8">
               {/* Left Column - Address */}
-              <div className="space-y-6">
+              <div className="space-y-6 min-w-0">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-blue-600">
@@ -513,7 +513,7 @@ export default function UpdateOrder({
               </div>
 
               {/* Right Column - Client & Items */}
-              <div className="space-y-6">
+              <div className="space-y-6 min-w-0">
                 {/* Client Information */}
                 <Card>
                   <CardHeader>
@@ -522,8 +522,8 @@ export default function UpdateOrder({
                       Adresat Zlecenia
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex gap-4">
-                    <div className="space-y-2 flex-1">
+                  <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
                       <Label htmlFor="orderClientName">Odbiorca *</Label>
                       <Input
                         name="orderClientName"
@@ -537,7 +537,7 @@ export default function UpdateOrder({
                         required
                       />
                     </div>
-                    <div className="space-y-2 flex-1">
+                    <div className="space-y-2">
                       <Label htmlFor="orderClientPhone">
                         {orderForm.orderCountry === "Polska"
                           ? "Telefon (Bez spacji) *"
@@ -560,7 +560,7 @@ export default function UpdateOrder({
                         required
                       />
                     </div>
-                    <div className="space-y-2 flex-1">
+                    <div className="space-y-2">
                       <Label htmlFor="orderClientEmail">Email Klienta</Label>
                       <Input
                         name="orderClientEmail"
@@ -577,7 +577,7 @@ export default function UpdateOrder({
                 </Card>
 
                 {/* Payment and Package List Row */}
-                <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 lg:gap-6">
                   {/* Commodity Information */}
                   <Card>
                     <CardHeader>
@@ -587,7 +587,7 @@ export default function UpdateOrder({
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="flex gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="orderCommodityType">
                             Rodzaj Towaru *
@@ -608,7 +608,7 @@ export default function UpdateOrder({
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="space-y-2 flex-1">
+                        <div className="space-y-2">
                           <Label htmlFor="orderCommodityName">
                             Nazwa Towaru *
                           </Label>
@@ -705,30 +705,42 @@ export default function UpdateOrder({
                   <CardContent>
                     {commodityList.length > 0 ? (
                       <div className="max-h-48 overflow-y-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Rodzaj</TableHead>
-                              <TableHead>Nazwa</TableHead>
-                              <TableHead>Notatka</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {commodityList.map((commodity) => (
-                              <TableRow key={commodity.orderCommodityId}>
-                                <TableCell className="text-sm">
-                                  {commodity.orderCommodityType}
-                                </TableCell>
-                                <TableCell className="text-sm">
-                                  {commodity.orderCommodityName}
-                                </TableCell>
-                                <TableCell className="text-sm flex-1 text-wrap break-words whitespace-normal">
-                                  {commodity.orderCommodityNote}
-                                </TableCell>
+                        <div className="min-w-full overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[80px] min-w-[80px]">
+                                  Rodzaj
+                                </TableHead>
+                                <TableHead className="w-[200px] min-w-[200px]">
+                                  Nazwa
+                                </TableHead>
+                                <TableHead className="min-w-[150px]">
+                                  Notatka
+                                </TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {commodityList.map((commodity) => (
+                                <TableRow key={commodity.orderCommodityId}>
+                                  <TableCell className="text-sm font-medium">
+                                    {commodity.orderCommodityType}
+                                  </TableCell>
+                                  <TableCell className="text-sm max-w-[200px]">
+                                    <div className="break-words whitespace-normal">
+                                      {commodity.orderCommodityName}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-sm">
+                                    <div className="break-words whitespace-normal max-w-[300px]">
+                                      {commodity.orderCommodityNote}
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </div>
                     ) : (
                       <p className="text-muted-foreground text-center py-8">
