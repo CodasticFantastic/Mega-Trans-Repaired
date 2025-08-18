@@ -3,10 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ControlHeader from "../components/ControlHeader";
 import DashboardSidebar from "../components/sidebars/DashboardSidebar/DashboardSidebar";
-import {
-  DashboardSidebarFilters,
-  DashboardSidebarProvider,
-} from "../components/sidebars/DashboardSidebar/DashboardSidebar.context";
+import { DashboardSidebarFilters, DashboardSidebarProvider } from "../components/sidebars/DashboardSidebar/DashboardSidebar.context";
 import TableDataRow from "../components/TableDataRow";
 
 import { useSession } from "next-auth/react";
@@ -19,15 +16,9 @@ import FileSaver from "file-saver";
 import XLSX from "sheetjs-style";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/shadcn/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/ui/table";
 import { ScrollArea } from "@/components/shadcn/ui/scroll-area";
+import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import {
   Pagination,
   PaginationContent,
@@ -37,13 +28,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/shadcn/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/ui/select";
 
 import {
   DropdownMenu,
@@ -52,23 +37,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/shadcn/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/shadcn/ui/dialog";
 import { Button } from "@/components/shadcn/ui/button";
 import { OrderWithUserAndPackages } from "types/order.types";
-import {
-  BanIcon,
-  FileDownIcon,
-  Loader2Icon,
-  MoreHorizontalIcon,
-  Trash2Icon,
-} from "lucide-react";
+import { BanIcon, FileDownIcon, Loader2Icon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
 import { Role } from "@prisma/client";
 import { CustomToast } from "@/components/shadcn/custom/toast";
 
@@ -116,11 +88,11 @@ export default function Dashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedOrders, setSelectedOrders] = useState<
-    OrderWithUserAndPackages[]
-  >([]);
+  const [selectedOrders, setSelectedOrders] = useState<OrderWithUserAndPackages[]>([]);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
@@ -144,37 +116,26 @@ export default function Dashboard() {
   };
 
   // [DashboardSidebarProvider] Filters
-  const [filters, setFilters] =
-    useState<DashboardSidebarFilters>(defaultFilters);
+  const [filters, setFilters] = useState<DashboardSidebarFilters>(defaultFilters);
 
   // Funkcje do obsługi URL
-  const updateURL = (
-    newFilters: DashboardSidebarFilters,
-    newPage: number,
-    newPageSize: number
-  ) => {
+  const updateURL = (newFilters: DashboardSidebarFilters, newPage: number, newPageSize: number) => {
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams();
 
     // Dodaj tylko niepuste wartości do URL
     if (newFilters.searchId) params.set("searchId", newFilters.searchId);
-    if (newFilters.orderBy !== "desc")
-      params.set("orderBy", newFilters.orderBy);
-    if (newFilters.sortByDate !== "updatedAt")
-      params.set("sortByDate", newFilters.sortByDate);
-    if (newFilters.status !== "Wszystkie")
-      params.set("status", newFilters.status);
+    if (newFilters.orderBy !== "desc") params.set("orderBy", newFilters.orderBy);
+    if (newFilters.sortByDate !== "updatedAt") params.set("sortByDate", newFilters.sortByDate);
+    if (newFilters.status !== "Wszystkie") params.set("status", newFilters.status);
     if (newFilters.dateFrom) params.set("dateFrom", newFilters.dateFrom);
     if (newFilters.dateTo) params.set("dateTo", newFilters.dateTo);
-    if (newFilters.postalCode !== "all")
-      params.set("postalCode", newFilters.postalCode);
+    if (newFilters.postalCode !== "all") params.set("postalCode", newFilters.postalCode);
     if (newPage > 1) params.set("page", newPage.toString());
     if (newPageSize !== 25) params.set("pageSize", newPageSize.toString());
 
-    const newURL = params.toString()
-      ? `?${params.toString()}`
-      : window.location.pathname;
+    const newURL = params.toString() ? `?${params.toString()}` : window.location.pathname;
     router.replace(newURL, { scroll: false });
   };
 
@@ -187,23 +148,15 @@ export default function Dashboard() {
     let newPageSize = 25;
 
     // Wczytaj filtry z URL
-    if (urlParams.has("searchId"))
-      newFilters.searchId = urlParams.get("searchId")!;
-    if (urlParams.has("orderBy"))
-      newFilters.orderBy = urlParams.get("orderBy") as "asc" | "desc";
-    if (urlParams.has("sortByDate"))
-      newFilters.sortByDate = urlParams.get("sortByDate") as
-        | "updatedAt"
-        | "createdAt";
+    if (urlParams.has("searchId")) newFilters.searchId = urlParams.get("searchId")!;
+    if (urlParams.has("orderBy")) newFilters.orderBy = urlParams.get("orderBy") as "asc" | "desc";
+    if (urlParams.has("sortByDate")) newFilters.sortByDate = urlParams.get("sortByDate") as "updatedAt" | "createdAt";
     if (urlParams.has("status")) newFilters.status = urlParams.get("status")!;
-    if (urlParams.has("dateFrom"))
-      newFilters.dateFrom = urlParams.get("dateFrom")!;
+    if (urlParams.has("dateFrom")) newFilters.dateFrom = urlParams.get("dateFrom")!;
     if (urlParams.has("dateTo")) newFilters.dateTo = urlParams.get("dateTo")!;
-    if (urlParams.has("postalCode"))
-      newFilters.postalCode = urlParams.get("postalCode")!;
+    if (urlParams.has("postalCode")) newFilters.postalCode = urlParams.get("postalCode")!;
     if (urlParams.has("page")) newPage = parseInt(urlParams.get("page")!);
-    if (urlParams.has("pageSize"))
-      newPageSize = parseInt(urlParams.get("pageSize")!);
+    if (urlParams.has("pageSize")) newPageSize = parseInt(urlParams.get("pageSize")!);
 
     updateFiltersFromStorage(newFilters);
     setCurrentPage(newPage);
@@ -221,19 +174,14 @@ export default function Dashboard() {
       timestamp: Date.now(),
     };
 
-    localStorage.setItem(
-      STORAGE_KEYS.DASHBOARD_SETTINGS,
-      JSON.stringify(settings)
-    );
+    localStorage.setItem(STORAGE_KEYS.DASHBOARD_SETTINGS, JSON.stringify(settings));
   };
 
   const loadSettings = () => {
     if (typeof window === "undefined") return;
 
     try {
-      const savedSettings = localStorage.getItem(
-        STORAGE_KEYS.DASHBOARD_SETTINGS
-      );
+      const savedSettings = localStorage.getItem(STORAGE_KEYS.DASHBOARD_SETTINGS);
 
       if (savedSettings) {
         const settings: SavedSettings = JSON.parse(savedSettings);
@@ -273,13 +221,7 @@ export default function Dashboard() {
   }, [filters, currentPage, pageSize]);
 
   // Przeniesienie logiki zapytania poza funkcję getOrders
-  const getOrders = async ({
-    page,
-    filters,
-  }: {
-    page: number;
-    filters: DashboardSidebarFilters;
-  }): Promise<ApiResponse> => {
+  const getOrders = async ({ page, filters }: { page: number; filters: DashboardSidebarFilters }): Promise<ApiResponse> => {
     let request: Response;
 
     if (session?.user?.role === "USER") {
@@ -328,6 +270,42 @@ export default function Dashboard() {
   });
 
   ///////////////// Operations on selected orders
+  function handleOrderCheck(order: OrderWithUserAndPackages, checked: boolean) {
+    if (checked) {
+      setSelectedOrders((prev) => [...prev, order]);
+    } else {
+      setSelectedOrders((prev) => prev.filter((item) => item.orderId !== order.orderId));
+    }
+  }
+
+  function handleSelectAllOnPage(checked: boolean) {
+    if (checked) {
+      // Dodaj wszystkie zamówienia z aktualnej strony, które nie są jeszcze zaznaczone
+      const currentPageOrders = ordersData?.allUserOrder || [];
+      const newOrders = currentPageOrders.filter((order) => !selectedOrders.some((selectedOrder) => selectedOrder.orderId === order.orderId));
+      setSelectedOrders((prev) => [...prev, ...newOrders]);
+    } else {
+      // Usuń wszystkie zamówienia z aktualnej strony
+      const currentPageOrderIds = (ordersData?.allUserOrder || []).map((order) => order.orderId);
+      setSelectedOrders((prev) => prev.filter((order) => !currentPageOrderIds.includes(order.orderId)));
+    }
+  }
+
+  // Sprawdź czy wszystkie zamówienia na aktualnej stronie są zaznaczone
+  const areAllOrdersOnPageSelected = useMemo(() => {
+    const currentPageOrders = ordersData?.allUserOrder || [];
+    return (
+      currentPageOrders.length > 0 &&
+      currentPageOrders.every((order) => selectedOrders.some((selectedOrder) => selectedOrder.orderId === order.orderId))
+    );
+  }, [ordersData?.allUserOrder, selectedOrders]);
+
+  // Sprawdź czy część zamówień na aktualnej stronie jest zaznaczona
+  const areSomeOrdersOnPageSelected = useMemo(() => {
+    const currentPageOrders = ordersData?.allUserOrder || [];
+    return currentPageOrders.some((order) => selectedOrders.some((selectedOrder) => selectedOrder.orderId === order.orderId));
+  }, [ordersData?.allUserOrder, selectedOrders]);
+
   function handleCancelOrdersClick() {
     if (selectedOrders.length === 0) {
       CustomToast("error", "Nie zaznaczono żadnych zamówień", {
@@ -340,70 +318,46 @@ export default function Dashboard() {
 
   async function handleCancelOrdersConfirm() {
     setIsCanceling(true);
+
     try {
-      // Pokaż toast o rozpoczęciu operacji
       CustomToast("info", `Anulowanie ${selectedOrders.length} zamówień...`, {
         duration: 2000,
       });
 
-      // Wykonaj wszystkie anulowania równolegle
       const cancelPromises = selectedOrders.map(async (order) => {
-        const request = await fetch(
-          `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${order.orderId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: session?.accessToken || "",
-            },
-          }
-        );
+        const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${order.orderId}`, {
+          method: "GET",
+          headers: {
+            Authorization: session?.accessToken || "",
+          },
+        });
 
         const response = await request.json();
 
         if (response.error) {
-          throw new Error(
-            `Błąd anulowania zamówienia ${order.orderId}: ${response.error}`
-          );
+          throw new Error(`Błąd anulowania zamówienia ${order.orderId}: ${response.error}`);
         }
+
+        // Optymistyczna aktualizacja dla konkretnego zamówienia po udanym zapytaniu
+        queryClient.setQueryData(["allUserOrder", session, filters, currentPage, pageSize], (oldData: ApiResponse | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            allUserOrder: oldData.allUserOrder.map((o) => (o.orderId === order.orderId ? { ...o, status: "Anulowane" as const } : o)),
+          };
+        });
 
         return { orderId: order.orderId, success: true };
       });
 
-      // Czekaj na zakończenie wszystkich operacji
-      const results = await Promise.allSettled(cancelPromises);
+      await Promise.all(cancelPromises);
 
-      // Sprawdź wyniki
-      const successful = results.filter(
-        (result) => result.status === "fulfilled"
-      ).length;
-      const failed = results.filter(
-        (result) => result.status === "rejected"
-      ).length;
+      CustomToast("success", `Pomyślnie anulowano ${selectedOrders.length} zamówień`, {
+        duration: 4000,
+      });
 
-      // Wyczyść zaznaczone zamówienia
       setSelectedOrders([]);
-
-      // Odśwież dane
-      queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
-
-      // Pokaż odpowiedni toast
-      if (failed === 0) {
-        CustomToast("success", `Pomyślnie anulowano ${successful} zamówień`, {
-          duration: 4000,
-        });
-      } else if (successful === 0) {
-        CustomToast("error", `Nie udało się anulować żadnego zamówienia`, {
-          duration: 4000,
-        });
-      } else {
-        CustomToast(
-          "info",
-          `Anulowano ${successful} zamówień, ${failed} nie udało się anulować`,
-          {
-            duration: 4000,
-          }
-        );
-      }
     } catch (error) {
       console.error("Error canceling orders:", error);
       CustomToast("error", "Nie udało się anulować zamówień", {
@@ -423,12 +377,56 @@ export default function Dashboard() {
       return;
     }
 
-    console.log(selectedOrders);
+    setShowDeleteModal(true);
+  }
 
-    // TODO: Zaimplementować endpoint do usuwania zamówień
-    CustomToast("info", "Funkcja usuwania zamówień nie jest jeszcze dostępna", {
-      duration: 3000,
-    });
+  async function handleDeleteOrdersConfirm() {
+    setIsDeleting(true);
+
+    try {
+      const deletePromises = selectedOrders.map(async (order) => {
+        const response = await fetch(`/api/order/deleteOrder?id=${order.orderId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: session?.accessToken || "",
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Błąd podczas usuwania zamówienia");
+        }
+
+        // Optymistyczna aktualizacja dla konkretnego zamówienia po udanym zapytaniu
+        queryClient.setQueryData(["allUserOrder", session, filters, currentPage, pageSize], (oldData: ApiResponse | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            allUserOrder: oldData.allUserOrder.filter((o) => o.orderId !== order.orderId),
+          };
+        });
+
+        return response.json();
+      });
+
+      await Promise.all(deletePromises);
+
+      CustomToast("success", `Pomyślnie usunięto ${selectedOrders.length} zamówień`, {
+        duration: 3000,
+      });
+
+      setSelectedOrders([]);
+    } catch (error) {
+      console.error("Error deleting orders:", error);
+      CustomToast("error", "Wystąpił błąd podczas usuwania zamówień", {
+        duration: 3000,
+      });
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
   }
 
   ///////////////// Export Data To Excel
@@ -452,8 +450,7 @@ export default function Dashboard() {
       };
     });
 
-    const fileType =
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+    const fileType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
     const fileExtension = ".xlsx";
 
     const ws = XLSX.utils.json_to_sheet(ordersToExport);
@@ -539,11 +536,7 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardSidebarProvider
-      onFiltersChange={handleFiltersChange}
-      onClearFilters={handleClearFilters}
-      initialFilters={filters}
-    >
+    <DashboardSidebarProvider onFiltersChange={handleFiltersChange} onClearFilters={handleClearFilters} initialFilters={filters}>
       <div className="flex w-full flex-col md:flex-row">
         <DashboardSidebar />
 
@@ -561,25 +554,26 @@ export default function Dashboard() {
               <Table className="table-auto">
                 <TableHeader stickyHeader={true}>
                   <TableRow className="bg-muted/30">
-                    <TableHead className="min-w-10 text-center"></TableHead>
-                    <TableHead className="min-w-22 text-center">
-                      Rodzaj
+                    <TableHead className="min-w-10 text-center">
+                      <Checkbox
+                        checked={areAllOrdersOnPageSelected}
+                        onCheckedChange={handleSelectAllOnPage}
+                        aria-label="Zaznacz wszystkie zamówienia na stronie"
+                        data-state={
+                          areSomeOrdersOnPageSelected && !areAllOrdersOnPageSelected
+                            ? "indeterminate"
+                            : areAllOrdersOnPageSelected
+                            ? "checked"
+                            : "unchecked"
+                        }
+                      />
                     </TableHead>
-                    <TableHead className="min-w-64 text-center">
-                      ID Paczki
-                    </TableHead>
-                    <TableHead className="min-w-36 text-center">
-                      Status
-                    </TableHead>
-                    <TableHead className="min-w-38 hidden lg:table-cell text-center">
-                      Aktualizacja
-                    </TableHead>
-                    <TableHead className="min-w-48 hidden md:table-cell text-center">
-                      Nazwa Klienta
-                    </TableHead>
-                    <TableHead className="min-w-48 hidden md:table-cell text-center">
-                      Adres
-                    </TableHead>
+                    <TableHead className="min-w-22 text-center">Rodzaj</TableHead>
+                    <TableHead className="min-w-64 text-center">ID Paczki</TableHead>
+                    <TableHead className="min-w-36 text-center">Status</TableHead>
+                    <TableHead className="min-w-38 hidden lg:table-cell text-center">Aktualizacja</TableHead>
+                    <TableHead className="min-w-48 hidden md:table-cell text-center">Nazwa Klienta</TableHead>
+                    <TableHead className="min-w-48 hidden md:table-cell text-center">Adres</TableHead>
                     <TableHead className="w-24 text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -589,36 +583,22 @@ export default function Dashboard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56">
                           <div className="px-2 py-2">
-                            <p className="text-xs text-muted-foreground">
-                              Zaznaczone zamówienia: {selectedOrders.length}
-                            </p>
+                            <p className="text-xs text-muted-foreground">Zaznaczone zamówienia: {selectedOrders.length}</p>
                           </div>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={exportOrdersData}
-                            className="cursor-pointer"
-                          >
+                          <DropdownMenuItem onClick={exportOrdersData} className="cursor-pointer">
                             <FileDownIcon /> Export CSV
                           </DropdownMenuItem>
-                          {session?.user?.role === Role.ADMIN && (
-                            <DropdownMenuItem
-                              onClick={handleDeleteOrders}
-                              className="text-destructive cursor-pointer"
-                            >
-                              <Trash2Icon className="text-destructive" /> Usuń
-                              zaznaczone
+                          {(session?.user?.role === Role.USER || session?.user?.role === Role.ADMIN) && (
+                            <DropdownMenuItem onClick={handleCancelOrdersClick} className="text-destructive cursor-pointer">
+                              <BanIcon className="text-destructive" /> Anuluj zaznaczone
                             </DropdownMenuItem>
                           )}
-                          {session?.user?.role === Role.USER ||
-                            (session?.user?.role === Role.ADMIN && (
-                              <DropdownMenuItem
-                                onClick={handleCancelOrdersClick}
-                                className="text-destructive cursor-pointer"
-                              >
-                                <BanIcon className="text-destructive" /> Anuluj
-                                zaznaczone
-                              </DropdownMenuItem>
-                            ))}
+                          {session?.user?.role === Role.ADMIN && (
+                            <DropdownMenuItem onClick={handleDeleteOrders} className="text-destructive cursor-pointer">
+                              <Trash2Icon className="text-destructive" /> Usuń zaznaczone
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableHead>
@@ -650,8 +630,9 @@ export default function Dashboard() {
                       <TableDataRow
                         key={order.orderId}
                         order={order}
-                        setExportOrders={setSelectedOrders}
                         shouldAddBackground={index % 2 !== 0}
+                        isDataCellChecked={selectedOrders.some((selectedOrder) => selectedOrder.orderId === order.orderId)}
+                        onDataCellCheck={(checked) => handleOrderCheck(order, checked)}
                       />
                     ))}
                 </TableBody>
@@ -662,13 +643,8 @@ export default function Dashboard() {
             <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               {/* Page Size Selector */}
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Zamówienia na stronę:
-                </span>
-                <Select
-                  value={pageSize.toString()}
-                  onValueChange={handlePageSizeChange}
-                >
+                <span className="text-sm text-muted-foreground">Zamówienia na stronę:</span>
+                <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
                   <SelectTrigger className="w-20">
                     <SelectValue />
                   </SelectTrigger>
@@ -678,6 +654,7 @@ export default function Dashboard() {
                     <SelectItem value="100">100</SelectItem>
                     <SelectItem value="150">150</SelectItem>
                     <SelectItem value="200">200</SelectItem>
+                    <SelectItem value="300">300</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -696,18 +673,13 @@ export default function Dashboard() {
                               handlePageChange(ordersData.currentPage - 1);
                             }
                           }}
-                          className={
-                            !ordersData.hasPreviousPage
-                              ? "pointer-events-none opacity-50"
-                              : "cursor-pointer"
-                          }
+                          className={!ordersData.hasPreviousPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
 
                       {generatePaginationItems().map((item, index) => (
                         <PaginationItem key={index}>
-                          {item === "ellipsis-start" ||
-                          item === "ellipsis-end" ? (
+                          {item === "ellipsis-start" || item === "ellipsis-end" ? (
                             <PaginationEllipsis />
                           ) : (
                             <PaginationLink
@@ -734,11 +706,7 @@ export default function Dashboard() {
                               handlePageChange(ordersData.currentPage + 1);
                             }
                           }}
-                          className={
-                            !ordersData.hasNextPage
-                              ? "pointer-events-none opacity-50"
-                              : "cursor-pointer"
-                          }
+                          className={!ordersData.hasNextPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
                         />
                       </PaginationItem>
                     </PaginationContent>
@@ -751,12 +719,7 @@ export default function Dashboard() {
             <footer className="mt-0 flex flex-col items-end justify-center">
               <p className="text-xs text-muted-foreground">
                 Developed by:{" "}
-                <Link
-                  href="https://jakubwojtysiak.online"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
+                <Link href="https://jakubwojtysiak.online" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
                   JW.online
                 </Link>
               </p>
@@ -771,23 +734,14 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle>Potwierdź anulowanie zamówień</DialogTitle>
             <DialogDescription>
-              Czy na pewno chcesz anulować {selectedOrders.length} zaznaczonych
-              zamówień? Tej operacji nie można cofnąć.
+              Czy na pewno chcesz anulować {selectedOrders.length} zaznaczonych zamówień? Tej operacji nie można cofnąć.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowCancelModal(false)}
-              disabled={isCanceling}
-            >
+            <Button variant="outline" onClick={() => setShowCancelModal(false)} disabled={isCanceling}>
               Anuluj
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleCancelOrdersConfirm}
-              disabled={isCanceling}
-            >
+            <Button variant="destructive" onClick={handleCancelOrdersConfirm} disabled={isCanceling}>
               {isCanceling ? (
                 <>
                   <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
@@ -795,6 +749,34 @@ export default function Dashboard() {
                 </>
               ) : (
                 "Tak, anuluj zamówienia"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal potwierdzenia usuwania zamówień */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Potwierdź usunięcie zamówień</DialogTitle>
+            <DialogDescription>
+              Czy na pewno chcesz usunąć {selectedOrders.length} zaznaczonych zamówień? Tej operacji nie można cofnąć - zamówienia zostaną
+              usunięte na zawsze.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteModal(false)} disabled={isDeleting}>
+              Anuluj
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteOrdersConfirm} disabled={isDeleting}>
+              {isDeleting ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Usuwanie...
+                </>
+              ) : (
+                "Tak, usuń zamówienia"
               )}
             </Button>
           </DialogFooter>

@@ -1,43 +1,25 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import {
-  AtSignIcon,
-  Building2Icon,
-  CalendarPlusIcon,
-  CircleChevronDownIcon,
-  EditIcon,
-  PhoneIcon,
-  ShoppingBagIcon,
-} from "lucide-react";
+import { AtSignIcon, Building2Icon, CalendarPlusIcon, CircleChevronDownIcon, EditIcon, PhoneIcon, ShoppingBagIcon } from "lucide-react";
 import { Button } from "@/components/shadcn/ui/button";
+import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { TableRow, TableCell } from "@/components/shadcn/ui/table";
 import { Status } from "@prisma/client";
 import { OrderWithUserAndPackages } from "types/order.types";
 import { Parser } from "html-to-react";
 import dayjs from "dayjs";
-import {
-  Tooltip,
-  TooltipProvider,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/shadcn/ui/tooltip";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/shadcn/ui/tooltip";
 
 interface TableDataRowProps {
   order: OrderWithUserAndPackages;
   shouldAddBackground: boolean;
-  setExportOrders: React.Dispatch<
-    React.SetStateAction<OrderWithUserAndPackages[]>
-  >;
+  isDataCellChecked: boolean;
+  onDataCellCheck: (checked: boolean) => void;
 }
 
-export default function TableDataRow({
-  order,
-  setExportOrders,
-  shouldAddBackground,
-}: TableDataRowProps) {
+export default function TableDataRow({ order, shouldAddBackground, isDataCellChecked, onDataCellCheck }: TableDataRowProps) {
   const [status, setStatus] = useState<Status>(order.status);
-  const [ifExported, setIfExported] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const { data: session } = useSession();
 
@@ -56,20 +38,17 @@ export default function TableDataRow({
   }, [order.updatedAt]);
 
   async function changeStatus(e: string, id: string) {
-    const request = await fetch(
-      `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrderStatus`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: session?.accessToken || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId: id,
-          status: e,
-        }),
-      }
-    );
+    const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrderStatus`, {
+      method: "POST",
+      headers: {
+        Authorization: session?.accessToken || "",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        orderId: id,
+        status: e,
+      }),
+    });
 
     const response = await request.json();
 
@@ -80,16 +59,8 @@ export default function TableDataRow({
     }
   }
 
-  function exportOrder(e: React.ChangeEvent<HTMLInputElement>) {
-    setIfExported(e.target.checked);
-
-    if (e.target.checked) {
-      setExportOrders((prev) => [...prev, order]);
-    } else {
-      setExportOrders((prev) =>
-        prev.filter((item) => item.orderId !== order.orderId)
-      );
-    }
+  function handleDataCellCheck(checked: boolean) {
+    onDataCellCheck(checked);
   }
 
   useEffect(() => {
@@ -108,20 +79,12 @@ export default function TableDataRow({
 
   return (
     <>
-      <TableRow
-        className={`!hover:bg-transparent [&_td]:!py-3 ${
-          shouldAddBackground ? "bg-muted" : ""
-        }`}
-      >
+      <TableRow className={`!hover:bg-transparent [&_td]:!py-3 ${shouldAddBackground ? "bg-muted" : ""}`}>
         <TableCell className="text-center">
-          <input type="checkbox" checked={ifExported} onChange={exportOrder} />
+          <Checkbox checked={isDataCellChecked} onCheckedChange={handleDataCellCheck} className="mx-auto cursor-pointer" />
         </TableCell>
-        <TableCell className="font-medium text-center">
-          {order.orderType}
-        </TableCell>
-        <TableCell className="font-mono text-center px-2">
-          {order.orderId}
-        </TableCell>
+        <TableCell className="font-medium text-center">{order.orderType}</TableCell>
+        <TableCell className="font-mono text-center px-2">{order.orderId}</TableCell>
         <TableCell className="text-center">
           {session?.user.role === "ADMIN" ? (
             <select
@@ -136,22 +99,18 @@ export default function TableDataRow({
               <option value="Anulowane">Anulowane</option>
             </select>
           ) : (
-            <span className={`rounded border px-1 py-0 ${statusColor}`}>
-              {status}
-            </span>
+            <span className={`rounded border px-1 py-0 ${statusColor}`}>{status}</span>
           )}
         </TableCell>
-        <TableCell className="hidden lg:table-cell text-center">
-          {formattedDate}
-        </TableCell>
+        <TableCell className="hidden lg:table-cell text-center">{formattedDate}</TableCell>
         <TableCell className="hidden md:table-cell text-center max-w-64 whitespace-normal break-words">
           {Parser().parse(order.recipientName)}
         </TableCell>
         <TableCell className="hidden md:table-cell text-center">
           {order.orderPostCode} {order.orderCity}
           <br />
-          {order.orderStreet} {order.orderStreetNumber}{" "}
-          {order.orderFlatNumber && `/ ${order.orderFlatNumber}`}
+          {Parser().parse(order.orderStreet)} {Parser().parse(order.orderStreetNumber)}{" "}
+          {order.orderFlatNumber && `/ ${Parser().parse(order.orderFlatNumber)}`}
         </TableCell>
         <TableCell className="text-right">
           <div className="inline-flex items-center gap-1">
@@ -160,17 +119,8 @@ export default function TableDataRow({
                 <EditIcon className="text-foreground" />
               </Button>
             </Link>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="cursor-pointer"
-              onClick={() => setExpanded((v) => !v)}
-            >
-              <CircleChevronDownIcon
-                className={`text-foreground transition-transform ${
-                  expanded ? "rotate-180" : ""
-                }`}
-              />
+            <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => setExpanded((v) => !v)}>
+              <CircleChevronDownIcon className={`text-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
             </Button>
           </div>
         </TableCell>
@@ -189,11 +139,7 @@ export default function TableDataRow({
                         <TooltipTrigger asChild>
                           <div className="icon-text">
                             <CalendarPlusIcon size={16} />
-                            <p className="text-sm">
-                              {dayjs(order.createdAt).format(
-                                "DD.MM.YYYY HH:mm"
-                              )}
-                            </p>
+                            <p className="text-sm">{dayjs(order.createdAt).format("DD.MM.YYYY HH:mm")}</p>
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -205,9 +151,7 @@ export default function TableDataRow({
                           <TooltipTrigger asChild>
                             <div className="icon-text">
                               <ShoppingBagIcon size={16} />
-                              <p className="text-sm">
-                                {Parser().parse(order.orderSupplierId)}
-                              </p>
+                              <p className="text-sm">{Parser().parse(order.orderSupplierId)}</p>
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -241,9 +185,7 @@ export default function TableDataRow({
                         <TooltipTrigger asChild>
                           <div className="icon-text">
                             <Building2Icon size={16} />
-                            <p className="text-sm">
-                              {Parser().parse(order.user.company || "")}
-                            </p>
+                            <p className="text-sm">{Parser().parse(order.user.company || "")}</p>
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -259,32 +201,23 @@ export default function TableDataRow({
                     {order.orderPaymentType === "Pobranie" && (
                       <div>
                         <p className="text-xs">Kwota Pobrania</p>
-                        <p className="text-base text-blue-400">
-                          {`${order.orderPrice} ${order.currency}`}
-                        </p>
+                        <p className="text-base text-blue-400">{`${order.orderPrice} ${order.currency}`}</p>
                       </div>
                     )}
                     <div>
                       <p className="text-xs">Ilość Paczek</p>
-                      <p className="text-base text-blue-400">
-                        {order.packages.length}
-                      </p>
+                      <p className="text-base text-blue-400">{order.packages.length}</p>
                     </div>
                   </div>
 
                   <div className="w-full">
                     <div className="divide-y">
                       {order.packages.map((packageItem) => (
-                        <div
-                          key={packageItem.packageId}
-                          className="flex flex-col gap-1 py-2 md:flex-row md:items-center md:gap-4"
-                        >
+                        <div key={packageItem.packageId} className="flex flex-col gap-1 py-2 md:flex-row md:items-center md:gap-4">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <p className="min-w-64 font-mono text-sm">
-                                  {packageItem.packageId}
-                                </p>
+                                <p className="min-w-64 font-mono text-sm">{packageItem.packageId}</p>
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>ID paczki</p>
@@ -293,9 +226,7 @@ export default function TableDataRow({
                             <div className="flex-1">
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="text-sm text-wrap">
-                                    {Parser().parse(packageItem.commodityName)}
-                                  </span>
+                                  <span className="text-sm text-wrap">{Parser().parse(packageItem.commodityName)}</span>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>Nazwa towaru</p>
@@ -305,11 +236,7 @@ export default function TableDataRow({
                             <div className="flex-1">
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="flex-1 text-sm text-wrap">
-                                    {Parser().parse(
-                                      packageItem.commodityNote || ""
-                                    )}
-                                  </span>
+                                  <span className="flex-1 text-sm text-wrap">{Parser().parse(packageItem.commodityNote || "")}</span>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>Notatka</p>
@@ -326,9 +253,7 @@ export default function TableDataRow({
                 {order.orderNote && (
                   <div className="border-t pt-4">
                     <p className="mb-2 text-sm font-medium">Notatka</p>
-                    <p className="text-sm whitespace-normal break-words">
-                      {Parser().parse(order.orderNote)}
-                    </p>
+                    <p className="text-sm whitespace-normal break-words">{Parser().parse(order.orderNote)}</p>
                   </div>
                 )}
               </div>
