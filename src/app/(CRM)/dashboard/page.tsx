@@ -115,7 +115,7 @@ export default function Dashboard() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [selectedOrders, setSelectedOrders] = useState<
     OrderWithUserAndPackages[]
   >([]);
@@ -144,26 +144,37 @@ export default function Dashboard() {
   };
 
   // [DashboardSidebarProvider] Filters
-  const [filters, setFilters] = useState<DashboardSidebarFilters>(defaultFilters);
+  const [filters, setFilters] =
+    useState<DashboardSidebarFilters>(defaultFilters);
 
   // Funkcje do obsługi URL
-  const updateURL = (newFilters: DashboardSidebarFilters, newPage: number, newPageSize: number) => {
+  const updateURL = (
+    newFilters: DashboardSidebarFilters,
+    newPage: number,
+    newPageSize: number
+  ) => {
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams();
-    
+
     // Dodaj tylko niepuste wartości do URL
     if (newFilters.searchId) params.set("searchId", newFilters.searchId);
-    if (newFilters.orderBy !== "desc") params.set("orderBy", newFilters.orderBy);
-    if (newFilters.sortByDate !== "updatedAt") params.set("sortByDate", newFilters.sortByDate);
-    if (newFilters.status !== "Wszystkie") params.set("status", newFilters.status);
+    if (newFilters.orderBy !== "desc")
+      params.set("orderBy", newFilters.orderBy);
+    if (newFilters.sortByDate !== "updatedAt")
+      params.set("sortByDate", newFilters.sortByDate);
+    if (newFilters.status !== "Wszystkie")
+      params.set("status", newFilters.status);
     if (newFilters.dateFrom) params.set("dateFrom", newFilters.dateFrom);
     if (newFilters.dateTo) params.set("dateTo", newFilters.dateTo);
-    if (newFilters.postalCode !== "all") params.set("postalCode", newFilters.postalCode);
+    if (newFilters.postalCode !== "all")
+      params.set("postalCode", newFilters.postalCode);
     if (newPage > 1) params.set("page", newPage.toString());
     if (newPageSize !== 25) params.set("pageSize", newPageSize.toString());
 
-    const newURL = params.toString() ? `?${params.toString()}` : window.location.pathname;
+    const newURL = params.toString()
+      ? `?${params.toString()}`
+      : window.location.pathname;
     router.replace(newURL, { scroll: false });
   };
 
@@ -176,15 +187,23 @@ export default function Dashboard() {
     let newPageSize = 25;
 
     // Wczytaj filtry z URL
-    if (urlParams.has("searchId")) newFilters.searchId = urlParams.get("searchId")!;
-    if (urlParams.has("orderBy")) newFilters.orderBy = urlParams.get("orderBy") as "asc" | "desc";
-    if (urlParams.has("sortByDate")) newFilters.sortByDate = urlParams.get("sortByDate") as "updatedAt" | "createdAt";
+    if (urlParams.has("searchId"))
+      newFilters.searchId = urlParams.get("searchId")!;
+    if (urlParams.has("orderBy"))
+      newFilters.orderBy = urlParams.get("orderBy") as "asc" | "desc";
+    if (urlParams.has("sortByDate"))
+      newFilters.sortByDate = urlParams.get("sortByDate") as
+        | "updatedAt"
+        | "createdAt";
     if (urlParams.has("status")) newFilters.status = urlParams.get("status")!;
-    if (urlParams.has("dateFrom")) newFilters.dateFrom = urlParams.get("dateFrom")!;
+    if (urlParams.has("dateFrom"))
+      newFilters.dateFrom = urlParams.get("dateFrom")!;
     if (urlParams.has("dateTo")) newFilters.dateTo = urlParams.get("dateTo")!;
-    if (urlParams.has("postalCode")) newFilters.postalCode = urlParams.get("postalCode")!;
+    if (urlParams.has("postalCode"))
+      newFilters.postalCode = urlParams.get("postalCode")!;
     if (urlParams.has("page")) newPage = parseInt(urlParams.get("page")!);
-    if (urlParams.has("pageSize")) newPageSize = parseInt(urlParams.get("pageSize")!);
+    if (urlParams.has("pageSize"))
+      newPageSize = parseInt(urlParams.get("pageSize")!);
 
     updateFiltersFromStorage(newFilters);
     setCurrentPage(newPage);
@@ -202,26 +221,31 @@ export default function Dashboard() {
       timestamp: Date.now(),
     };
 
-    localStorage.setItem(STORAGE_KEYS.DASHBOARD_SETTINGS, JSON.stringify(settings));
+    localStorage.setItem(
+      STORAGE_KEYS.DASHBOARD_SETTINGS,
+      JSON.stringify(settings)
+    );
   };
 
   const loadSettings = () => {
     if (typeof window === "undefined") return;
 
     try {
-      const savedSettings = localStorage.getItem(STORAGE_KEYS.DASHBOARD_SETTINGS);
+      const savedSettings = localStorage.getItem(
+        STORAGE_KEYS.DASHBOARD_SETTINGS
+      );
 
       if (savedSettings) {
         const settings: SavedSettings = JSON.parse(savedSettings);
-        
+
         // Sprawdź czy ustawienia nie są starsze niż 24 godziny
         const isExpired = Date.now() - settings.timestamp > 24 * 60 * 60 * 1000;
-        
+
         if (!isExpired) {
           updateFiltersFromStorage(settings.filters);
           setCurrentPage(settings.currentPage);
           setPageSize(settings.pageSize);
-          
+
           // Zaktualizuj URL na podstawie zapisanych ustawień
           updateURL(settings.filters, settings.currentPage, settings.pageSize);
           return;
@@ -302,8 +326,6 @@ export default function Dashboard() {
     queryFn: () => getOrders({ page: currentPage, filters }),
     enabled: !!session,
   });
-
-
 
   ///////////////// Operations on selected orders
   function handleCancelOrdersClick() {
