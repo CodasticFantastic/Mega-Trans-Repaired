@@ -105,7 +105,7 @@ export default function Dashboard() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useState(25);
 
   const [stats, setStats] = useState<Stats>({
     allOrders: 0,
@@ -528,11 +528,11 @@ export default function Dashboard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="40">40</SelectItem>
-                    <SelectItem value="60">60</SelectItem>
-                    <SelectItem value="80">80</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
                     <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="150">150</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
