@@ -3,7 +3,7 @@ import { decryptApiKey } from "@/helpers/encryption";
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
-import { ApiKey, Prisma, Role } from "@prisma/client";
+import { ApiKey, ApiKeyType, Prisma, Role } from "@prisma/client";
 import { CreateApiKeySchema } from "types/apiKey.types";
 import z from "zod";
 
@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
     const apiKeyData = userApiKeys.map((apiKey: ApiKey) => ({
       apiKeyName: apiKey.apiKeyName,
-      apiKey: decryptApiKey(apiKey.apiKey),
+      apiKey: apiKey.type === ApiKeyType.BaseLinker ? "***********" : decryptApiKey(apiKey.apiKey),
       type: apiKey.type,
       lastUsed: apiKey.lastUsed,
     }));
