@@ -8,7 +8,7 @@ import TableDataRow from "../components/TableDataRow";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import { signOut } from "next-auth/react";
 
@@ -86,7 +86,6 @@ export default function Dashboard() {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [selectedOrders, setSelectedOrders] = useState<OrderWithUserAndPackages[]>([]);
   const [showCancelModal, setShowCancelModal] = useState(false);

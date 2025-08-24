@@ -6,41 +6,16 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Driver, Role } from "@prisma/client";
 import { Button } from "@/components/shadcn/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/shadcn/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/shadcn/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/ui/table";
 import { Badge } from "@/components/shadcn/ui/badge";
 import { Input } from "@/components/shadcn/ui/input";
 import { Label } from "@/components/shadcn/ui/label";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/shadcn/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/shadcn/ui/tooltip";
 import { Skeleton } from "@/components/shadcn/ui/skeleton";
-import { Separator } from "@/components/shadcn/ui/separator";
 import { ScrollArea } from "@/components/shadcn/ui/scroll-area";
 import { Alert, AlertDescription } from "@/components/shadcn/ui/alert";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/shadcn/ui/dialog";
 import { useRouter } from "next/navigation";
 
 export default function DriversPage() {
@@ -69,16 +44,13 @@ export default function DriversPage() {
   // Get all drivers from database
   async function getDrivers() {
     try {
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/getDrivers`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: session?.accessToken || "",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/getDrivers`, {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      });
 
       const response = await request.json();
 
@@ -110,17 +82,14 @@ export default function DriversPage() {
     };
 
     try {
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/createDriver`,
-        {
-          method: "POST",
-          body: JSON.stringify(driverData),
-          headers: {
-            Authorization: session?.accessToken || "",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/createDriver`, {
+        method: "POST",
+        body: JSON.stringify(driverData),
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      });
 
       const response = await request.json();
 
@@ -159,16 +128,13 @@ export default function DriversPage() {
     if (!driverToDelete) return;
 
     try {
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/deleteDriver?id=${driverToDelete.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: session?.accessToken || "",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/drivers/deleteDriver?id=${driverToDelete.id}`, {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      });
 
       const response = await request.json();
 
@@ -422,11 +388,7 @@ export default function DriversPage() {
                   </Badge>
                 </CardTitle>
                 <div className="w-full sm:w-80">
-                  <Input
-                    placeholder="Szukaj kierowców..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+                  <Input placeholder="Szukaj kierowców..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 </div>
               </div>
             </CardHeader>
@@ -444,45 +406,29 @@ export default function DriversPage() {
                   <TableBody>
                     {filteredDrivers.length === 0 ? (
                       <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          className="text-center py-8 text-muted-foreground"
-                        >
-                          {searchTerm
-                            ? "Brak kierowców spełniających kryteria wyszukiwania"
-                            : "Brak zarejestrowanych kierowców"}
+                        <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                          {searchTerm ? "Brak kierowców spełniających kryteria wyszukiwania" : "Brak zarejestrowanych kierowców"}
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredDrivers.map((driver) => (
                         <TableRow key={driver.id} className="hover:bg-muted/50">
-                          <TableCell className="font-medium">
-                            {driver.name}
-                          </TableCell>
+                          <TableCell className="font-medium">{driver.name}</TableCell>
                           <TableCell>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <div className="max-w-48 truncate">
-                                  {driver.email}
-                                </div>
+                                <div className="max-w-48 truncate">{driver.email}</div>
                               </TooltipTrigger>
                               <TooltipContent>
                                 <div>{driver.email}</div>
                               </TooltipContent>
                             </Tooltip>
                           </TableCell>
-                          <TableCell className="font-mono text-sm">
-                            {driver.phone}
-                          </TableCell>
+                          <TableCell className="font-mono text-sm">{driver.phone}</TableCell>
                           <TableCell>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => openDeleteDialog(driver)}
-                                  className="h-8 w-8 p-0"
-                                >
+                                <Button variant="destructive" size="sm" onClick={() => openDeleteDialog(driver)} className="h-8 w-8 p-0">
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
@@ -507,9 +453,8 @@ export default function DriversPage() {
             <DialogHeader>
               <DialogTitle>Potwierdź usunięcie kierowcy</DialogTitle>
               <DialogDescription>
-                Czy na pewno chcesz usunąć kierowcę{" "}
-                <span className="font-semibold">{driverToDelete?.name}</span>?
-                Ta operacja jest nieodwracalna.
+                Czy na pewno chcesz usunąć kierowcę <span className="font-semibold">{driverToDelete?.name}</span>? Ta operacja jest
+                nieodwracalna.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
