@@ -7,44 +7,16 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { OrderItem } from "types/order.types";
 import { CommodityType } from "@prisma/client";
-import {
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Package,
-  User,
-  CreditCard,
-  MapPin,
-  FileText,
-  ShoppingCart,
-} from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Package, User, CreditCard, MapPin, FileText, ShoppingCart } from "lucide-react";
 
 // shadcn/ui components
 import { Button } from "@/components/shadcn/ui/button";
 import { Input } from "@/components/shadcn/ui/input";
 import { Label } from "@/components/shadcn/ui/label";
 import { Textarea } from "@/components/shadcn/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/ui/select";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/shadcn/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/shadcn/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/ui/table";
 import { Alert, AlertDescription } from "@/components/shadcn/ui/alert";
 import { Separator } from "@/components/shadcn/ui/separator";
 import { Badge } from "@/components/shadcn/ui/badge";
@@ -106,17 +78,14 @@ export default function NewOrder() {
     };
 
     try {
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`,
-        {
-          method: "POST",
-          body: JSON.stringify(orderData),
-          headers: {
-            Authorization: session?.accessToken || "",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/newOrder`, {
+        method: "POST",
+        body: JSON.stringify(orderData),
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      });
 
       const response = await request.json();
 
@@ -208,11 +177,7 @@ export default function NewOrder() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="orderCountry">Kraj</Label>
-                        <Select
-                          name="orderCountry"
-                          value={countryState}
-                          onValueChange={setCountryState}
-                        >
+                        <Select name="orderCountry" value={countryState} onValueChange={setCountryState}>
                           <SelectTrigger className="w-full cursor-pointer">
                             <SelectValue />
                           </SelectTrigger>
@@ -231,14 +196,8 @@ export default function NewOrder() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="orderStreetNumber">
-                          Numer Budynku *
-                        </Label>
-                        <Input
-                          name="orderStreetNumber"
-                          pattern="[A-Za-z0-9]{1,}"
-                          required
-                        />
+                        <Label htmlFor="orderStreetNumber">Numer Budynku *</Label>
+                        <Input name="orderStreetNumber" pattern="[A-Za-z0-9]{1,}" required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="orderFlatNumber">Numer Lokalu</Label>
@@ -254,74 +213,19 @@ export default function NewOrder() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="orderPostCode">
-                          {countryState === "Polska"
-                            ? "Kod Pocztowy (##-###) *"
-                            : "Kod Pocztowy (### ##) *"}
+                          {countryState === "Polska" ? "Kod Pocztowy (##-###) *" : "Kod Pocztowy (### ##) *"}
                         </Label>
-                        <Input
-                          name="orderPostCode"
-                          pattern={
-                            countryState === "Polska"
-                              ? "[0-9]{2}-[0-9]{3}"
-                              : "[0-9]{3} [0-9]{2}"
-                          }
-                          required
-                        />
+                        <Input name="orderPostCode" pattern={countryState === "Polska" ? "[0-9]{2}-[0-9]{3}" : "[0-9]{3} [0-9]{2}"} required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="orderState">Województwo *</Label>
-                        <Select name="orderState" required>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Wybierz województwo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Dolnośląskie">
-                              Dolnośląskie
-                            </SelectItem>
-                            <SelectItem value="Kujawsko-Pomorskie">
-                              Kujawsko-Pomorskie
-                            </SelectItem>
-                            <SelectItem value="Lubelskie">Lubelskie</SelectItem>
-                            <SelectItem value="Lubuskie">Lubuskie</SelectItem>
-                            <SelectItem value="Łódzkie">Łódzkie</SelectItem>
-                            <SelectItem value="Małopolskie">
-                              Małopolskie
-                            </SelectItem>
-                            <SelectItem value="Mazowieckie">
-                              Mazowieckie
-                            </SelectItem>
-                            <SelectItem value="Opolskie">Opolskie</SelectItem>
-                            <SelectItem value="Podkarpackie">
-                              Podkarpackie
-                            </SelectItem>
-                            <SelectItem value="Podlaskie">Podlaskie</SelectItem>
-                            <SelectItem value="Pomorskie">Pomorskie</SelectItem>
-                            <SelectItem value="Śląskie">Śląskie</SelectItem>
-                            <SelectItem value="Świętokrzyskie">
-                              Świętokrzyskie
-                            </SelectItem>
-                            <SelectItem value="Warmińsko-Mazurskie">
-                              Warmińsko-Mazurskie
-                            </SelectItem>
-                            <SelectItem value="Wielkopolskie">
-                              Wielkopolskie
-                            </SelectItem>
-                            <SelectItem value="Zachodniopomorskie">
-                              Zachodniopomorskie
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input type="text" name="orderState" required />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="orderSupplierId">
-                        ID z systemu Zleceniodawcy
-                      </Label>
-                      <Input
-                        name="orderSupplierId"
-                        placeholder="np. Shop-123-456-789"
-                      />
+                      <Label htmlFor="orderSupplierId">ID z systemu Zleceniodawcy</Label>
+                      <Input name="orderSupplierId" placeholder="np. Shop-123-456-789" />
                     </div>
 
                     <div className="space-y-2">
@@ -349,17 +253,9 @@ export default function NewOrder() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="orderClientPhone">
-                        {countryState === "Polska"
-                          ? "Telefon (Bez spacji) *"
-                          : "Telefon (Bez spacji) *"}
+                        {countryState === "Polska" ? "Telefon (Bez spacji) *" : "Telefon (Bez spacji) *"}
                       </Label>
-                      <Input
-                        name="orderClientPhone"
-                        pattern={
-                          countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"
-                        }
-                        required
-                      />
+                      <Input name="orderClientPhone" pattern={countryState === "Polska" ? "[0-9]{9}" : "[0-9]{9}"} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="orderClientEmail">Email Klienta</Label>
@@ -381,9 +277,7 @@ export default function NewOrder() {
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="orderCommodityType">
-                            Rodzaj Towaru *
-                          </Label>
+                          <Label htmlFor="orderCommodityType">Rodzaj Towaru *</Label>
                           <Select
                             value={commodityItem.orderCommodityType}
                             onValueChange={(value) => {
@@ -397,18 +291,14 @@ export default function NewOrder() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Paczka">
-                                Paczka/Karton
-                              </SelectItem>
+                              <SelectItem value="Paczka">Paczka/Karton</SelectItem>
                               <SelectItem value="Gabaryt">Gabaryt</SelectItem>
                               <SelectItem value="Paleta">Paleta</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="orderCommodityName">
-                            Nazwa Towaru *
-                          </Label>
+                          <Label htmlFor="orderCommodityName">Nazwa Towaru *</Label>
                           <Input
                             name="orderCommodityName"
                             value={commodityItem.orderCommodityName}
@@ -424,9 +314,7 @@ export default function NewOrder() {
 
                       <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="orderCommodityNote">
-                            Notatka do przesyłki
-                          </Label>
+                          <Label htmlFor="orderCommodityNote">Notatka do przesyłki</Label>
                           <Textarea
                             name="orderCommodityNote"
                             value={commodityItem.orderCommodityNote}
@@ -440,11 +328,7 @@ export default function NewOrder() {
                           />
                         </div>
                         <div className="flex items-end">
-                          <Button
-                            type="button"
-                            onClick={addCommodity}
-                            className="w-full bg-green-600 hover:bg-green-700"
-                          >
+                          <Button type="button" onClick={addCommodity} className="w-full bg-green-600 hover:bg-green-700">
                             <Plus className="h-4 w-4 mr-2" />
                             Dodaj
                           </Button>
@@ -468,14 +352,8 @@ export default function NewOrder() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="orderPaymentType">
-                          Sposób Płatności
-                        </Label>
-                        <Select
-                          name="orderPaymentType"
-                          value={paymentType}
-                          onValueChange={setPaymentType}
-                        >
+                        <Label htmlFor="orderPaymentType">Sposób Płatności</Label>
+                        <Select name="orderPaymentType" value={paymentType} onValueChange={setPaymentType}>
                           <SelectTrigger className="w-full cursor-pointer">
                             <SelectValue />
                           </SelectTrigger>
@@ -487,16 +365,8 @@ export default function NewOrder() {
                       </div>
                       {paymentType === "Pobranie" && (
                         <div className="space-y-2">
-                          <Label htmlFor="orderPaymentAmount">
-                            Kwota Płatności{" "}
-                            {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                          </Label>
-                          <Input
-                            name="orderPaymentAmount"
-                            type="number"
-                            step="0.01"
-                            required
-                          />
+                          <Label htmlFor="orderPaymentAmount">Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}</Label>
+                          <Input name="orderPaymentAmount" type="number" step="0.01" required />
                         </div>
                       )}
                     </CardContent>
@@ -520,46 +390,24 @@ export default function NewOrder() {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[80px] min-w-[80px]">
-                                  Rodzaj
-                                </TableHead>
-                                <TableHead className="w-[200px] min-w-[200px]">
-                                  Nazwa
-                                </TableHead>
-                                <TableHead className="min-w-[150px]">
-                                  Notatka
-                                </TableHead>
-                                <TableHead className="w-[60px] min-w-[60px]">
-                                  Akcje
-                                </TableHead>
+                                <TableHead className="w-[80px] min-w-[80px]">Rodzaj</TableHead>
+                                <TableHead className="w-[200px] min-w-[200px]">Nazwa</TableHead>
+                                <TableHead className="min-w-[150px]">Notatka</TableHead>
+                                <TableHead className="w-[60px] min-w-[60px]">Akcje</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {commodityList.map((commodity) => (
                                 <TableRow key={commodity.orderCommodityId}>
-                                  <TableCell className="text-sm font-medium">
-                                    {commodity.orderCommodityType}
-                                  </TableCell>
+                                  <TableCell className="text-sm font-medium">{commodity.orderCommodityType}</TableCell>
                                   <TableCell className="text-sm max-w-[200px]">
-                                    <div className="break-words whitespace-normal">
-                                      {commodity.orderCommodityName}
-                                    </div>
+                                    <div className="break-words whitespace-normal">{commodity.orderCommodityName}</div>
                                   </TableCell>
                                   <TableCell className="text-sm">
-                                    <div className="break-words whitespace-normal max-w-[300px]">
-                                      {commodity.orderCommodityNote}
-                                    </div>
+                                    <div className="break-words whitespace-normal max-w-[300px]">{commodity.orderCommodityNote}</div>
                                   </TableCell>
                                   <TableCell>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() =>
-                                        deleteCommodityFromList(
-                                          commodity.orderCommodityId
-                                        )
-                                      }
-                                    >
+                                    <Button variant="ghost" size="sm" onClick={() => deleteCommodityFromList(commodity.orderCommodityId)}>
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                   </TableCell>
@@ -570,9 +418,7 @@ export default function NewOrder() {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-muted-foreground text-center py-8">
-                        Brak Towarów
-                      </p>
+                      <p className="text-muted-foreground text-center py-8">Brak Towarów</p>
                     )}
                   </CardContent>
                 </Card>

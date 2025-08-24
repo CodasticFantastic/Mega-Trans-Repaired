@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/shadcn/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/shadcn/ui/alert";
 import { Badge } from "@/components/shadcn/ui/badge";
 import { Button } from "@/components/shadcn/ui/button";
 import {
@@ -31,29 +27,15 @@ import {
   DropdownMenuSubContent,
 } from "@/components/shadcn/ui/dropdown-menu";
 import { DatePicker } from "@/components/date-picker";
-import {
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-} from "@/components/shadcn/ui/select";
+import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/shadcn/ui/select";
 import { ApiKey, ApiKeyType } from "@prisma/client";
 import dayjs from "dayjs";
-import {
-  BlocksIcon,
-  EyeIcon,
-  InfoIcon,
-  Loader2Icon,
-  RefreshCwIcon,
-  Trash2Icon,
-  TriangleAlertIcon,
-  MoreHorizontalIcon,
-} from "lucide-react";
+import { BlocksIcon, EyeIcon, InfoIcon, Loader2Icon, RefreshCwIcon, Trash2Icon, TriangleAlertIcon, MoreHorizontalIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CustomToast } from "@/components/shadcn/custom/toast";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CustomApiKeyList {
   apiKey: ApiKey["apiKey"];
@@ -64,20 +46,15 @@ interface CustomApiKeyList {
 
 export const IntegrationsModal = () => {
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [isDataSending, setIsDataSending] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [searchFromByKey, setSearchFromByKey] = useState<
-    Record<string, Date | undefined>
-  >({});
-  const [statusIdByKey, setStatusIdByKey] = useState<
-    Record<string, number | undefined>
-  >({});
-  const [myIntegrationsKeys, setMyIntegrationsKeys] = useState<
-    CustomApiKeyList[]
-  >([]);
+  const [searchFromByKey, setSearchFromByKey] = useState<Record<string, Date | undefined>>({});
+  const [statusIdByKey, setStatusIdByKey] = useState<Record<string, number | undefined>>({});
+  const [myIntegrationsKeys, setMyIntegrationsKeys] = useState<CustomApiKeyList[]>([]);
 
   // Load status IDs from localStorage on component mount
   useEffect(() => {
@@ -93,25 +70,17 @@ export const IntegrationsModal = () => {
   }, []);
 
   // Save status IDs to localStorage whenever they change
-  const updateStatusIdByKey = (
-    newStatusIdByKey: Record<string, number | undefined>
-  ) => {
+  const updateStatusIdByKey = (newStatusIdByKey: Record<string, number | undefined>) => {
     setStatusIdByKey(newStatusIdByKey);
-    localStorage.setItem(
-      "baselinker_status_ids",
-      JSON.stringify(newStatusIdByKey)
-    );
+    localStorage.setItem("baselinker_status_ids", JSON.stringify(newStatusIdByKey));
   };
 
   const fetchMyIntegrationsKeys = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/getAll`,
-        {
-          headers: { Authorization: session?.accessToken ?? "" },
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/getAll`, {
+        headers: { Authorization: session?.accessToken ?? "" },
+      });
 
       const { apiKeys } = await response.json();
 
@@ -142,14 +111,11 @@ export const IntegrationsModal = () => {
   const handleDeleteApiKey = async (apiKey: string) => {
     try {
       setIsDataSending(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/delete`,
-        {
-          method: "POST",
-          headers: { Authorization: session?.accessToken ?? "" },
-          body: JSON.stringify({ apiKey }),
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/delete`, {
+        method: "POST",
+        headers: { Authorization: session?.accessToken ?? "" },
+        body: JSON.stringify({ apiKey }),
+      });
 
       const { message } = await response.json();
 
@@ -174,51 +140,42 @@ export const IntegrationsModal = () => {
   }
 
   const errorToMessage: Record<string, string> = {
-    [SyncErrorCodes.INVALID_BASELINKER_API_KEY]:
-      "Nieprawidłowy klucz BaseLinker",
-    [SyncErrorCodes.BASE_LINKER_API_KEY_NOT_FOUND]:
-      "Brak skonfigurowanego klucza BaseLinker",
+    [SyncErrorCodes.INVALID_BASELINKER_API_KEY]: "Nieprawidłowy klucz BaseLinker",
+    [SyncErrorCodes.BASE_LINKER_API_KEY_NOT_FOUND]: "Brak skonfigurowanego klucza BaseLinker",
     [SyncErrorCodes.UNAUTHORIZED]: "Brak uprawnień do synchronizacji",
     [SyncErrorCodes.INTERNAL_SERVER_ERROR]: "Błąd serwera",
   };
 
-  const handleSyncBaselinker = async (options?: {
-    searchFrom?: Date;
-    statusId?: number;
-  }) => {
+  const handleSyncBaselinker = async (options?: { searchFrom?: Date; statusId?: number }) => {
     try {
       setIsSyncing(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/baselinker/orders/import`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: session?.accessToken ?? "",
-          },
-          body: JSON.stringify({
-            searchFrom: (
-              options?.searchFrom ?? dayjs().subtract(8, "day").toDate()
-            ).toISOString(),
-            statusId: options?.statusId ?? 0,
-          }),
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/baselinker/orders/import`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: session?.accessToken ?? "",
+        },
+        body: JSON.stringify({
+          searchFrom: (options?.searchFrom ?? dayjs().subtract(8, "day").toDate()).toISOString(),
+          statusId: options?.statusId ?? 0,
+        }),
+      });
 
       const data = await response.json();
 
       if (response.ok) {
+        // Wymuś natychmiastowe odświeżenie aktywnych zapytań listy zamówień
+        await queryClient.refetchQueries({ queryKey: ["allUserOrder"], type: "active" });
+
         CustomToast(
           "info",
           <div>
             <p>Synchronizacja BaseLinker zakończona</p>
             <p>Nowo dodane zamówienia: {data?.orderNew?.length ?? 0}</p>
-            <p>Zaktualizowane zamówienia: {data?.orderUpdated?.length ?? 0}</p>
-            <p>
-              Nie udało się zsynchronizować: {data?.orderErrors?.length ?? 0}
-            </p>
+            <p>Zamówienia już istniejące: {data?.orderExists?.length ?? 0}</p>
+            <p>Nie udało się zsynchronizować: {data?.orderErrors?.length ?? 0}</p>
           </div>,
-          { duration: 5000 }
+          { duration: 10000 }
         );
       } else {
         CustomToast("error", "Nie udało się zsynchronizować zamówień", {
@@ -257,11 +214,7 @@ export const IntegrationsModal = () => {
           </DialogTitle>
           <DialogDescription className="text-sm flex items-center justify-between w-full gap-2">
             Zarządzaj kluczami API{" "}
-            <Link
-              href="/apiDocs"
-              className="text-[var(--color-blue)] hover:underline"
-              target="_blank"
-            >
+            <Link href="/apiDocs" className="text-[var(--color-blue)] hover:underline" target="_blank">
               Pokaż dokumentację
             </Link>
           </DialogDescription>
@@ -275,9 +228,7 @@ export const IntegrationsModal = () => {
             <br />
             Skontaktuj się z nami w celu poznania szczegółów.
             <br />
-            <span className="text-sm font-bold text-destructive">
-              Nie udostępniaj swoich kluczy osobom nieautoryzowanym.
-            </span>
+            <span className="text-sm font-bold text-destructive">Nie udostępniaj swoich kluczy osobom nieautoryzowanym.</span>
           </AlertDescription>
         </Alert>
         {isLoading && (
@@ -296,10 +247,7 @@ export const IntegrationsModal = () => {
         {!isLoading && myIntegrationsKeys.length > 0 && (
           <div className="flex flex-col gap-2 max-h-[240px] overflow-y-auto divide-y divide-border">
             {myIntegrationsKeys.map((key) => (
-              <div
-                key={key.apiKey}
-                className="grid grid-cols-[1fr_auto] gap-3 !pb-2 items-center"
-              >
+              <div key={key.apiKey} className="grid grid-cols-[1fr_auto] gap-3 !pb-2 items-center">
                 <p className="text-sm">{key.apiKeyName}</p>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -319,16 +267,11 @@ export const IntegrationsModal = () => {
                             </span>
                           </DropdownMenuSubTrigger>
                           <DropdownMenuSubContent className="w-[320px]">
-                            <DropdownMenuLabel>
-                              Parametry synchronizacji
-                            </DropdownMenuLabel>
+                            <DropdownMenuLabel>Parametry synchronizacji</DropdownMenuLabel>
                             <div className="px-2 py-1.5 flex flex-col gap-2">
                               <DatePicker
                                 label={<span className="text-xs">Data od</span>}
-                                date={
-                                  searchFromByKey[key.apiKey] ??
-                                  dayjs().subtract(8, "day").toDate()
-                                }
+                                date={searchFromByKey[key.apiKey] ?? dayjs().subtract(8, "day").toDate()}
                                 onDateChange={(d) =>
                                   setSearchFromByKey((prev) => ({
                                     ...prev,
@@ -384,9 +327,7 @@ export const IntegrationsModal = () => {
                     )}
                     <DropdownMenuGroup>
                       {key.type === ApiKeyType.CustomIntegration && (
-                        <DropdownMenuItem
-                          onSelect={() => handleCopy(key.apiKey)}
-                        >
+                        <DropdownMenuItem onSelect={() => handleCopy(key.apiKey)}>
                           <EyeIcon /> Kopiuj klucz
                         </DropdownMenuItem>
                       )}
@@ -401,22 +342,12 @@ export const IntegrationsModal = () => {
                           >
                             Usuń
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="!px-2"
-                            onClick={() => setConfirmDelete(null)}
-                            disabled={isDataSending}
-                          >
+                          <Button size="sm" variant="outline" className="!px-2" onClick={() => setConfirmDelete(null)} disabled={isDataSending}>
                             Anuluj
                           </Button>
                         </div>
                       ) : (
-                        <DropdownMenuItem
-                          variant="destructive"
-                          onSelect={() => setConfirmDelete(key.apiKey)}
-                          disabled={isDataSending}
-                        >
+                        <DropdownMenuItem variant="destructive" onSelect={() => setConfirmDelete(key.apiKey)} disabled={isDataSending}>
                           <Trash2Icon className="text-destructive" /> Usuń...
                         </DropdownMenuItem>
                       )}
@@ -439,35 +370,28 @@ interface CreateNewApiKeyModalProps {
   onApiKeyCreated: () => void;
 }
 
-const CreateNewApiKeyModal = ({
-  onApiKeyCreated,
-}: CreateNewApiKeyModalProps) => {
+const CreateNewApiKeyModal = ({ onApiKeyCreated }: CreateNewApiKeyModalProps) => {
   const { data: session } = useSession();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [apiKeyName, setApiKeyName] = useState("");
   const [apiKeyType, setApiKeyType] = useState<ApiKeyType>();
   const [apiKeyValue, setApiKeyValue] = useState<string>();
   const [isDataSending, setIsDataSending] = useState(false);
-  const [generateApiKeyError, setGenerateApiKeyError] = useState<string | null>(
-    null
-  );
+  const [generateApiKeyError, setGenerateApiKeyError] = useState<string | null>(null);
 
   const handleCreateNewApiKey = async () => {
     try {
       setGenerateApiKeyError(null);
       setIsDataSending(true);
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/generate`,
-        {
-          method: "POST",
-          headers: { Authorization: session?.accessToken ?? "" },
-          body: JSON.stringify({
-            apiKeyName: apiKeyName,
-            apiKeyType: apiKeyType,
-            apiKeyValue: apiKeyValue ?? "",
-          }),
-        }
-      );
+      const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/generate`, {
+        method: "POST",
+        headers: { Authorization: session?.accessToken ?? "" },
+        body: JSON.stringify({
+          apiKeyName: apiKeyName,
+          apiKeyType: apiKeyType,
+          apiKeyValue: apiKeyValue ?? "",
+        }),
+      });
 
       const responseData = await response.json();
 
@@ -477,9 +401,7 @@ const CreateNewApiKeyModal = ({
       }
 
       if (responseData.error === "BASE_LINKER_API_KEY_ALREADY_EXISTS") {
-        setGenerateApiKeyError(
-          "Możesz posiadać tylko jeden klucz BaseLinker przypisany do swojego konta."
-        );
+        setGenerateApiKeyError("Możesz posiadać tylko jeden klucz BaseLinker przypisany do swojego konta.");
         return;
       }
 
@@ -524,9 +446,7 @@ const CreateNewApiKeyModal = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Tworzenie nowego klucza API</DialogTitle>
-          <DialogDescription>
-            Utwórz nowy klucz API do integracji z systemami zewnętrznymi.
-          </DialogDescription>
+          <DialogDescription>Utwórz nowy klucz API do integracji z systemami zewnętrznymi.</DialogDescription>
         </DialogHeader>
         <form
           className="flex flex-col gap-4"
@@ -537,21 +457,13 @@ const CreateNewApiKeyModal = ({
         >
           <div className="flex flex-col gap-2">
             <Label htmlFor="apiKeyType">Typ klucza</Label>
-            <Select
-              required
-              value={apiKeyType}
-              onValueChange={(value) => setApiKeyType(value as ApiKeyType)}
-            >
+            <Select required value={apiKeyType} onValueChange={(value) => setApiKeyType(value as ApiKeyType)}>
               <SelectTrigger>
                 <SelectValue placeholder="Wybierz typ klucza" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ApiKeyType.BaseLinker}>
-                  BaseLinker
-                </SelectItem>
-                <SelectItem value={ApiKeyType.CustomIntegration}>
-                  Własna Integracja
-                </SelectItem>
+                <SelectItem value={ApiKeyType.BaseLinker}>BaseLinker</SelectItem>
+                <SelectItem value={ApiKeyType.CustomIntegration}>Własna Integracja</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -603,12 +515,7 @@ const CreateNewApiKeyModal = ({
           )}
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDialogOpen(false)}
-              disabled={isDataSending}
-            >
+            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} disabled={isDataSending}>
               Anuluj
             </Button>
             <Button type="submit" disabled={isDataSending}>

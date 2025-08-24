@@ -1,27 +1,58 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { AtSignIcon, Building2Icon, CalendarPlusIcon, CircleChevronDownIcon, EditIcon, PhoneIcon, ShoppingBagIcon } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  AtSignIcon,
+  BanknoteIcon,
+  Building2Icon,
+  CalendarPlusIcon,
+  CircleChevronDownIcon,
+  EditIcon,
+  MoreHorizontalIcon,
+  PhoneIcon,
+  ShoppingBagIcon,
+  Trash2Icon,
+  BanIcon,
+  TriangleAlertIcon,
+} from "lucide-react";
 import { Button } from "@/components/shadcn/ui/button";
 import { Checkbox } from "@/components/shadcn/ui/checkbox";
 import { TableRow, TableCell } from "@/components/shadcn/ui/table";
-import { Status } from "@prisma/client";
+import { Role, Status } from "@prisma/client";
 import { OrderWithUserAndPackages } from "types/order.types";
 import { Parser } from "html-to-react";
 import dayjs from "dayjs";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/shadcn/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/shadcn/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/shadcn/ui/dialog";
+import UpdateOrderModal from "./UpdateOrder.modal";
+import { Separator } from "@/components/shadcn/ui/separator";
 
 interface TableDataRowProps {
   order: OrderWithUserAndPackages;
   shouldAddBackground: boolean;
   isDataCellChecked: boolean;
   onDataCellCheck: (checked: boolean) => void;
+  onOrderDeleted?: (orderId: string) => void;
+  queryKey?: any[];
 }
 
-export default function TableDataRow({ order, shouldAddBackground, isDataCellChecked, onDataCellCheck }: TableDataRowProps) {
+export default function TableDataRow({
+  order,
+  shouldAddBackground,
+  isDataCellChecked,
+  onDataCellCheck,
+  onOrderDeleted,
+  queryKey,
+}: TableDataRowProps) {
   const [status, setStatus] = useState<Status>(order.status);
   const [expanded, setExpanded] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showConfirmAddressDialog, setShowConfirmAddressDialog] = useState(false);
   const { data: session } = useSession();
+  const queryClient = useQueryClient();
 
   const formattedDate = useMemo(() => {
     const d = new Date(order.updatedAt);
@@ -63,6 +94,138 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
     onDataCellCheck(checked);
   }
 
+  const deleteOrderMutation = useMutation({
+    mutationFn: async () => {
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/deleteOrder?id=${order.orderId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      });
+
+      const response = await request.json();
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response;
+    },
+    onSuccess: () => {
+      // Optymistyczna aktualizacja - usuń zamówienie z cache
+      if (queryKey) {
+        queryClient.setQueryData(queryKey, (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            allUserOrder: oldData.allUserOrder.filter((o: OrderWithUserAndPackages) => o.orderId !== order.orderId),
+          };
+        });
+      }
+
+      // Wywołaj callback jeśli jest przekazany
+      if (onOrderDeleted) {
+        onOrderDeleted(order.orderId);
+      }
+
+      setShowDeleteDialog(false);
+    },
+    onError: (error) => {
+      console.error("Delete order error:", error);
+      if (error.message === "Unauthorized") {
+        signOut();
+      }
+    },
+  });
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: async () => {
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${order.orderId}`, {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+        },
+      });
+
+      const response = await request.json();
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response;
+    },
+    onSuccess: () => {
+      // Optymistyczna aktualizacja - zmień status na "Anulowane"
+      if (queryKey) {
+        queryClient.setQueryData(queryKey, (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            allUserOrder: oldData.allUserOrder.map((o: OrderWithUserAndPackages) =>
+              o.orderId === order.orderId ? { ...o, status: "Anulowane" as Status } : o
+            ),
+          };
+        });
+      }
+
+      // Aktualizuj lokalny stan
+      setStatus("Anulowane");
+      setShowCancelDialog(false);
+    },
+    onError: (error) => {
+      console.error("Cancel order error:", error);
+      if (error.message === "Unauthorized") {
+        signOut();
+      }
+    },
+  });
+
+  const confirmAddressMutation = useMutation({
+    mutationFn: async () => {
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/confirmAddress?orderId=${order.orderId}`, {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+        },
+      });
+
+      const response = await request.json();
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      return response;
+    },
+    onSuccess: () => {
+      // Optymistyczna aktualizacja - ustaw orderAddressConfidence na 1
+      if (queryKey) {
+        queryClient.setQueryData(queryKey, (oldData: any) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            allUserOrder: oldData.allUserOrder.map((o: OrderWithUserAndPackages) =>
+              o.orderId === order.orderId ? { ...o, orderAddressConfidence: 1 } : o
+            ),
+          };
+        });
+      }
+
+      setShowConfirmAddressDialog(false);
+    },
+    onError: (error) => {
+      console.error("Confirm address error:", error);
+      if (error.message === "Unauthorized") {
+        signOut();
+      }
+    },
+  });
+
   useEffect(() => {
     setStatus(order.status);
   }, [order.status]);
@@ -79,7 +242,11 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
 
   return (
     <>
-      <TableRow className={`!hover:bg-transparent [&_td]:!py-3 ${shouldAddBackground ? "bg-muted" : ""}`}>
+      <TableRow
+        className={`hover:bg-transparent [&_td]:py-3 ${shouldAddBackground ? "bg-muted" : ""} ${
+          order.orderAddressConfidence !== null && order.orderAddressConfidence <= 0.9 ? "bg-destructive/10 hover:bg-destructive/20" : ""
+        }`}
+      >
         <TableCell className="text-center">
           <Checkbox checked={isDataCellChecked} onCheckedChange={handleDataCellCheck} className="mx-auto cursor-pointer" />
         </TableCell>
@@ -113,12 +280,69 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
           {order.orderFlatNumber && `/ ${Parser().parse(order.orderFlatNumber)}`}
         </TableCell>
         <TableCell className="text-right">
+          {order.orderAddressConfidence !== null && order.orderAddressConfidence <= 0.9 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="cursor-pointer"
+                    onClick={() => session?.user.role === Role.ADMIN && setShowConfirmAddressDialog(true)}
+                  >
+                    <TriangleAlertIcon className="text-destructive" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Niskie prawdopodobieństwo poprawności adresu {session?.user.role === Role.ADMIN && "- kliknij aby potwierdzić"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
           <div className="inline-flex items-center gap-1">
-            <Link href={`/updateOrder/${order.orderId}`}>
-              <Button variant="ghost" size="icon" className="cursor-pointer">
-                <EditIcon className="text-foreground" />
-              </Button>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="cursor-pointer">
+                  <MoreHorizontalIcon className="text-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={`/updateOrder/${order.orderId}`} className="flex items-center gap-2 cursor-pointer">
+                    <EditIcon className="h-4 w-4" />
+                    Pokaż stronę edycji
+                  </Link>
+                </DropdownMenuItem>
+                {status !== "Anulowane" && status !== "Zrealizowane" && (
+                  <DropdownMenuItem
+                    onClick={() => setShowCancelDialog(true)}
+                    className="flex items-center gap-2 cursor-pointer"
+                    variant="destructive"
+                  >
+                    <BanIcon className="h-4 w-4" />
+                    Anuluj zamówienie
+                  </DropdownMenuItem>
+                )}
+                {session?.user.role === "ADMIN" && (
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    Usuń zamówienie
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <UpdateOrderModal
+              order={order}
+              trigger={
+                <Button variant="ghost" size="icon" className="cursor-pointer">
+                  <EditIcon className="text-foreground" />
+                </Button>
+              }
+            />
             <Button variant="ghost" size="icon" className="cursor-pointer" onClick={() => setExpanded((v) => !v)}>
               <CircleChevronDownIcon className={`text-foreground transition-transform ${expanded ? "rotate-180" : ""}`} />
             </Button>
@@ -146,6 +370,21 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
                           <p>Data utworzenia zamówienia</p>
                         </TooltipContent>
                       </Tooltip>
+                      {order.orderPaymentType === "Pobranie" && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="icon-text">
+                              <BanknoteIcon size={16} />
+                              <p className="text-sm">
+                                {order.orderPrice} {order.currency}
+                              </p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Kwota pobrania</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                       {order.orderSupplierId && (
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -170,17 +409,19 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
                           <p>Telefon do odbiorcy</p>
                         </TooltipContent>
                       </Tooltip>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="icon-text">
-                            <AtSignIcon size={16} />
-                            <p className="text-sm">{order.recipientEmail}</p>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Email do odbiorcy</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      {order.recipientEmail && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="icon-text">
+                              <AtSignIcon size={16} />
+                              <p className="text-sm">{order.recipientEmail}</p>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Email do odbiorcy</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div className="icon-text">
@@ -198,13 +439,7 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
 
                 <div className="flex flex-col gap-2 border-t pt-4 md:flex-row md:items-center md:justify-between">
                   <div className="flex items-center gap-10">
-                    {order.orderPaymentType === "Pobranie" && (
-                      <div>
-                        <p className="text-xs">Kwota Pobrania</p>
-                        <p className="text-base text-blue-400">{`${order.orderPrice} ${order.currency}`}</p>
-                      </div>
-                    )}
-                    <div>
+                    <div className="flex flex-col gap-1 items-center">
                       <p className="text-xs">Ilość Paczek</p>
                       <p className="text-base text-blue-400">{order.packages.length}</p>
                     </div>
@@ -261,6 +496,86 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
           </TableCell>
         </TableRow>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Potwierdź usunięcie</DialogTitle>
+            <DialogDescription>
+              Czy na pewno chcesz usunąć zamówienie ? <br /> Ta operacja jest nieodwracalna i usunie również wszystkie powiązane paczki.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+              Anuluj
+            </Button>
+            <Button variant="destructive" onClick={() => deleteOrderMutation.mutate()} disabled={deleteOrderMutation.isPending}>
+              {deleteOrderMutation.isPending ? "Usuwanie..." : "Usuń"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Potwierdź anulowanie</DialogTitle>
+            <DialogDescription>
+              Czy na pewno chcesz anulować zamówienie <strong>{order.orderId}</strong>? <br />
+              Po anulowaniu zamówienie nie będzie mogło być dalej przetwarzane.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
+              Anuluj
+            </Button>
+            <Button variant="destructive" onClick={() => cancelOrderMutation.mutate()} disabled={cancelOrderMutation.isPending}>
+              {cancelOrderMutation.isPending ? "Anulowanie..." : "Anuluj zamówienie"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Address Dialog */}
+      <Dialog open={showConfirmAddressDialog} onOpenChange={setShowConfirmAddressDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Potwierdź adres wysyłki</DialogTitle>
+            <DialogDescription>
+              Czy na pewno chcesz potwierdzić, że adres wysyłki dla zamówienia <strong>{order.recipientName}</strong> jest poprawny? <br />
+              <br />
+              <strong>Surowe dane z API:</strong> {order.orderAddressRawData}
+            </DialogDescription>
+            <Separator className="my-2" />
+            <DialogDescription>
+              <strong>Adres docelowy:</strong> {Parser().parse(order.orderStreet)} {Parser().parse(order.orderStreetNumber)}
+              {order.orderFlatNumber && ` / ${Parser().parse(order.orderFlatNumber)}`}
+              <br />
+              <strong>Docelowe Miasto:</strong> {Parser().parse(order.orderCity)}
+              <br />
+              <strong>Docelowy Kod Pocztowy :</strong> {order.orderPostCode}
+              <br />
+              <strong>Docelowe Województwo:</strong> {order.orderState}
+              <br />
+              <strong>Odbiorca:</strong> {order.recipientName}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowConfirmAddressDialog(false)}>
+              Anuluj
+            </Button>
+            <Button
+              onClick={() => confirmAddressMutation.mutate()}
+              disabled={confirmAddressMutation.isPending}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {confirmAddressMutation.isPending ? "Potwierdzanie..." : "Potwierdź adres"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -40,7 +40,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/shadcn/ui/dialog";
 import { Button } from "@/components/shadcn/ui/button";
 import { OrderWithUserAndPackages } from "types/order.types";
-import { BanIcon, FileDownIcon, Loader2Icon, MoreHorizontalIcon, Trash2Icon } from "lucide-react";
+import { BanIcon, FileDownIcon, Loader2Icon, MoreHorizontalIcon, Trash2Icon, RefreshCcwIcon } from "lucide-react";
 import { Role } from "@prisma/client";
 import { CustomToast } from "@/components/shadcn/custom/toast";
 
@@ -263,6 +263,7 @@ export default function Dashboard() {
     data: ordersData,
     isLoading,
     isFetching,
+    refetch,
   } = useQuery<ApiResponse>({
     queryKey: ["allUserOrder", session, filters, currentPage, pageSize],
     queryFn: () => getOrders({ page: currentPage, filters }),
@@ -276,6 +277,11 @@ export default function Dashboard() {
     } else {
       setSelectedOrders((prev) => prev.filter((item) => item.orderId !== order.orderId));
     }
+  }
+
+  function handleOrderDeleted(orderId: string) {
+    // Usuń zamówienie z listy zaznaczonych jeśli było zaznaczone
+    setSelectedOrders((prev) => prev.filter((order) => order.orderId !== orderId));
   }
 
   function handleSelectAllOnPage(checked: boolean) {
@@ -462,6 +468,11 @@ export default function Dashboard() {
 
   const orders = useMemo(() => ordersData?.allUserOrder ?? [], [ordersData]);
 
+  // Odświeżenie listy zamówień
+  const handleRefresh = () => {
+    refetch();
+  };
+
   // [DashboardSidebarProvider] Handle Filters Change
   const handleFiltersChange = (newFilters: DashboardSidebarFilters) => {
     setSelectedOrders([]);
@@ -586,6 +597,9 @@ export default function Dashboard() {
                             <p className="text-xs text-muted-foreground">Zaznaczone zamówienia: {selectedOrders.length}</p>
                           </div>
                           <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={handleRefresh} disabled={isFetching} className="cursor-pointer">
+                            {isFetching ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCcwIcon />} Odśwież listę
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={exportOrdersData} className="cursor-pointer">
                             <FileDownIcon /> Export CSV
                           </DropdownMenuItem>
@@ -633,6 +647,8 @@ export default function Dashboard() {
                         shouldAddBackground={index % 2 !== 0}
                         isDataCellChecked={selectedOrders.some((selectedOrder) => selectedOrder.orderId === order.orderId)}
                         onDataCellCheck={(checked) => handleOrderCheck(order, checked)}
+                        queryKey={["allUserOrder", session, filters, currentPage, pageSize]}
+                        onOrderDeleted={handleOrderDeleted}
                       />
                     ))}
                 </TableBody>

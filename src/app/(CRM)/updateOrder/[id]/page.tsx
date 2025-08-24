@@ -28,44 +28,15 @@ import { Button } from "@/components/shadcn/ui/button";
 import { Input } from "@/components/shadcn/ui/input";
 import { Label } from "@/components/shadcn/ui/label";
 import { Textarea } from "@/components/shadcn/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/ui/select";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/shadcn/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/shadcn/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/shadcn/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/ui/table";
 import { Alert, AlertDescription } from "@/components/shadcn/ui/alert";
 import { Separator } from "@/components/shadcn/ui/separator";
 import { Badge } from "@/components/shadcn/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/shadcn/ui/dialog";
 
-export default function UpdateOrder({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function UpdateOrder({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -110,15 +81,12 @@ export default function UpdateOrder({
   // Actions - Get Order Data from Backend
   async function getOrderData() {
     try {
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: session?.accessToken || "",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/getOrder?id=${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+        },
+      });
 
       const response = await request.json();
 
@@ -194,17 +162,14 @@ export default function UpdateOrder({
         orderItems: commodityList,
       };
 
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`,
-        {
-          method: "POST",
-          body: JSON.stringify(orderDataUpdate),
-          headers: {
-            Authorization: session?.accessToken || "",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/updateOrder`, {
+        method: "POST",
+        body: JSON.stringify(orderDataUpdate),
+        headers: {
+          Authorization: session?.accessToken || "",
+          "Content-Type": "application/json",
+        },
+      });
 
       const response = await request.json();
 
@@ -222,15 +187,12 @@ export default function UpdateOrder({
   // Actions - Cancel Order
   async function cancelOrder() {
     try {
-      const request = await fetch(
-        `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: session?.accessToken || "",
-          },
-        }
-      );
+      const request = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/order/cancelOrder?id=${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: session?.accessToken || "",
+        },
+      });
 
       const response = await request.json();
 
@@ -351,9 +313,7 @@ export default function UpdateOrder({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="orderStreetNumber">
-                          Numer Budynku *
-                        </Label>
+                        <Label htmlFor="orderStreetNumber">Numer Budynku *</Label>
                         <Input
                           name="orderStreetNumber"
                           pattern="[A-Za-z0-9]{1,}"
@@ -400,9 +360,7 @@ export default function UpdateOrder({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="orderPostCode">
-                          {orderForm.orderCountry === "Polska"
-                            ? "Kod Pocztowy (##-###) *"
-                            : "Kod Pocztowy (### ##) *"}
+                          {orderForm.orderCountry === "Polska" ? "Kod Pocztowy (##-###) *" : "Kod Pocztowy (### ##) *"}
                         </Label>
                         <Input
                           name="orderPostCode"
@@ -413,74 +371,28 @@ export default function UpdateOrder({
                               orderPostCode: e.target.value,
                             }));
                           }}
-                          pattern={
-                            orderForm.orderCountry === "Polska"
-                              ? "[0-9]{2}-[0-9]{3}"
-                              : "[0-9]{3} [0-9]{2}"
-                          }
+                          pattern={orderForm.orderCountry === "Polska" ? "[0-9]{2}-[0-9]{3}" : "[0-9]{3} [0-9]{2}"}
                           required
                         />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="orderState">Województwo *</Label>
-                        <Select
+                        <Input
                           name="orderState"
                           value={orderForm.orderState}
-                          onValueChange={(value) => {
+                          onChange={(e) => {
                             setOrderForm((prevState) => ({
                               ...prevState,
-                              orderState: value,
+                              orderState: e.target.value,
                             }));
                           }}
                           required
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Wybierz województwo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Dolnośląskie">
-                              Dolnośląskie
-                            </SelectItem>
-                            <SelectItem value="Kujawsko-Pomorskie">
-                              Kujawsko-Pomorskie
-                            </SelectItem>
-                            <SelectItem value="Lubelskie">Lubelskie</SelectItem>
-                            <SelectItem value="Lubuskie">Lubuskie</SelectItem>
-                            <SelectItem value="Łódzkie">Łódzkie</SelectItem>
-                            <SelectItem value="Małopolskie">
-                              Małopolskie
-                            </SelectItem>
-                            <SelectItem value="Mazowieckie">
-                              Mazowieckie
-                            </SelectItem>
-                            <SelectItem value="Opolskie">Opolskie</SelectItem>
-                            <SelectItem value="Podkarpackie">
-                              Podkarpackie
-                            </SelectItem>
-                            <SelectItem value="Podlaskie">Podlaskie</SelectItem>
-                            <SelectItem value="Pomorskie">Pomorskie</SelectItem>
-                            <SelectItem value="Śląskie">Śląskie</SelectItem>
-                            <SelectItem value="Świętokrzyskie">
-                              Świętokrzyskie
-                            </SelectItem>
-                            <SelectItem value="Warmińsko-Mazurskie">
-                              Warmińsko-Mazurskie
-                            </SelectItem>
-                            <SelectItem value="Wielkopolskie">
-                              Wielkopolskie
-                            </SelectItem>
-                            <SelectItem value="Zachodniopomorskie">
-                              Zachodniopomorskie
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="orderSupplierId">
-                        ID z systemu Zleceniodawcy
-                      </Label>
+                      <Label htmlFor="orderSupplierId">ID z systemu Zleceniodawcy</Label>
                       <Input
                         placeholder="np. Shop-123-456-789"
                         name="orderSupplierId"
@@ -539,9 +451,7 @@ export default function UpdateOrder({
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="orderClientPhone">
-                        {orderForm.orderCountry === "Polska"
-                          ? "Telefon (Bez spacji) *"
-                          : "Telefon (Bez spacji) *"}
+                        {orderForm.orderCountry === "Polska" ? "Telefon (Bez spacji) *" : "Telefon (Bez spacji) *"}
                       </Label>
                       <Input
                         name="orderClientPhone"
@@ -552,11 +462,7 @@ export default function UpdateOrder({
                             orderClientPhone: e.target.value,
                           }));
                         }}
-                        pattern={
-                          orderForm.orderCountry === "Polska"
-                            ? "[0-9]{9}"
-                            : "[0-9]{9}"
-                        }
+                        pattern={orderForm.orderCountry === "Polska" ? "[0-9]{9}" : "[0-9]{9}"}
                         required
                       />
                     </div>
@@ -589,29 +495,20 @@ export default function UpdateOrder({
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="orderCommodityType">
-                            Rodzaj Towaru *
-                          </Label>
-                          <Select
-                            value={commodityItem.orderCommodityType}
-                            disabled
-                          >
+                          <Label htmlFor="orderCommodityType">Rodzaj Towaru *</Label>
+                          <Select value={commodityItem.orderCommodityType} disabled>
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Paczka">
-                                Paczka/Karton
-                              </SelectItem>
+                              <SelectItem value="Paczka">Paczka/Karton</SelectItem>
                               <SelectItem value="Gabaryt">Gabaryt</SelectItem>
                               <SelectItem value="Paleta">Paleta</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="orderCommodityName">
-                            Nazwa Towaru *
-                          </Label>
+                          <Label htmlFor="orderCommodityName">Nazwa Towaru *</Label>
                           <Input
                             name="orderCommodityName"
                             value={commodityItem.orderCommodityName}
@@ -627,9 +524,7 @@ export default function UpdateOrder({
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="orderCommodityNote">
-                          Notatka do przesyłki
-                        </Label>
+                        <Label htmlFor="orderCommodityNote">Notatka do przesyłki</Label>
                         <Textarea
                           name="orderCommodityNote"
                           value={commodityItem.orderCommodityNote}
@@ -656,14 +551,8 @@ export default function UpdateOrder({
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="orderPaymentType">
-                          Sposób Płatności
-                        </Label>
-                        <Select
-                          name="orderPaymentType"
-                          value={orderForm.orderPaymentType}
-                          disabled
-                        >
+                        <Label htmlFor="orderPaymentType">Sposób Płatności</Label>
+                        <Select name="orderPaymentType" value={orderForm.orderPaymentType} disabled>
                           <SelectTrigger className="w-full cursor-pointer">
                             <SelectValue />
                           </SelectTrigger>
@@ -675,16 +564,8 @@ export default function UpdateOrder({
                       </div>
                       {orderForm.orderPrice !== 0 && (
                         <div className="space-y-2">
-                          <Label htmlFor="orderPaymentAmount">
-                            Kwota Płatności{" "}
-                            {countryState === "Polska" ? "(PLN)" : "(EUR)"}
-                          </Label>
-                          <Input
-                            name="orderPaymentAmount"
-                            type="number"
-                            value={orderForm.orderPrice}
-                            disabled
-                          />
+                          <Label htmlFor="orderPaymentAmount">Kwota Płatności {countryState === "Polska" ? "(PLN)" : "(EUR)"}</Label>
+                          <Input name="orderPaymentAmount" type="number" value={orderForm.orderPrice} disabled />
                         </div>
                       )}
                     </CardContent>
@@ -709,32 +590,20 @@ export default function UpdateOrder({
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[80px] min-w-[80px]">
-                                  Rodzaj
-                                </TableHead>
-                                <TableHead className="w-[200px] min-w-[200px]">
-                                  Nazwa
-                                </TableHead>
-                                <TableHead className="min-w-[150px]">
-                                  Notatka
-                                </TableHead>
+                                <TableHead className="w-[80px] min-w-[80px]">Rodzaj</TableHead>
+                                <TableHead className="w-[200px] min-w-[200px]">Nazwa</TableHead>
+                                <TableHead className="min-w-[150px]">Notatka</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {commodityList.map((commodity) => (
                                 <TableRow key={commodity.orderCommodityId}>
-                                  <TableCell className="text-sm font-medium">
-                                    {commodity.orderCommodityType}
-                                  </TableCell>
+                                  <TableCell className="text-sm font-medium">{commodity.orderCommodityType}</TableCell>
                                   <TableCell className="text-sm max-w-[200px]">
-                                    <div className="break-words whitespace-normal">
-                                      {commodity.orderCommodityName}
-                                    </div>
+                                    <div className="break-words whitespace-normal">{commodity.orderCommodityName}</div>
                                   </TableCell>
                                   <TableCell className="text-sm">
-                                    <div className="break-words whitespace-normal max-w-[300px]">
-                                      {commodity.orderCommodityNote}
-                                    </div>
+                                    <div className="break-words whitespace-normal max-w-[300px]">{commodity.orderCommodityNote}</div>
                                   </TableCell>
                                 </TableRow>
                               ))}
@@ -743,9 +612,7 @@ export default function UpdateOrder({
                         </div>
                       </div>
                     ) : (
-                      <p className="text-muted-foreground text-center py-8">
-                        Brak Towarów
-                      </p>
+                      <p className="text-muted-foreground text-center py-8">Brak Towarów</p>
                     )}
                   </CardContent>
                 </Card>
@@ -761,30 +628,16 @@ export default function UpdateOrder({
               )}
               {updateSuccess && (
                 <Alert>
-                  <AlertDescription>
-                    Aktualizacja danych przesyłki przebiegła prawidłowo
-                  </AlertDescription>
+                  <AlertDescription>Aktualizacja danych przesyłki przebiegła prawidłowo</AlertDescription>
                 </Alert>
               )}
               <div className="flex gap-4">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-fit"
-                  disabled={orderForm.orderStatus === "Anulowane"}
-                >
+                <Button type="submit" size="lg" className="w-fit" disabled={orderForm.orderStatus === "Anulowane"}>
                   <Save className="h-4 w-4 mr-2" />
-                  {orderForm.orderStatus === "Anulowane"
-                    ? "Zlecenie zostało anulowane"
-                    : "Aktualizuj Zlecenie"}
+                  {orderForm.orderStatus === "Anulowane" ? "Zlecenie zostało anulowane" : "Aktualizuj Zlecenie"}
                 </Button>
                 {orderForm.orderStatus !== "Anulowane" && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="lg"
-                    onClick={openCancelDialog}
-                  >
+                  <Button type="button" variant="destructive" size="lg" onClick={openCancelDialog}>
                     <X className="h-4 w-4 mr-2" />
                     Anuluj Zlecenie
                   </Button>
@@ -803,10 +656,7 @@ export default function UpdateOrder({
               <AlertTriangle className="h-5 w-5 text-destructive" />
               Potwierdź anulowanie zlecenia
             </DialogTitle>
-            <DialogDescription>
-              Czy na pewno chcesz anulować to zlecenie? Ta operacja jest
-              nieodwracalna.
-            </DialogDescription>
+            <DialogDescription>Czy na pewno chcesz anulować to zlecenie? Ta operacja jest nieodwracalna.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={closeCancelDialog}>

@@ -139,7 +139,6 @@ Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność
                     "orderStreetNumber",
                     "orderCity",
                     "orderPostCode",
-                    "orderState",
                     "orderClientName",
                     "orderClientPhone",
                     "orderPaymentType",

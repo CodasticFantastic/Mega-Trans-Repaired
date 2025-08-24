@@ -80,35 +80,37 @@ enum OrderSource {
 }
 
 model Order {
-  id                Int                  @id @default(autoincrement())
-  orderId           String               @unique
-  user              User                 @relation(fields: [userId], references: [id])
-  userId            Int
-  courier           Driver?              @relation(fields: [courierId], references: [id])
-  courierId         Int?
-  deliveryDate      String?
-  status            Status               @default(Producent)
-  orderType         OrderType
-  orderCountry      String
-  orderStreet       String
-  orderStreetNumber String
-  orderFlatNumber   String?
-  orderCity         String
-  orderPostCode     String
-  orderState        String
-  orderNote         String?
-  recipientName     String
-  recipientPhone    String
-  recipientEmail    String?
-  orderPaymentType  CommodityPaymentType
-  orderPrice        Float?
-  packages          Package[]
-  currency          String?
-  orderSupplierId   String?              @map("order_supplier_id")
-  orderSource       OrderSource          @default(Manual) @map("order_source")
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
-  deletedAt         DateTime?
+  id                     Int                  @id @default(autoincrement())
+  orderId                String               @unique
+  user                   User                 @relation(fields: [userId], references: [id])
+  userId                 Int
+  courier                Driver?              @relation(fields: [courierId], references: [id])
+  courierId              Int?
+  deliveryDate           String?
+  status                 Status               @default(Producent)
+  orderType              OrderType
+  orderCountry           String
+  orderStreet            String
+  orderStreetNumber      String
+  orderFlatNumber        String?
+  orderCity              String
+  orderPostCode          String
+  orderState             String
+  orderNote              String?
+  recipientName          String
+  recipientPhone         String
+  recipientEmail         String?
+  orderPaymentType       CommodityPaymentType
+  orderPrice             Float?
+  packages               Package[]
+  currency               String?
+  orderSupplierId        String?              @map("order_supplier_id")
+  orderAddressConfidence Float?               @map("order_address_confidence")
+  orderAddressRawData    String?              @map("order_address_raw_data")
+  orderSource            OrderSource          @default(Manual) @map("order_source")
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  deletedAt              DateTime?
 }
 
 model Package {

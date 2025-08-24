@@ -4,14 +4,7 @@ import { decryptApiKey } from "@/helpers/encryption";
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
-import {
-  CommodityPaymentType,
-  CommodityType,
-  OrderType,
-  Prisma,
-  Role,
-  Status,
-} from "@prisma/client";
+import { CommodityPaymentType, CommodityType, OrderType, Prisma, Role, Status } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { BaselinkerGetOrderPostValidator } from "types/baselinker.types";
@@ -38,12 +31,9 @@ export async function POST(req: Request) {
   const baseLinkerApiKey = await getBaseLinkerApiKey(authResult.userId);
 
   if (!baseLinkerApiKey) {
-    return new Response(
-      JSON.stringify({ error: "BASE_LINKER_API_KEY_NOT_FOUND" }),
-      {
-        status: 400,
-      }
-    );
+    return new Response(JSON.stringify({ error: "BASE_LINKER_API_KEY_NOT_FOUND" }), {
+      status: 400,
+    });
   }
 
   const blToken = decryptApiKey(baseLinkerApiKey.apiKey);
@@ -51,7 +41,7 @@ export async function POST(req: Request) {
   try {
     const orderErrors: Record<string, string>[] = [];
     const orderNew: Record<string, string>[] = [];
-    const orderUpdated: Record<string, string>[] = [];
+    const orderExists: Record<string, string>[] = [];
 
     // 3. Validate POST body
     const body = await req.json();
@@ -64,15 +54,12 @@ export async function POST(req: Request) {
     const { searchFrom, statusId } = parsedBody.data;
 
     //  4. Create searchFromTimestamp in seconds
-    const searchFromTimestamp =
-      dayjs.utc(searchFrom).startOf("day").toDate().getTime() / 1000;
+    const searchFromTimestamp = dayjs.utc(searchFrom).startOf("day").toDate().getTime() / 1000;
 
     // 5. Get orders from BaseLinker
     let dynamicSearchFromTimestamp = searchFromTimestamp;
     const allOrders: any[] = [];
     const seen = new Set<number>();
-
-    console.log("TEST: searchFromTimestamp", allOrders);
 
     // 6. Loop until all orders are fetched
     while (true) {
@@ -95,10 +82,7 @@ export async function POST(req: Request) {
       const data = await res.json();
 
       if (data?.status === "ERROR" && data?.error_code === "ERROR_BAD_TOKEN") {
-        return new Response(
-          JSON.stringify({ error: "INVALID_BASELINKER_API_KEY" }),
-          { status: 401 }
-        );
+        return new Response(JSON.stringify({ error: "INVALID_BASELINKER_API_KEY" }), { status: 401 });
       }
 
       const batch = Array.isArray(data?.orders) ? data.orders : [];
@@ -111,8 +95,7 @@ export async function POST(req: Request) {
       }
 
       if (batch.length < 100) break;
-      dynamicSearchFromTimestamp =
-        Number(batch[batch.length - 1]?.date_confirmed) + 1;
+      dynamicSearchFromTimestamp = Number(batch[batch.length - 1]?.date_confirmed) + 1;
     }
 
     if (allOrders.length === 0) {
@@ -126,113 +109,132 @@ export async function POST(req: Request) {
     allOrders.sort((a, b) => a.order_id - b.order_id);
 
     // 7.2 Save orders to database
-    allOrders.forEach(async (order) => {
-      // 7.3 Get packages number from order
-      const packagesQuantity = determinePackagesQuantity(order.extra_field_1);
-
-      if (!packagesQuantity) {
-        orderErrors.push({
-          orderId: order.order_id,
-          error: "INVALID_PACKAGES_QUANTITY",
+    await Promise.all(
+      allOrders.map(async (order) => {
+        // 7.2.1 Check if order already exists in database
+        const existingOrder = await prisma.order.findUnique({
+          where: {
+            orderSupplierId: String(order.order_id),
+          },
         });
-        return;
-      }
 
-      // 7.4 Create packages
-      const packages: Omit<Prisma.PackageCreateInput, "belongsTo">[] = [];
-      for (let i = 0; i < packagesQuantity; i++) {
-        packages.push({
-          packageId: uuidv4(),
-          commodityType: "Paczka" as CommodityType,
-          commodityName: `BL - ${order.order_id} - ${
-            i + 1
-          } / ${packagesQuantity}`,
-          commodityNote: order.extra_field_1,
+        // 7.2.2 If order exists, add it to orderExists array and do no more processing
+        if (existingOrder) {
+          orderExists.push(existingOrder.orderId);
+
+          return;
+        }
+
+        // 7.3 Get packages number from order
+        const packagesQuantity = determinePackagesQuantity(order.extra_field_1);
+
+        if (!packagesQuantity) {
+          orderErrors.push({
+            orderId: order.order_id,
+            error: "INVALID_PACKAGES_QUANTITY",
+          });
+          return;
+        }
+
+        // 7.4 Create packages
+        const packages: Omit<Prisma.PackageCreateInput, "belongsTo">[] = [];
+        for (let i = 0; i < packagesQuantity; i++) {
+          packages.push({
+            packageId: uuidv4(),
+            commodityType: "Paczka" as CommodityType,
+            commodityName: `BL - ${order.order_id} - ${i + 1} / ${packagesQuantity}`,
+            commodityNote: order.extra_field_1,
+          });
+        }
+
+        // 7.5.1 Check if payment method is valid ( 1 - Pobranie, 0 - Przelew )
+        if (!["0", "1"].includes(order.payment_method_cod)) {
+          orderErrors.push({
+            orderId: order.order_id,
+            error: "UNKNOWN_PAYMENT_METHOD",
+          });
+
+          return;
+        }
+
+        // 7.5.2 If payment method is Pobranie, generate price
+        let orderPrice = order.payment_method_cod === 1 ? calcOrderTotalSafe(order) : undefined;
+
+        // 7.5.3 Check if address is provided
+        if (!order.delivery_address) {
+          orderErrors.push({
+            orderId: order.order_id,
+            error: "INVALID_ADDRESS",
+          });
+          return;
+        }
+
+        // 7.5.3 Parse address
+        const parsedAddress = parseAddressPL(order.delivery_address);
+
+        // 7.5.4 Prepare order notes
+        const orderNotes: string[] = [];
+
+        orderNotes.push(`Adres dostawy BL: ${order.delivery_address}`);
+
+        if (order.user_comments && order.user_comments.trim()) {
+          orderNotes.push(`Komentarz Klienta: ${validator.escape(order.user_comments.trim())}`);
+        }
+
+        if (order.admin_comments && order.admin_comments.trim()) {
+          orderNotes.push(`Komentarz Admina BL: ${validator.escape(order.admin_comments.trim())}`);
+        }
+
+        const orderNotesString = orderNotes.length > 0 ? orderNotes.join(" || ") : undefined;
+
+        // 7.6 Create new order
+        // 7.6.1 Create order data
+        const newOrderData: Prisma.OrderCreateInput = {
+          orderId: uuidv4(),
+          user: { connect: { id: authResult.userId } },
+          status: "Producent" as Status,
+          orderType: "Dostawa" as OrderType,
+          orderCountry: validator.escape(order.delivery_country),
+          orderStreet: validator.escape(parsedAddress.street ?? ""),
+          orderStreetNumber: validator.escape(parsedAddress.number ?? ""),
+          orderFlatNumber: parsedAddress.apartment ? validator.escape(parsedAddress.apartment) : undefined,
+          orderCity: validator.escape(order.delivery_city),
+          orderPostCode: validator.escape(order.delivery_postcode),
+          orderState: validator.escape(order.delivery_state ?? ""),
+          orderNote: orderNotesString,
+          recipientName: validator.escape(
+            order.delivery_company ? `${order.delivery_company} - ${order.delivery_fullname}` : order.delivery_fullname
+          ),
+          recipientPhone: validator.escape(order.phone),
+          recipientEmail: order.email ? validator.escape(order.email) : undefined,
+          currency: order.currency ? validator.escape(order.currency) : undefined,
+          orderSupplierId: order.order_id ? String(order.order_id) : undefined,
+          orderPaymentType: validator.escape(order.payment_method_cod === 1 ? "Pobranie" : "Przelew") as CommodityPaymentType,
+          orderPrice: order.payment_method_cod === 1 ? orderPrice : undefined,
+          orderAddressConfidence: parsedAddress.confidence,
+          orderAddressRawData: order.delivery_address,
+          packages: {
+            create: packages,
+          },
+          orderSource: "BaseLinker",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        const newOrder = await prisma.order.create({
+          data: newOrderData,
+          include: {
+            packages: true,
+          },
         });
-      }
 
-      // 7.5 Check if order already exists in database
-      const existingOrder = await prisma.order.findUnique({
-        where: {
-          orderSupplierId: String(order.order_id),
-        },
-      });
+        orderNew.push(newOrder.orderId);
+      })
+    );
 
-      if (existingOrder) {
-        // Update order
-        return;
-      }
-
-      // 7.6 Create order
-      // 7.6.1 Check if payment method is valid
-
-      //   if (order.payment_method_cod !== 1 || order.payment_method_cod !== 0) {
-      //     orderErrors.push({
-      //       orderId: order.order_id,
-      //       error: "UNKNOWN_PAYMENT_METHOD",
-      //     });
-      //      console.log("TEST: order.payment_method_cod", order.payment_method_cod);
-      //     return;
-      //   }
-
-      // 7.6.2 If payment method is Pobranie, generate price
-      let orderPrice = calcOrderTotalSafe(order);
-
-      console.log("TEST: address", order.delivery_address);
-      // 7.6.3 Parse address
-      const address = parseAddressPL(order.delivery_address);
-      console.log("TEST: address", address);
-
-      // 7.6.2 Create order data
-      const newOrderData: Prisma.OrderCreateInput = {
-        orderId: uuidv4(),
-        user: { connect: { id: authResult.userId } },
-        status: "Producent" as Status, //TODO: Przegadać z Megatrans jaki status tutaj dać?
-        orderType: "Dostawa" as OrderType,
-        orderCountry: validator.escape(order.delivery_country),
-        orderStreet: validator.escape(address.street ?? ""),
-        orderStreetNumber: validator.escape(address.number ?? ""),
-        orderFlatNumber: address.apartment
-          ? validator.escape(address.apartment)
-          : undefined,
-        orderCity: validator.escape(order.delivery_city),
-        orderPostCode: validator.escape(order.delivery_postcode),
-        orderState: validator.escape(order.delivery_state ?? ""),
-        // TODO: Zły warunek logiczny
-        orderNote:
-          order.user_comments || order.admin_comments //
-            ? validator.escape(order.user_comments || order.admin_comments) //
-            : undefined, //
-        recipientName: validator.escape(order.delivery_fullname),
-        recipientPhone: validator.escape(order.phone),
-        recipientEmail: order.email ? validator.escape(order.email) : undefined,
-        currency: order.currency ? validator.escape(order.currency) : undefined,
-        orderSupplierId: order.order_id ? String(order.order_id) : undefined,
-        orderPaymentType: validator.escape(
-          order.payment_method_cod === 1 ? "Pobranie" : "Przelew"
-        ) as CommodityPaymentType,
-        orderPrice: order.payment_method_cod === 1 ? orderPrice : undefined,
-        packages: {
-          create: packages,
-        },
-        orderSource: "BaseLinker",
-      };
-
-      const newOrder = await prisma.order.create({
-        data: newOrderData,
-        include: {
-          packages: true,
-        },
-      });
-
-      console.log("TEST: newOrder", newOrder);
-    });
-
-    return new Response(JSON.stringify({ orderErrors, data: allOrders }), {
+    return new Response(JSON.stringify({ orderErrors, orderNew, orderExists }), {
       status: 200,
     });
-
-    //
   } catch (error) {
     return new Response(JSON.stringify({ error: "INTERNAL_SERVER_ERROR" }), {
       status: 500,
