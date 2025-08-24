@@ -175,8 +175,7 @@ Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność
                       title: "Kod pocztowy",
                       type: "string",
                       example: ["00-001", "000 00"],
-                      description:
-                        "Kod pocztowy w formacie 00-001 (Polska) lub 000 00 (Czechy)",
+                      description: "Kod pocztowy w formacie 00-001 (Polska) lub 000 00 (Czechy)",
                     },
                     orderState: {
                       title: "Województwo",
@@ -196,8 +195,7 @@ Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność
                       type: "string",
                       format: "tel",
                       example: "500600700",
-                      description:
-                        "Numer telefonu może zawierać wyłącznie cyfry (bez spacji)",
+                      description: "Numer telefonu może zawierać wyłącznie cyfry (bez spacji)",
                     },
                     orderClientEmail: {
                       title: "Email klienta",
@@ -219,15 +217,13 @@ Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność
                       title: "Typ płatności",
                       type: "string",
                       enum: ["Pobranie", "Przelew"],
-                      description:
-                        'W przypadku "Pobranie" wymagane uzupełnienie pola "orderPaymentPrice"',
+                      description: 'W przypadku "Pobranie" wymagane uzupełnienie pola "orderPaymentPrice"',
                     },
                     orderPaymentPrice: {
                       title: "Wartość pobrania",
                       type: "number",
                       example: 199.99,
-                      description:
-                        "Wartość pobrania w formacie liczbowym (np. 199.99)",
+                      description: "Wartość pobrania w formacie liczbowym (np. 199.99)",
                     },
                     orderItems: {
                       title: "Elementy zamówienia",
@@ -306,8 +302,7 @@ Pamiętaj, że odpowiadasz za poprawność wprowadzanych danych i ich zgodność
               },
             },
             "401": {
-              description:
-                "Brak autoryzacji (nieprawidłowy lub brak X-API-Key)",
+              description: "Brak autoryzacji (nieprawidłowy lub brak X-API-Key)",
               content: {
                 "application/json": {
                   schema: {
@@ -392,7 +387,7 @@ Zanim rozpoczniesz pierwszy import zamówień, upewnij się, że Twój BaseLinke
 
 **3.1. Przygotuj statusy**
 1. Utwórz nowy **status** dla zamówień, np. Dostawa (Megatrans)
-2. Po utworzeniu, w formularzu edycji statusu pojawi się w dolnym lewym rogu **ID**
+2. Po utworzeniu, w formularzu edycji statusu pojawi się w dolnym lewym rogu ID
 3. Zapisz **ID** danego statusu, bedzie Ci potrzebne przy importowaniu.
 
 **Dlaczego potrzebuję ID statusu?** <br/>
@@ -414,6 +409,9 @@ Przykładowe dozwolone wartości dla pola **Pole dodatkowe 1**:
 - 2 Fotele (2 paczki)
 - 1 Sofa Narożna (3 paczki)
 - (8 paczek) 1 sofa + 4 fotele
+
+##### 4. Import Zamówień
+Kiedy wszystko jest gotowe możesz rozpocząć import zamówień z BaseLinker do MegaTrans.
 `,
         },
       },
