@@ -99,9 +99,11 @@ export default function ClientsPage() {
     }
   };
 
-  if (!session || session.user.role !== Role.ADMIN) {
-    router.push("/");
-  }
+  useEffect(() => {
+    if (!session || session.user.role !== Role.ADMIN) {
+      router.push("/");
+    }
+  }, [session, router]);
 
   // Skeleton
   if (loading) {

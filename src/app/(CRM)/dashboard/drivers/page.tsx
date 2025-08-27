@@ -159,9 +159,11 @@ export default function DriversPage() {
     );
   });
 
-  if (!session || session.user.role !== Role.ADMIN) {
-    router.push("/");
-  }
+  useEffect(() => {
+    if (!session || session.user.role !== Role.ADMIN) {
+      router.push("/");
+    }
+  }, [session, router]);
 
   // Skeleton
   if (loading) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, ReactElement } from "react";
+import { useEffect, useRef, useState, ReactElement, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -42,7 +42,7 @@ interface GetOrderApiResponse {
   order?: OrderResponseOrder;
 }
 
-export default function BulkWaybillsPage() {
+function BulkWaybillsPageInner() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
@@ -226,5 +226,13 @@ export default function BulkWaybillsPage() {
       )}
       {waybillElements && waybillElements.length > 0 && <div className="bg-white flex flex-col gap-4">{waybillElements}</div>}
     </>
+  );
+}
+
+export default function BulkWaybillsPage() {
+  return (
+    <Suspense>
+      <BulkWaybillsPageInner />
+    </Suspense>
   );
 }

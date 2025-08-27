@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, ReactElement } from "react";
+import { useEffect, useRef, useState, ReactElement, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -38,7 +38,7 @@ interface GetOrderApiResponse {
   order?: OrderResponseOrder;
 }
 
-export default function BulkLabelsPage() {
+function BulkLabelsPageInner() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
 
@@ -202,5 +202,13 @@ export default function BulkLabelsPage() {
       {labelElements?.length === 0 && !isLoading && <div className="bg-white p-4">Brak zaznaczonych zamówień do wygenerowania etykiet.</div>}
       {labelElements && labelElements.length > 0 && <div className="bg-white flex flex-col gap-4">{labelElements}</div>}
     </>
+  );
+}
+
+export default function BulkLabelsPage() {
+  return (
+    <Suspense>
+      <BulkLabelsPageInner />
+    </Suspense>
   );
 }
