@@ -38,7 +38,7 @@ export interface NewOrderRequest {
   orderCountry: (typeof SupportedCountry)[keyof typeof SupportedCountry];
   orderStreet: string;
   orderStreetNumber: string;
-  orderFlatNumber?: string;
+  orderFlatNumber?: string | null;
   orderCity: string;
   orderPostCode: string;
   orderState: string;
@@ -78,7 +78,7 @@ export const NewOrderRequestSchema = z
     orderCountry: z.enum(SupportedCountry, "Wymagana wartość: Polska | Czechy"),
     orderStreet: z.string().min(1, "Ulica jest wymagana"),
     orderStreetNumber: z.string().min(1, "Numer ulicy jest wymagany"),
-    orderFlatNumber: z.string().optional(),
+    orderFlatNumber: z.string().nullable().optional(),
     orderCity: z.string().min(1, "Miasto jest wymagane"),
     orderPostCode: z.string().min(1, "Kod pocztowy jest wymagany"),
     orderState: z.string().min(1, "Województwo jest wymagane"),
@@ -139,19 +139,19 @@ export const ExternalApiNewOrderRequestSchema = z
     orderCountry: z.enum(SupportedCountry, "Wymagana wartość: Polska | Czechy"),
     orderStreet: z.string().min(1, "Ulica jest wymagana"),
     orderStreetNumber: z.string().min(1, "Numer ulicy jest wymagany"),
-    orderFlatNumber: z.string().optional(),
+    orderFlatNumber: z.string().nullable().optional(),
     orderCity: z.string().min(1, "Miasto jest wymagane"),
     orderPostCode: z.string().min(1, "Kod pocztowy jest wymagany"),
-    orderState: z.string().optional(),
-    orderNote: z.string().optional(),
+    orderState: z.string().nullable().optional(),
+    orderNote: z.string().nullable().optional(),
     orderClientName: z.string().min(1, "Nazwa klienta jest wymagana"),
     orderClientPhone: z
       .string()
       .min(1, "Telefon klienta jest wymagany")
       .regex(/^\d+$/, "Numer telefonu może zawierać wyłącznie cyfry (bez spacji)"),
-    orderClientEmail: z.string().email({ message: "Nieprawidłowy format email" }).optional().or(z.literal("")),
-    orderSupplierId: z.string().optional(),
-    currency: z.string().optional(),
+    orderClientEmail: z.string().email({ message: "Nieprawidłowy format email" }).nullable().optional().or(z.literal("")),
+    orderSupplierId: z.string().nullable().optional(),
+    currency: z.string().nullable().optional(),
     orderPaymentType: z.enum(SupportedPaymentType, "Wymagana wartość: Pobranie | Przelew"),
     orderPaymentPrice: z
       .union([
@@ -169,6 +169,7 @@ export const ExternalApiNewOrderRequestSchema = z
         z.null(),
         z.undefined(),
       ])
+      .nullable()
       .optional(),
     orderItems: z.array(ExternalApiOrderItemSchema).min(1, "Wymagany jest przynajmniej jeden element w tablicy orderItems"),
   })
