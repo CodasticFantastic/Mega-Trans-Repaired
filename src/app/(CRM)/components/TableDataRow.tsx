@@ -37,17 +37,9 @@ interface TableDataRowProps {
   isDataCellChecked: boolean;
   onDataCellCheck: (checked: boolean) => void;
   onOrderDeleted?: (orderId: string) => void;
-  queryKey?: any[];
 }
 
-export default function TableDataRow({
-  order,
-  shouldAddBackground,
-  isDataCellChecked,
-  onDataCellCheck,
-  onOrderDeleted,
-  queryKey,
-}: TableDataRowProps) {
+export default function TableDataRow({ order, shouldAddBackground, isDataCellChecked, onDataCellCheck, onOrderDeleted }: TableDataRowProps) {
   const [status, setStatus] = useState<Status>(order.status);
   const [expanded, setExpanded] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -114,18 +106,16 @@ export default function TableDataRow({
 
       return response;
     },
-    onSuccess: () => {
-      // Optymistyczna aktualizacja - usuń zamówienie z cache
-      if (queryKey) {
-        queryClient.setQueryData(queryKey, (oldData: any) => {
-          if (!oldData) return oldData;
+    onSuccess: async () => {
+      // Optymistyczna aktualizacja - usuń zamówienie z wszystkich list
+      queryClient.setQueriesData({ queryKey: ["allUserOrder"] }, (oldData: any) => {
+        if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            allUserOrder: oldData.allUserOrder.filter((o: OrderWithUserAndPackages) => o.orderId !== order.orderId),
-          };
-        });
-      }
+        return {
+          ...oldData,
+          allUserOrder: oldData.allUserOrder.filter((o: OrderWithUserAndPackages) => o.orderId !== order.orderId),
+        };
+      });
 
       // Wywołaj callback jeśli jest przekazany
       if (onOrderDeleted) {
@@ -133,6 +123,9 @@ export default function TableDataRow({
       }
 
       setShowDeleteDialog(false);
+
+      // Upewnij się, że pozostałe strony i liczniki są zaktualizowane
+      await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
     },
     onError: (error) => {
       console.error("Delete order error:", error);
@@ -159,24 +152,25 @@ export default function TableDataRow({
 
       return response;
     },
-    onSuccess: () => {
-      // Optymistyczna aktualizacja - zmień status na "Anulowane"
-      if (queryKey) {
-        queryClient.setQueryData(queryKey, (oldData: any) => {
-          if (!oldData) return oldData;
+    onSuccess: async () => {
+      // Optymistyczna aktualizacja - zmień status na "Anulowane" we wszystkich listach
+      queryClient.setQueriesData({ queryKey: ["allUserOrder"] }, (oldData: any) => {
+        if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            allUserOrder: oldData.allUserOrder.map((o: OrderWithUserAndPackages) =>
-              o.orderId === order.orderId ? { ...o, status: "Anulowane" as Status } : o
-            ),
-          };
-        });
-      }
+        return {
+          ...oldData,
+          allUserOrder: oldData.allUserOrder.map((o: OrderWithUserAndPackages) =>
+            o.orderId === order.orderId ? { ...o, status: "Anulowane" as Status } : o
+          ),
+        };
+      });
 
       // Aktualizuj lokalny stan
       setStatus("Anulowane");
       setShowCancelDialog(false);
+
+      // Upewnij się, że pozostałe strony i liczniki są zaktualizowane
+      await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
     },
     onError: (error) => {
       console.error("Cancel order error:", error);
@@ -203,22 +197,23 @@ export default function TableDataRow({
 
       return response;
     },
-    onSuccess: () => {
-      // Optymistyczna aktualizacja - ustaw orderAddressConfidence na 1
-      if (queryKey) {
-        queryClient.setQueryData(queryKey, (oldData: any) => {
-          if (!oldData) return oldData;
+    onSuccess: async () => {
+      // Optymistyczna aktualizacja - ustaw orderAddressConfidence na 1 we wszystkich listach
+      queryClient.setQueriesData({ queryKey: ["allUserOrder"] }, (oldData: any) => {
+        if (!oldData) return oldData;
 
-          return {
-            ...oldData,
-            allUserOrder: oldData.allUserOrder.map((o: OrderWithUserAndPackages) =>
-              o.orderId === order.orderId ? { ...o, orderAddressConfidence: 1 } : o
-            ),
-          };
-        });
-      }
+        return {
+          ...oldData,
+          allUserOrder: oldData.allUserOrder.map((o: OrderWithUserAndPackages) =>
+            o.orderId === order.orderId ? { ...o, orderAddressConfidence: 1 } : o
+          ),
+        };
+      });
 
       setShowConfirmAddressDialog(false);
+
+      // Upewnij się, że pozostałe strony i liczniki są zaktualizowane
+      await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
     },
     onError: (error) => {
       console.error("Confirm address error:", error);

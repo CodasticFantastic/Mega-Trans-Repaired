@@ -248,13 +248,6 @@ export default function Dashboard() {
       signOut();
       throw new Error(data.error);
     } else {
-      setStats({
-        allOrders: data.allOrdersCounter,
-        newOrders: data.newOrdersCounter,
-        currentOrders: data.currentOrdersCounter,
-        warehouseOrders: data.warehouseOrdersCounter,
-        realizedOrders: data.realizedOrdersCounter,
-      });
       return data;
     }
   };
@@ -265,10 +258,32 @@ export default function Dashboard() {
     isFetching,
     refetch,
   } = useQuery<ApiResponse>({
-    queryKey: ["allUserOrder", session, filters, currentPage, pageSize],
+    queryKey: [
+      "allUserOrder",
+      {
+        page: currentPage,
+        pageSize,
+        filters,
+        role: session?.user?.role,
+        userId: (session as any)?.user?.id,
+      },
+    ],
     queryFn: () => getOrders({ page: currentPage, filters }),
     enabled: !!session,
   });
+
+  // Aktualizacja statystyk po udanym pobraniu danych
+  useEffect(() => {
+    if (ordersData) {
+      setStats({
+        allOrders: ordersData.allOrdersCounter,
+        newOrders: ordersData.newOrdersCounter,
+        currentOrders: ordersData.currentOrdersCounter,
+        warehouseOrders: ordersData.warehouseOrdersCounter,
+        realizedOrders: ordersData.realizedOrdersCounter,
+      });
+    }
+  }, [ordersData]);
 
   ///////////////// Operations on selected orders
   function handleOrderCheck(order: OrderWithUserAndPackages, checked: boolean) {
@@ -344,8 +359,8 @@ export default function Dashboard() {
           throw new Error(`Błąd anulowania zamówienia ${order.orderId}: ${response.error}`);
         }
 
-        // Optymistyczna aktualizacja dla konkretnego zamówienia po udanym zapytaniu
-        queryClient.setQueryData(["allUserOrder", session, filters, currentPage, pageSize], (oldData: ApiResponse | undefined) => {
+        // Optymistyczna aktualizacja w całej liście
+        queryClient.setQueriesData({ queryKey: ["allUserOrder"] }, (oldData: ApiResponse | undefined) => {
           if (!oldData) return oldData;
 
           return {
@@ -358,6 +373,9 @@ export default function Dashboard() {
       });
 
       await Promise.all(cancelPromises);
+
+      // Upewnij się, że liczniki i inne strony są aktualne
+      await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
 
       CustomToast("success", `Pomyślnie anulowano ${selectedOrders.length} zamówień`, {
         duration: 4000,
@@ -404,8 +422,8 @@ export default function Dashboard() {
           throw new Error(errorData.error || "Błąd podczas usuwania zamówienia");
         }
 
-        // Optymistyczna aktualizacja dla konkretnego zamówienia po udanym zapytaniu
-        queryClient.setQueryData(["allUserOrder", session, filters, currentPage, pageSize], (oldData: ApiResponse | undefined) => {
+        // Optymistyczna aktualizacja w całej liście
+        queryClient.setQueriesData({ queryKey: ["allUserOrder"] }, (oldData: ApiResponse | undefined) => {
           if (!oldData) return oldData;
 
           return {
@@ -418,6 +436,9 @@ export default function Dashboard() {
       });
 
       await Promise.all(deletePromises);
+
+      // Upewnij się, że liczniki i inne strony są aktualne
+      await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
 
       CustomToast("success", `Pomyślnie usunięto ${selectedOrders.length} zamówień`, {
         duration: 3000,
@@ -680,7 +701,6 @@ export default function Dashboard() {
                         shouldAddBackground={index % 2 !== 0}
                         isDataCellChecked={selectedOrders.some((selectedOrder) => selectedOrder.orderId === order.orderId)}
                         onDataCellCheck={(checked) => handleOrderCheck(order, checked)}
-                        queryKey={["allUserOrder", session, filters, currentPage, pageSize]}
                         onOrderDeleted={handleOrderDeleted}
                       />
                     ))}

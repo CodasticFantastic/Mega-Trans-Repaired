@@ -151,6 +151,9 @@ export default function UpdateOrderModal({ order, trigger }: UpdateOrderModalPro
         });
 
         setDialogOpen(false);
+
+        // Dodatkowa invalidacja w celu synchronizacji liczników i innych stron
+        await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
       } else {
         CustomToast("error", result.error || "Wystąpił błąd podczas aktualizacji zamówienia", {
           duration: 3000,
