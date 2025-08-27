@@ -103,6 +103,7 @@ model Order {
   orderPaymentType       CommodityPaymentType
   orderPrice             Float?
   packages               Package[]
+  packageManualCount     Int?                 @map("package_manual_count")
   currency               String?
   orderSupplierId        String?              @map("order_supplier_id")
   orderAddressConfidence Float?               @map("order_address_confidence")

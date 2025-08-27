@@ -79,6 +79,9 @@ export async function POST(req: Request) {
       orderSupplierId: request.orderSupplierId
         ? validator.escape(request.orderSupplierId)
         : undefined,
+      packageManualCount: request.packageManualCount
+        ? parseInt(validator.escape(request.packageManualCount + ""))
+        : undefined,
       orderPaymentType: validator.escape(
         request.orderPaymentType
       ) as CommodityPaymentType,

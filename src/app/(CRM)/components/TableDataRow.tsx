@@ -15,6 +15,8 @@ import {
   Trash2Icon,
   BanIcon,
   TriangleAlertIcon,
+  NewspaperIcon,
+  TagsIcon,
 } from "lucide-react";
 import { Button } from "@/components/shadcn/ui/button";
 import { Checkbox } from "@/components/shadcn/ui/checkbox";
@@ -313,6 +315,20 @@ export default function TableDataRow({
                     Pokaż stronę edycji
                   </Link>
                 </DropdownMenuItem>
+                <Separator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/updateOrder/${order.orderId}/waybill`} target="_blank" className="flex items-center gap-2 cursor-pointer">
+                    <NewspaperIcon className="h-4 w-4" />
+                    List przewozowy
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/updateOrder/${order.orderId}/label`} target="_blank" className="flex items-center gap-2 cursor-pointer">
+                    <TagsIcon className="h-4 w-4" />
+                    Etykiety 10x15
+                  </Link>
+                </DropdownMenuItem>
+                <Separator />
                 {status !== "Anulowane" && status !== "Zrealizowane" && (
                   <DropdownMenuItem
                     onClick={() => setShowCancelDialog(true)}
@@ -441,7 +457,7 @@ export default function TableDataRow({
                   <div className="flex items-center gap-10">
                     <div className="flex flex-col gap-1 items-center">
                       <p className="text-xs">Ilość Paczek</p>
-                      <p className="text-base text-blue-400">{order.packages.length}</p>
+                      <p className="text-base text-blue-400">{order.packageManualCount || order.packages.length}</p>
                     </div>
                   </div>
 

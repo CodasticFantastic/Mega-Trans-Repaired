@@ -66,6 +66,7 @@ export default function UpdateOrder({ params }: { params: Promise<{ id: string }
     orderPaymentType: "",
     orderPrice: 0,
     orderSupplierId: "",
+    packageManualCount: 0,
   });
   const [countryState, setCountryState] = useState("Polska");
 
@@ -122,6 +123,7 @@ export default function UpdateOrder({ params }: { params: Promise<{ id: string }
           orderPaymentType: response.order.orderPaymentType,
           orderPrice: response.order.orderPrice,
           orderSupplierId: response.order.orderSupplierId,
+          packageManualCount: response.order.packageManualCount,
         });
 
         setCountryState(response.order.orderCountry);
@@ -579,7 +581,7 @@ export default function UpdateOrder({ params }: { params: Promise<{ id: string }
                       <ShoppingCart className="h-5 w-5" />
                       Wykaz Paczek
                       <Badge variant="outline" className="rounded-sm">
-                        {commodityList.length}
+                        {orderForm.packageManualCount || commodityList.length}
                       </Badge>
                     </CardTitle>
                   </CardHeader>

@@ -124,7 +124,7 @@ export default function InstructionsSideBar({ orderId }: { orderId: string }) {
                 </Link>
               </Button>
 
-              <Button
+              {/* <Button
                 variant="outline"
                 className="w-full justify-start"
                 asChild
@@ -136,7 +136,7 @@ export default function InstructionsSideBar({ orderId }: { orderId: string }) {
                   <Package className="h-4 w-4 mr-2" />
                   Etykiety A4
                 </Link>
-              </Button>
+              </Button> */}
             </div>
           </div>
         )}

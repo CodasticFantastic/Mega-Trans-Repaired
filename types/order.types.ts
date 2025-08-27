@@ -48,6 +48,7 @@ export interface NewOrderRequest {
   orderClientEmail?: string;
   orderSupplierId?: string;
   currency?: string;
+  packageManualCount?: number;
   orderPaymentType: CommodityPaymentType;
   orderPaymentPrice: number | string;
   orderItems: OrderItem[];
@@ -87,6 +88,7 @@ export const NewOrderRequestSchema = z
     orderClientEmail: z.string().email("Nieprawidłowy format email").optional().or(z.literal("")),
     orderSupplierId: z.string().optional(),
     currency: z.string().optional(),
+    packageManualCount: z.number().int().positive("Liczba paczek musi być dodatnia").optional(),
     orderPaymentType: z.enum(SupportedPaymentType, "Wymagana wartość: Pobranie | Przelew"),
     orderPaymentPrice: z
       .union([

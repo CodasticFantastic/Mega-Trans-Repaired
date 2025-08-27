@@ -20,6 +20,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/shadcn/ui/alert";
 import { Separator } from "@/components/shadcn/ui/separator";
 import { Badge } from "@/components/shadcn/ui/badge";
+import { Checkbox } from "@/components/shadcn/ui/checkbox";
 
 export default function NewOrder() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export default function NewOrder() {
   const [formError, setFormError] = useState<string>();
   const [countryState, setCountryState] = useState("Polska");
   const [paymentType, setPaymentType] = useState("Przelew");
+  const [manualPackageCountEnabled, setManualPackageCountEnabled] = useState(false);
 
   // Actions - Process Order to Backend
   async function processOrder(event: React.FormEvent<HTMLFormElement>) {
@@ -74,6 +76,7 @@ export default function NewOrder() {
       currency: currency,
       orderPaymentType: data.get("orderPaymentType"),
       orderPaymentPrice: data.get("orderPaymentAmount"),
+      packageManualCount: manualPackageCountEnabled ? Number(data.get("packageManualCount")) : undefined,
       orderItems: commodityList,
     };
 
@@ -318,6 +321,7 @@ export default function NewOrder() {
                           <Textarea
                             name="orderCommodityNote"
                             value={commodityItem.orderCommodityNote}
+                            placeholder="W przypadku ręcznego wpisywania ilości paczek, podaj informację o ilości paczek z jakich składa się dany towar (np. Traktuj ostrożnie, 3 paczki)"
                             onChange={(e) => {
                               setCommodityItem((prevState) => ({
                                 ...prevState,
@@ -378,9 +382,29 @@ export default function NewOrder() {
                     <CardTitle className="flex items-center gap-2 text-blue-600">
                       <ShoppingCart className="h-5 w-5" />
                       Wykaz Paczek
-                      <Badge variant="outline" className="rounded-sm">
-                        {commodityList.length}
-                      </Badge>
+                      {!manualPackageCountEnabled && (
+                        <Badge variant="outline" className="rounded-sm">
+                          {commodityList.length}
+                        </Badge>
+                      )}
+                      {commodityList.length >= 1 && (
+                        <>
+                          <div className="flex items-center gap-2 text-foreground">
+                            <Checkbox
+                              id="useManualPackageCount"
+                              name="useManualPackageCount"
+                              checked={manualPackageCountEnabled}
+                              onCheckedChange={(checked) => setManualPackageCountEnabled(checked === "indeterminate" ? false : checked)}
+                            />
+                            <Label htmlFor="useManualPackageCount">Ręcznie wpisz liczbę paczek</Label>
+                          </div>
+                          {manualPackageCountEnabled && (
+                            <div className="text-foreground">
+                              <Input name="packageManualCount" type="number" min="1" step="1" required placeholder="Liczba paczek" />
+                            </div>
+                          )}
+                        </>
+                      )}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
