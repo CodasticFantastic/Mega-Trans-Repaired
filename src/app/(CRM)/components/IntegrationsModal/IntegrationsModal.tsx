@@ -38,6 +38,7 @@ import { CustomToast } from "@/components/shadcn/custom/toast";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface CustomApiKeyList {
+  id: ApiKey["id"];
   apiKey: ApiKey["apiKey"];
   apiKeyName: ApiKey["apiKeyName"];
   lastUsed: ApiKey["lastUsed"];
@@ -108,13 +109,13 @@ export const IntegrationsModal = () => {
     }
   };
 
-  const handleDeleteApiKey = async (apiKey: string) => {
+  const handleDeleteApiKey = async (apiKeyId: number) => {
     try {
       setIsDataSending(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/apiKey/delete`, {
         method: "POST",
         headers: { Authorization: session?.accessToken ?? "" },
-        body: JSON.stringify({ apiKey }),
+        body: JSON.stringify({ apiKeyId }),
       });
 
       const { message } = await response.json();
@@ -337,7 +338,7 @@ export const IntegrationsModal = () => {
                             size="sm"
                             variant="destructive"
                             className="!px-2"
-                            onClick={() => handleDeleteApiKey(key.apiKey)}
+                            onClick={() => handleDeleteApiKey(key.id)}
                             disabled={isDataSending}
                           >
                             Usuń

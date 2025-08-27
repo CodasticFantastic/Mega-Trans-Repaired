@@ -32,6 +32,7 @@ export async function GET(req: Request) {
     }
 
     const apiKeyData = userApiKeys.map((apiKey: ApiKey) => ({
+      id: apiKey.id,
       apiKeyName: apiKey.apiKeyName,
       apiKey: apiKey.type === ApiKeyType.BaseLinker ? "***********" : decryptApiKey(apiKey.apiKey),
       type: apiKey.type,

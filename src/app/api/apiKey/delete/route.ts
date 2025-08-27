@@ -26,23 +26,19 @@ export async function POST(req: Request) {
       return createValidationErrorResponse(parsedBody.error);
     }
 
-    const { apiKey } = parsedBody.data;
-    const encryptedApiKey = encryptApiKey(apiKey);
+    const { apiKeyId } = parsedBody.data;
 
     const deletedApiKey = await prisma.apiKey.delete({
       where: {
-        apiKey: encryptedApiKey,
+        id: apiKeyId,
         userId: authResult.userId,
       },
     });
 
     if (deletedApiKey.count === 0) {
-      return new Response(
-        JSON.stringify({ error: "Klucz API nie został znaleziony" }),
-        {
-          status: 404,
-        }
-      );
+      return new Response(JSON.stringify({ error: "Klucz API nie został znaleziony" }), {
+        status: 404,
+      });
     }
 
     return new Response(

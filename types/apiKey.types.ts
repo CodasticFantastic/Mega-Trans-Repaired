@@ -20,11 +20,8 @@ const BaseLinkerSchema = z.object({
 });
 
 // Union schema - wybiera odpowiedni schemat na podstawie apiKeyType
-export const CreateApiKeySchema = z.discriminatedUnion("apiKeyType", [
-  CustomIntegrationSchema,
-  BaseLinkerSchema,
-]);
+export const CreateApiKeySchema = z.discriminatedUnion("apiKeyType", [CustomIntegrationSchema, BaseLinkerSchema]);
 
 export const DeleteApiKeySchema = z.object({
-  apiKey: z.string().min(1, "Klucz API jest wymagany"),
+  apiKeyId: z.number().min(1, "Klucz API jest wymagany"),
 });
