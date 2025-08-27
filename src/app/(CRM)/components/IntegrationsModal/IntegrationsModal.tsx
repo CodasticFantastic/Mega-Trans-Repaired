@@ -348,7 +348,14 @@ export const IntegrationsModal = () => {
                           </Button>
                         </div>
                       ) : (
-                        <DropdownMenuItem variant="destructive" onSelect={() => setConfirmDelete(key.apiKey)} disabled={isDataSending}>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setConfirmDelete(key.apiKey);
+                          }}
+                          disabled={isDataSending}
+                        >
                           <Trash2Icon className="text-destructive" /> Usuń...
                         </DropdownMenuItem>
                       )}
