@@ -2,9 +2,7 @@ import { jsPDF } from "jspdf";
 import { toPng, toCanvas } from "html-to-image";
 
 // Generowanie Listu Przewozowego
-export async function generateWaybillPdf(
-  html: React.RefObject<HTMLDivElement | null>
-) {
+export async function generateWaybillPdf(html: React.RefObject<HTMLDivElement | null>) {
   if (!html.current) {
     console.error("HTML element is null");
     return;
@@ -23,10 +21,30 @@ export async function generateWaybillPdf(
   doc.save("ListPrzewozowy.pdf");
 }
 
+// Generowanie wielu Listów Przewozowych
+export async function generateWaybillsPdf(htmlElements: (HTMLDivElement | null)[]) {
+  const doc = new jsPDF({
+    format: [210, 297],
+    compress: true,
+    unit: "mm",
+  });
+
+  for (let i = 0; i < htmlElements.length; i++) {
+    const element = htmlElements[i];
+    if (element) {
+      const image = await toPng(element, {
+        quality: 0.75,
+      });
+      doc.addImage(image, "PNG", 0, 0, 210, 297);
+      if (i !== htmlElements.length - 1) doc.addPage();
+    }
+  }
+
+  doc.save("ListyPrzewozowe.pdf");
+}
+
 // Generowanie Etykiet na paczki
-export async function generateLabelsPdf(
-  htmlElements: (HTMLDivElement | null)[]
-) {
+export async function generateLabelsPdf(htmlElements: (HTMLDivElement | null)[]) {
   const doc = new jsPDF({
     format: [100, 150],
     compress: true,
@@ -48,10 +66,7 @@ export async function generateLabelsPdf(
 }
 
 // Generowanie Pełnej Dokumentacji Transportowej
-export async function generateDocumentationPdf(
-  waybillRef: React.RefObject<HTMLDivElement | null>,
-  labelRefs: (HTMLDivElement | null)[]
-) {
+export async function generateDocumentationPdf(waybillRef: React.RefObject<HTMLDivElement | null>, labelRefs: (HTMLDivElement | null)[]) {
   const doc = new jsPDF({
     format: [210, 297],
     compress: true,

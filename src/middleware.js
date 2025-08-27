@@ -7,5 +7,9 @@ export const config = {
     "/updateOrder/:path*",
     "/apiDocs",
     "/apiDocs/:path*",
+    "/labels/bulk",
+    "/labels/bulk/:path*",
+    "/waybills/bulk",
+    "/waybills/bulk/:path*",
   ],
 };

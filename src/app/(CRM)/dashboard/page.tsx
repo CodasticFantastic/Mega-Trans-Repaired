@@ -40,9 +40,10 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/shadcn/ui/dialog";
 import { Button } from "@/components/shadcn/ui/button";
 import { OrderWithUserAndPackages } from "types/order.types";
-import { BanIcon, FileDownIcon, Loader2Icon, MoreHorizontalIcon, Trash2Icon, RefreshCcwIcon } from "lucide-react";
+import { BanIcon, FileDownIcon, Loader2Icon, MoreHorizontalIcon, Trash2Icon, RefreshCcwIcon, TagsIcon, NewspaperIcon } from "lucide-react";
 import { Role } from "@prisma/client";
 import { CustomToast } from "@/components/shadcn/custom/toast";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 // Typy dla statystyk
 interface Stats {
@@ -465,6 +466,29 @@ export default function Dashboard() {
     FileSaver.saveAs(data, "Zamówienia" + fileExtension);
   }
 
+  ///////////////// Generate labels for selected orders
+  const handleGenerateLabelsForSelected = () => {
+    if (selectedOrders.length === 0) {
+      CustomToast("error", "Nie zaznaczono żadnych zamówień", { duration: 3000 });
+      return;
+    }
+    const ids = selectedOrders.map((o) => o.orderId).join(",");
+    if (typeof window !== "undefined") {
+      window.open(`/labels/bulk?ids=${encodeURIComponent(ids)}`, "_blank");
+    }
+  };
+
+  const handleGenerateWaybillsForSelected = () => {
+    if (selectedOrders.length === 0) {
+      CustomToast("error", "Nie zaznaczono żadnych zamówień", { duration: 3000 });
+      return;
+    }
+    const ids = selectedOrders.map((o) => o.orderId).join(",");
+    if (typeof window !== "undefined") {
+      window.open(`/waybills/bulk?ids=${encodeURIComponent(ids)}`, "_blank");
+    }
+  };
+
   const orders = useMemo(() => ordersData?.allUserOrder ?? [], [ordersData]);
 
   // Odświeżenie listy zamówień
@@ -599,9 +623,19 @@ export default function Dashboard() {
                           <DropdownMenuItem onClick={handleRefresh} disabled={isFetching} className="cursor-pointer">
                             {isFetching ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCcwIcon />} Odśwież listę
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={exportOrdersData} className="cursor-pointer">
-                            <FileDownIcon /> Export CSV
+                          <DropdownMenuSeparator />
+                          {session?.user?.role === Role.ADMIN && (
+                            <DropdownMenuItem onClick={exportOrdersData} className="cursor-pointer">
+                              <FileDownIcon /> Export CSV
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={handleGenerateLabelsForSelected} className="cursor-pointer">
+                            <TagsIcon /> Etykiety 10x15
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={handleGenerateWaybillsForSelected} className="cursor-pointer">
+                            <NewspaperIcon /> Listy przewozowe
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           {(session?.user?.role === Role.USER || session?.user?.role === Role.ADMIN) && (
                             <DropdownMenuItem onClick={handleCancelOrdersClick} className="text-destructive cursor-pointer">
                               <BanIcon className="text-destructive" /> Anuluj zaznaczone
