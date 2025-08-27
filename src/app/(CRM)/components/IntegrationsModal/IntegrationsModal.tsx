@@ -215,7 +215,7 @@ export const IntegrationsModal = () => {
           </DialogTitle>
           <DialogDescription className="text-sm flex items-center justify-between w-full gap-2">
             Zarządzaj kluczami API{" "}
-            <Link href="/apiDocs" className="text-[var(--color-blue)] hover:underline" target="_blank">
+            <Link href="/apiDocs" className="text-[var(--color-blue)] hover:underline" target="_blank" prefetch={false}>
               Pokaż dokumentację
             </Link>
           </DialogDescription>

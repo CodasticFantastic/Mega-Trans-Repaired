@@ -158,7 +158,7 @@ export async function POST(req: Request) {
         }
 
         // 7.5.2 If payment method is Pobranie, generate price
-        let orderPrice = order.payment_method_cod === 1 ? calcOrderTotalSafe(order) : undefined;
+        let orderPrice = order.payment_method_cod === "1" ? calcOrderTotalSafe(order) : undefined;
 
         // 7.5.3 Check if address is provided
         if (!order.delivery_address) {
@@ -209,8 +209,8 @@ export async function POST(req: Request) {
           recipientEmail: order.email ? validator.escape(order.email) : undefined,
           currency: order.currency ? validator.escape(order.currency) : undefined,
           orderSupplierId: order.order_id ? String(order.order_id) : undefined,
-          orderPaymentType: validator.escape(order.payment_method_cod === 1 ? "Pobranie" : "Przelew") as CommodityPaymentType,
-          orderPrice: order.payment_method_cod === 1 ? orderPrice : undefined,
+          orderPaymentType: validator.escape(order.payment_method_cod === "1" ? "Pobranie" : "Przelew") as CommodityPaymentType,
+          orderPrice: order.payment_method_cod === "1" ? orderPrice : undefined,
           orderAddressConfidence: parsedAddress.confidence,
           orderAddressRawData: order.delivery_address,
           packages: {

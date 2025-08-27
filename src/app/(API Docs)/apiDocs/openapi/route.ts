@@ -59,7 +59,7 @@ Prowadzisz e-commerce w systemie BaseLinker?
 
 Dowiedz się, jak zintegrować nasz system z BaseLinker i rozpocznij automatyzację procesów zamówień.
 
-Aktualnie obsługujemy tylko możliwość tworzenia i aktualizacji zamówień.
+Aktualnie obsługujemy tylko możliwość tworzenia zamówień BaseLinker -> MegaTrans.
 Jeżeli brakuje Ci jakiejś funkcjonalności, skontaktuj się z nami abyśmy mogli ją dla Ciebie dodać.
 `,
       },
