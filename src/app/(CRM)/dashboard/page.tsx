@@ -221,21 +221,33 @@ export default function Dashboard() {
   }, [filters, currentPage, pageSize]);
 
   // Przeniesienie logiki zapytania poza funkcję getOrders
-  const getOrders = async ({ page, filters }: { page: number; filters: DashboardSidebarFilters }): Promise<ApiResponse> => {
+  const getOrders = async ({
+    page,
+    filters,
+    signal,
+  }: {
+    page: number;
+    filters: DashboardSidebarFilters;
+    signal?: AbortSignal;
+  }): Promise<ApiResponse> => {
     let request: Response;
 
     if (session?.user?.role === "USER") {
       request = await fetch(
         `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrders?page=${page}&limit=${pageSize}&orderBy=${filters.orderBy}&sortByDate=${filters.sortByDate}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
         {
-          headers: { Authorization: session?.accessToken ?? "" },
+          headers: { Authorization: session?.accessToken ?? "", "Pragma": "no-cache" },
+          cache: "no-store",
+          signal,
         }
       );
     } else if (session?.user?.role === "ADMIN") {
       request = await fetch(
         `${process.env.NEXT_PUBLIC_DOMAIN}/api/order/showAllOrdersAdmin?page=${page}&limit=${pageSize}&orderBy=${filters.orderBy}&sortByDate=${filters.sortByDate}&status=${filters.status}&dateFrom=${filters.dateFrom}&dateTo=${filters.dateTo}&postalCode=${filters.postalCode}&searchId=${filters.searchId}`,
         {
-          headers: { Authorization: session?.accessToken ?? "" },
+          headers: { Authorization: session?.accessToken ?? "", "Pragma": "no-cache" },
+          cache: "no-store",
+          signal,
         }
       );
     } else {
@@ -268,7 +280,7 @@ export default function Dashboard() {
         userId: (session as any)?.user?.id,
       },
     ],
-    queryFn: () => getOrders({ page: currentPage, filters }),
+    queryFn: ({ signal }) => getOrders({ page: currentPage, filters, signal }),
     enabled: !!session,
   });
 
