@@ -154,6 +154,8 @@ export default function UpdateOrderModal({ order, trigger }: UpdateOrderModalPro
 
         // Dodatkowa invalidacja w celu synchronizacji liczników i innych stron
         await queryClient.invalidateQueries({ queryKey: ["allUserOrder"] });
+        // Wymuś refetch aktywnych list po invalidacji (pewne wysłanie GET)
+        await queryClient.refetchQueries({ queryKey: ["allUserOrder"], type: "active" });
       } else {
         CustomToast("error", result.error || "Wystąpił błąd podczas aktualizacji zamówienia", {
           duration: 3000,
