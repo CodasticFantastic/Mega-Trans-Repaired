@@ -7,4 +7,5 @@ export const BaselinkerGetOrderPostValidator = z.object({
     .min(1, "Wymagana jest podanie daty")
     .refine((val) => !isNaN(Date.parse(val)), "Nieprawidłowa data"),
   statusId: z.number(),
+  newStatusId: z.number().optional(),
 });

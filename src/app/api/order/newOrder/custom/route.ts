@@ -4,7 +4,7 @@ import { ExternalApiNewOrderRequestSchema } from "types/order.types";
 import z from "zod";
 import validator from "validator";
 import { v4 as uuidv4 } from "uuid";
-import { ApiKeyType, CommodityPaymentType, CommodityType, OrderType, Prisma, Status } from "@prisma/client";
+import { ApiKeyType, CommodityPaymentType, CommodityType, OrderSource, OrderType, Prisma, Status } from "@prisma/client";
 import prisma from "@/helpers/prismaClient";
 
 export async function POST(request: Request) {
@@ -73,6 +73,7 @@ export async function POST(request: Request) {
       orderSupplierId: validatedData.orderSupplierId ? validator.escape(validatedData.orderSupplierId) : undefined,
       orderPaymentType: validator.escape(validatedData.orderPaymentType) as CommodityPaymentType,
       orderPrice: parseFloat(validator.escape(validatedData.orderPaymentPrice + "")),
+      orderSource: OrderSource.CustomIntegration,
       packages: {
         create: packages,
       },

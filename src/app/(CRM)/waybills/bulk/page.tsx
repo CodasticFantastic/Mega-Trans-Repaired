@@ -158,7 +158,11 @@ function BulkWaybillsPageInner() {
               {order.orderNote && (
                 <div className="flex mb-[0.3cm] justify-between">
                   <p className="text-sm font-medium m-0">
-                    Dodatkowe Informacje: <span className="text-[1.2rem] font-normal">{Parser().parse(order.orderNote)}</span>
+                    Dodatkowe Informacje:{" "}
+                    <span
+                      className="text-[1.2rem] font-normal"
+                      dangerouslySetInnerHTML={{ __html: Parser().parse(order.orderNote).replace(/\n/g, "<br/>") }}
+                    />
                   </p>
                 </div>
               )}

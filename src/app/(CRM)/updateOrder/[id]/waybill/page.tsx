@@ -168,7 +168,11 @@ export default function Waybill() {
           {orderData.orderNote && (
             <div className="flex mb-[0.3cm] justify-between">
               <p className="text-sm font-medium m-0">
-                Dodatkowe Informacje: <span className="text-[1.2rem] font-normal">{orderData.orderNote}</span>
+                Dodatkowe Informacje:{" "}
+                <span
+                  className="text-[1.2rem] font-normal"
+                  dangerouslySetInnerHTML={{ __html: Parser().parse(orderData.orderNote).replace(/\n/g, "<br/>") }}
+                />
               </p>
             </div>
           )}

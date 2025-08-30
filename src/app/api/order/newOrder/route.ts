@@ -1,12 +1,6 @@
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
-import {
-  CommodityPaymentType,
-  CommodityType,
-  OrderType,
-  Role,
-  Status,
-} from "@prisma/client";
+import { CommodityPaymentType, CommodityType, OrderSource, OrderType, Role, Status } from "@prisma/client";
 import { NewOrderRequest, NewOrderRequestSchema } from "types/order.types";
 import validator from "validator";
 import { Prisma } from "@prisma/client";
@@ -16,10 +10,7 @@ export async function POST(req: Request) {
   // Check if user is authorized to call this endpoint
   const accessToken = req.headers.get("Authorization");
 
-  const authResult = authGuard("New Order", accessToken, [
-    Role.ADMIN,
-    Role.USER,
-  ]);
+  const authResult = authGuard("New Order", accessToken, [Role.ADMIN, Role.USER]);
 
   if (!authResult.success) {
     return new Response(JSON.stringify({ error: authResult.error }), {
@@ -41,13 +32,9 @@ export async function POST(req: Request) {
     let packages = request.orderItems.map((item) => {
       return {
         packageId: validator.escape(item.orderCommodityId),
-        commodityType: validator.escape(
-          item.orderCommodityType
-        ) as CommodityType,
+        commodityType: validator.escape(item.orderCommodityType) as CommodityType,
         commodityName: validator.escape(item.orderCommodityName),
-        commodityNote: item.orderCommodityNote
-          ? validator.escape(item.orderCommodityNote)
-          : undefined,
+        commodityNote: item.orderCommodityNote ? validator.escape(item.orderCommodityNote) : undefined,
       };
     });
 
@@ -59,33 +46,20 @@ export async function POST(req: Request) {
       orderCountry: validator.escape(request.orderCountry),
       orderStreet: validator.escape(request.orderStreet),
       orderStreetNumber: validator.escape(request.orderStreetNumber),
-      orderFlatNumber: request.orderFlatNumber
-        ? validator.escape(request.orderFlatNumber)
-        : undefined,
+      orderFlatNumber: request.orderFlatNumber ? validator.escape(request.orderFlatNumber) : undefined,
       orderCity: validator.escape(request.orderCity),
       orderPostCode: validator.escape(request.orderPostCode),
       orderState: validator.escape(request.orderState),
-      orderNote: request.orderNote
-        ? validator.escape(request.orderNote)
-        : undefined,
+      orderNote: request.orderNote ? validator.escape(request.orderNote) : undefined,
       recipientName: validator.escape(request.orderClientName),
       recipientPhone: validator.escape(request.orderClientPhone),
-      recipientEmail: request.orderClientEmail
-        ? validator.escape(request.orderClientEmail)
-        : undefined,
-      currency: request.currency
-        ? validator.escape(request.currency)
-        : undefined,
-      orderSupplierId: request.orderSupplierId
-        ? validator.escape(request.orderSupplierId)
-        : undefined,
-      packageManualCount: request.packageManualCount
-        ? parseInt(validator.escape(request.packageManualCount + ""))
-        : undefined,
-      orderPaymentType: validator.escape(
-        request.orderPaymentType
-      ) as CommodityPaymentType,
+      recipientEmail: request.orderClientEmail ? validator.escape(request.orderClientEmail) : undefined,
+      currency: request.currency ? validator.escape(request.currency) : undefined,
+      orderSupplierId: request.orderSupplierId ? validator.escape(request.orderSupplierId) : undefined,
+      packageManualCount: request.packageManualCount ? parseInt(validator.escape(request.packageManualCount + "")) : undefined,
+      orderPaymentType: validator.escape(request.orderPaymentType) as CommodityPaymentType,
       orderPrice: parseFloat(validator.escape(request.orderPaymentPrice + "")),
+      orderSource: OrderSource.Manual,
       packages: {
         create: packages,
       },

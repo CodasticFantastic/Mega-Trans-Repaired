@@ -412,6 +412,8 @@ Przykładowe dozwolone wartości dla pola **Pole dodatkowe 1**:
 
 ##### 4. Import Zamówień
 Kiedy wszystko jest gotowe możesz rozpocząć import zamówień z BaseLinker do MegaTrans.
+
+W przypadku poprawnego importu w twoim systemie BaseLinker pole "**Pole dodatkowe 2**" zostanie nadpisane numerem zamówienia z MegaTrans.
 `,
         },
       },

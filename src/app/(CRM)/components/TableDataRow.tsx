@@ -499,7 +499,12 @@ export default function TableDataRow({ order, shouldAddBackground, isDataCellChe
                 {order.orderNote && (
                   <div className="border-t pt-4">
                     <p className="mb-2 text-sm font-medium">Notatka</p>
-                    <p className="text-sm whitespace-normal break-words">{Parser().parse(order.orderNote)}</p>
+                    <p
+                      className="text-sm whitespace-normal break-words"
+                      dangerouslySetInnerHTML={{
+                        __html: Parser().parse(order.orderNote).replace(/\n/g, "<br/>"),
+                      }}
+                    />
                   </div>
                 )}
               </div>

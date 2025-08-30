@@ -4,7 +4,7 @@ import { decryptApiKey } from "@/helpers/encryption";
 import { authGuard } from "@/helpers/jwt.handler";
 import prisma from "@/helpers/prismaClient";
 import { createValidationErrorResponse } from "@/helpers/zod/validation";
-import { CommodityPaymentType, CommodityType, OrderType, Prisma, Role, Status } from "@prisma/client";
+import { CommodityPaymentType, CommodityType, OrderSource, OrderType, Prisma, Role, Status } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { BaselinkerGetOrderPostValidator } from "types/baselinker.types";
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       return createValidationErrorResponse(parsedBody.error);
     }
 
-    const { searchFrom, statusId } = parsedBody.data;
+    const { searchFrom, statusId, newStatusId } = parsedBody.data;
 
     //  4. Create searchFromTimestamp in seconds
     const searchFromTimestamp = dayjs.utc(searchFrom).startOf("day").toDate().getTime() / 1000;
@@ -112,9 +112,11 @@ export async function POST(req: Request) {
     await Promise.all(
       allOrders.map(async (order) => {
         // 7.2.1 Check if order already exists in database
-        const existingOrder = await prisma.order.findUnique({
+        const existingOrder = await prisma.order.findFirst({
           where: {
+            userId: authResult.userId,
             orderSupplierId: String(order.order_id),
+            orderSource: OrderSource.BaseLinker,
           },
         });
 
@@ -185,7 +187,31 @@ export async function POST(req: Request) {
           orderNotes.push(`Komentarz Admina BL: ${validator.escape(order.admin_comments.trim())}`);
         }
 
-        const orderNotesString = orderNotes.length > 0 ? orderNotes.join(" || ") : undefined;
+        const orderNotesString = orderNotes.length > 0 ? orderNotes.join("\n") : undefined;
+
+        // If newStatusId is provided, change BaseLinker status to newStatusId
+        if (newStatusId) {
+          const res = await fetch("https://api.baselinker.com/connector.php", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "X-BLToken": blToken,
+            },
+            body: new URLSearchParams({
+              method: "setOrderStatus",
+              parameters: JSON.stringify({
+                order_id: order.order_id,
+                status_id: newStatusId,
+              }),
+            }),
+          });
+
+          const data = await res.json();
+
+          if (data?.status === "ERROR" && data?.error_code === "ERROR_BAD_STATUS_ID") {
+            throw new Error("INVALID_NEW_BL_STATUS_ID");
+          }
+        }
 
         // 7.6 Create new order
         // 7.6.1 Create order data
@@ -228,6 +254,26 @@ export async function POST(req: Request) {
           },
         });
 
+        // Add orderId to track in BaseLinker in Extra Field 2
+        const res = await fetch("https://api.baselinker.com/connector.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-BLToken": blToken,
+          },
+          body: new URLSearchParams({
+            method: "setOrderFields",
+            parameters: JSON.stringify({
+              order_id: order.order_id,
+              extra_field_2: newOrder.orderId,
+            }),
+          }),
+        });
+
+        const data = await res.json();
+
+        console.log("ODPOWIEDŹ BL", data);
+
         orderNew.push(newOrder.orderId);
       })
     );
@@ -236,6 +282,14 @@ export async function POST(req: Request) {
       status: 200,
     });
   } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "INVALID_NEW_BL_STATUS_ID") {
+        return new Response(JSON.stringify({ error: "INVALID_NEW_BL_STATUS_ID" }), {
+          status: 400,
+        });
+      }
+    }
+
     return new Response(JSON.stringify({ error: "INTERNAL_SERVER_ERROR" }), {
       status: 500,
     });

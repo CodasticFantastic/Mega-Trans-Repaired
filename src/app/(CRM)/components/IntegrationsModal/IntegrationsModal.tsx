@@ -36,6 +36,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CustomToast } from "@/components/shadcn/custom/toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/shadcn/ui/tooltip";
 
 interface CustomApiKeyList {
   id: ApiKey["id"];
@@ -55,11 +56,13 @@ export const IntegrationsModal = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [searchFromByKey, setSearchFromByKey] = useState<Record<string, Date | undefined>>({});
   const [statusIdByKey, setStatusIdByKey] = useState<Record<string, number | undefined>>({});
+  const [newStatusIdByKey, setNewStatusIdByKey] = useState<Record<string, number | undefined>>({});
   const [myIntegrationsKeys, setMyIntegrationsKeys] = useState<CustomApiKeyList[]>([]);
 
   // Load status IDs from localStorage on component mount
   useEffect(() => {
-    const savedStatusIds = localStorage.getItem("baselinker_status_ids");
+    const savedStatusIds = localStorage.getItem("baselinker_status_id");
+    const savedNewStatusIds = localStorage.getItem("baselinker_new_status_id");
     if (savedStatusIds) {
       try {
         const parsed = JSON.parse(savedStatusIds);
@@ -68,12 +71,27 @@ export const IntegrationsModal = () => {
         console.error("Error parsing saved status IDs:", error);
       }
     }
+    if (savedNewStatusIds) {
+      try {
+        const parsed = JSON.parse(savedNewStatusIds);
+        setNewStatusIdByKey(parsed);
+      } catch (error) {
+        console.error("Error parsing saved new status IDs:", error);
+      }
+    }
   }, []);
 
   // Save status IDs to localStorage whenever they change
-  const updateStatusIdByKey = (newStatusIdByKey: Record<string, number | undefined>) => {
-    setStatusIdByKey(newStatusIdByKey);
-    localStorage.setItem("baselinker_status_ids", JSON.stringify(newStatusIdByKey));
+  const updateStatusIdByKey = (
+    newStatusIdByKey: Record<string, number | undefined>,
+    keyName: "baselinker_status_id" | "baselinker_new_status_id"
+  ) => {
+    if (keyName === "baselinker_status_id") {
+      setStatusIdByKey(newStatusIdByKey);
+    } else {
+      setNewStatusIdByKey(newStatusIdByKey);
+    }
+    localStorage.setItem(keyName, JSON.stringify(newStatusIdByKey));
   };
 
   const fetchMyIntegrationsKeys = async () => {
@@ -147,7 +165,7 @@ export const IntegrationsModal = () => {
     [SyncErrorCodes.INTERNAL_SERVER_ERROR]: "Błąd serwera",
   };
 
-  const handleSyncBaselinker = async (options?: { searchFrom?: Date; statusId?: number }) => {
+  const handleSyncBaselinker = async (options?: { searchFrom?: Date; statusId?: number; newStatusId?: number }) => {
     try {
       setIsSyncing(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/baselinker/orders/import`, {
@@ -159,6 +177,7 @@ export const IntegrationsModal = () => {
         body: JSON.stringify({
           searchFrom: (options?.searchFrom ?? dayjs().subtract(8, "day").toDate()).toISOString(),
           statusId: options?.statusId ?? 0,
+          newStatusId: options?.newStatusId ?? 0,
         }),
       });
 
@@ -179,6 +198,12 @@ export const IntegrationsModal = () => {
           { duration: 10000 }
         );
       } else {
+        if (data?.error === "INVALID_NEW_BL_STATUS_ID") {
+          CustomToast("error", "Nieprawidłowy ID nowego statusu BaseLinker", {
+            duration: 3000,
+          });
+          return;
+        }
         CustomToast("error", "Nie udało się zsynchronizować zamówień", {
           duration: 3000,
         });
@@ -272,7 +297,7 @@ export const IntegrationsModal = () => {
                             <div className="px-2 py-1.5 flex flex-col gap-2">
                               <DatePicker
                                 label={<span className="text-xs">Data od</span>}
-                                date={searchFromByKey[key.apiKey] ?? dayjs().subtract(8, "day").toDate()}
+                                date={searchFromByKey[key.apiKey] ?? dayjs().toDate()}
                                 onDateChange={(d) =>
                                   setSearchFromByKey((prev) => ({
                                     ...prev,
@@ -281,19 +306,60 @@ export const IntegrationsModal = () => {
                                 }
                               />
                               <div className="flex flex-col gap-1">
-                                <span className="text-xs px-1">Status ID</span>
+                                <Label className="text-xs px-1" htmlFor="statusId">
+                                  Status ID
+                                </Label>
                                 <Input
+                                  id="statusId"
                                   type="number"
                                   inputMode="numeric"
                                   placeholder="np. 0"
-                                  value={statusIdByKey[key.apiKey] ?? 0}
+                                  value={statusIdByKey[key.apiKeyName] ?? 0}
                                   onChange={(e) => {
                                     const v = parseInt(e.target.value, 10);
                                     const newValue = isNaN(v) ? 0 : v;
-                                    updateStatusIdByKey({
-                                      ...statusIdByKey,
-                                      [key.apiKey]: newValue,
-                                    });
+                                    updateStatusIdByKey(
+                                      {
+                                        ...statusIdByKey,
+                                        [key.apiKeyName]: newValue,
+                                      },
+                                      "baselinker_status_id"
+                                    );
+                                  }}
+                                />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <div className="text-xs px-1 icon-text">
+                                  Nowy Status ID (opcjonalnie)
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <InfoIcon className="w-4 h-4" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-[200px]">
+                                        Podaj w tym polu ID statusu z systemu BaseLinker, do którego Twoje zamówienie zostanie przypisane po
+                                        poprawnej synchronizacji. Spowoduje to zmiane statusu zamówienia w Twoim systemie BaseLinker. <br />
+                                        <br /> Pozostaw wartość 0, jeżeli nie chcesz dokonać zmiany statusu w systemie BaseLinker.
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                                <Input
+                                  id="newStatusId"
+                                  type="number"
+                                  inputMode="numeric"
+                                  placeholder="np. 0"
+                                  value={newStatusIdByKey[key.apiKeyName] ?? 0}
+                                  onChange={(e) => {
+                                    const v = parseInt(e.target.value, 10);
+                                    const newValue = isNaN(v) ? 0 : v;
+                                    updateStatusIdByKey(
+                                      {
+                                        ...newStatusIdByKey,
+                                        [key.apiKeyName]: newValue,
+                                      },
+                                      "baselinker_new_status_id"
+                                    );
                                   }}
                                 />
                               </div>
@@ -302,7 +368,8 @@ export const IntegrationsModal = () => {
                                 onClick={() =>
                                   handleSyncBaselinker({
                                     searchFrom: searchFromByKey[key.apiKey],
-                                    statusId: statusIdByKey[key.apiKey] ?? 0,
+                                    statusId: statusIdByKey[key.apiKeyName] ?? 0,
+                                    newStatusId: newStatusIdByKey[key.apiKeyName] ?? 0,
                                   })
                                 }
                                 disabled={isDataSending || isSyncing}
