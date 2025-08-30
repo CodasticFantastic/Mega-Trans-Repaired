@@ -17,7 +17,7 @@ services:
     container_name: megatrans-app-prod
     restart: always
     depends_on:
-      - megatrans-mysql
+      - megatrans-mysql-prod
     build:
       context: ../
     env_file:
