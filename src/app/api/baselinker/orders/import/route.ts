@@ -255,7 +255,7 @@ export async function POST(req: Request) {
         });
 
         // Add orderId to track in BaseLinker in Extra Field 2
-        const res = await fetch("https://api.baselinker.com/connector.php", {
+        await fetch("https://api.baselinker.com/connector.php", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -269,8 +269,6 @@ export async function POST(req: Request) {
             }),
           }),
         });
-
-        const data = await res.json();
 
         orderNew.push(newOrder.orderId);
       })
