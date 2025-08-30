@@ -10,7 +10,7 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
-      - megatrans-mysql:/var/lib/mysql
+      - megatranstld_megatrans-mysql:/var/lib/mysql
     networks:
       - megatrans-network-prod
 
@@ -36,7 +36,8 @@ services:
       LETSENCRYPT_EMAIL: it.jakub.wojtysiak@gmail.com
 
 volumes:
-  megatrans-mysql:
+  megatrans-megatranstld_megatrans-mysql:
+    external: true
 
 networks:
   megatrans-network-prod:
