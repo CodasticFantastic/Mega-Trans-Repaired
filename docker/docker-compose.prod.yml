@@ -36,7 +36,7 @@ services:
       LETSENCRYPT_EMAIL: it.jakub.wojtysiak@gmail.com
 
 volumes:
-  megatrans-megatranstld_megatrans-mysql:
+  megatranstld_megatrans-mysql:
     external: true
 
 networks:
