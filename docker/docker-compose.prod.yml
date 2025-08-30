@@ -1,7 +1,7 @@
 services:
   # Inicjalizacja bazy danych
   megatrans-mysql-prod:
-    container_name: megatrans-mysql
+    container_name: megatrans-mysql-prod
     image: mysql:8.0
     restart: always
     environment:
@@ -11,6 +11,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - megatrans-mysql:/var/lib/mysql
+    networks:
+      - megatrans-network-prod
 
   # Inicjalizacja Next JS
   megatrans-app-prod:
