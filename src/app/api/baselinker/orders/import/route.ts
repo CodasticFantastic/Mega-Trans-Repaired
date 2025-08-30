@@ -272,8 +272,6 @@ export async function POST(req: Request) {
 
         const data = await res.json();
 
-        console.log("ODPOWIEDŹ BL", data);
-
         orderNew.push(newOrder.orderId);
       })
     );
