@@ -35,26 +35,6 @@ services:
       LETSENCRYPT_HOST: test.megatrans.online
       LETSENCRYPT_EMAIL: it.jakub.wojtysiak@gmail.com
 
-  megatrans-phpmyadmin-dev-server:
-    container_name: megatrans-phpmyadmin-dev-server
-    image: phpmyadmin/phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: megatrans-mysql-dev-server
-      PMA_USER: root
-      PMA_PASSWORD: megatrans
-      UPLOAD_LIMIT: 100M
-      MAX_EXECUTION_TIME: 300
-      MEMORY_LIMIT: 512M
-      POST_MAX_SIZE: 100M
-      UPLOAD_MAX_FILESIZE: 100M
-    depends_on:
-      - megatrans-mysql-dev-server
-    networks:
-      - megatrans-network-dev-server
-
 volumes:
   db-megatrans-mysql-data-dev-server:
 
